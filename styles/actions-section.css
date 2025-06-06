@@ -1,0 +1,16 @@
+#actions-section {
+    height: 20vh;
+}
+
+#actions-log {
+    flex: 1;
+    overflow-y: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 8px;
+    color: #a0f0ff;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    line-height: 1.4;
+}

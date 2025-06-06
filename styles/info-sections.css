@@ -9,6 +9,7 @@
     flex-direction: column;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     position: relative;
+    transition: transform 0.2s ease;
 }
 
 .info-section::before {
@@ -23,106 +24,6 @@
     border-bottom: 2px solid #f0f0f0;
     letter-spacing: 0.5px;
 }
-
-#player1-info,
-#player2-info {
-    border-left: 4px solid var(--player1-color);
-    border-radius: 6px;
-    padding: 16px;
-    min-height: 20vh;
-    background: #ffffff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-#player1-info::before,
-#player2-info::before {
-    display: none;
-}
-
-#states-info {
-    height: auto;
-    min-height: 28vh;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-#states-info h3 {
-    color: #2980b9;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-}
-
-#actions-section {
-    height: 20vh;
-}
-
-.player-stats, .states-details {
-    flex: 1;
-    overflow-y: auto;
-    color: #333;
-    padding: 0;
-    margin: 0;
-    background: #f8f9fa;
-    border-radius: 4px;
-    margin-top: 8px;
-}
-
-#actions-log {
-    flex: 1;
-    overflow-y: auto;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.9em;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 12px;
-    border-radius: 8px;
-    color: #a0f0ff;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    line-height: 1.4;
-}
-
-.status-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 12px;
-}
-
-.timer-box, .seats-box {
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease;
-}
-
-.timer-box:hover, .seats-box:hover {
-    transform: translateY(-2px);
-}
-
-.timer-box h3, .seats-box h3 {
-    font-size: 0.9em;
-    color: #c0c0ff;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.status-value {
-    font-size: 1.6em;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-[data-player="1"] .status-value {
-    color: var(--player1-color-light);
-    text-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
 }
 
 [data-player="2"] .status-value {
