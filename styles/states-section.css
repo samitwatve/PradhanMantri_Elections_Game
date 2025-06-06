@@ -3,6 +3,7 @@
     min-height: 28vh;
     background: #ffffff;
     border: 1px solid #e0e0e0;
+    border-left: 4px solid #ff69b4;
     border-radius: 8px;
     padding: 16px;
 }
@@ -24,4 +25,33 @@
     background: #f8f9fa;
     border-radius: 4px;
     margin-top: 8px;
+}
+
+.popularity-section {
+    margin: 12px 0;
+}
+
+.popularity-section h5 {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-around;
+}
+
+.info-row span {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.groups-section h5 {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.groups-list {
+    font-size: 0.5 em;
+    line-height: 1.4;
 }
