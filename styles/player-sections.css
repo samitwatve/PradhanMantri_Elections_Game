@@ -1,11 +1,18 @@
 #player1-info,
 #player2-info {
-    border-left: 4px solid var(--player1-color);
     border-radius: 6px;
     padding: 16px;
     min-height: 20vh;
     background: #ffffff;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+#player1-info {
+    border-left: 4px solid var(--player1-color);
+}
+
+#player2-info {
+    border-left: 4px solid #138808; /* INC Green */
 }
 
 #player1-info::before,
@@ -22,4 +29,61 @@
     background: #f8f9fa;
     border-radius: 4px;
     margin-top: 8px;
+}
+
+.player-name {
+    font-size: 2em;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #ddd;
+}
+
+.player-name .name {
+    color: black;
+    font-weight: 600;
+}
+
+.player-name .party {
+    color: #FF9933; /* BJP Orange color */
+    margin-left: 8px;
+}
+
+#player2-info .player-name .party {
+    color: #138808; /* INC Green */
+}
+
+.player-funds {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 16px;
+    gap: 12px;
+}
+
+.funds-label {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.funds-amount {
+    font-size: 1.5em;
+    color: #2c3e50;
+}
+
+.rally-tokens {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.rally-tokens-label {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.rally-tokens-display {
+    font-size: 1.5em;
+    letter-spacing: 8px;
 }

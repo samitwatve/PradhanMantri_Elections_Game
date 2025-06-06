@@ -5,34 +5,42 @@ class PlayerInfo {
         this.element = document.getElementById(`player${playerId}-info`);
         this.statsElement = this.element.querySelector('.player-stats');
         this.initialize();
-    }
+    }    initialize() {
+        const playerConfig = {
+            1: {
+                name: 'Sam',
+                party: 'BJP'
+            },
+            2: {
+                name: 'AI',
+                party: 'INC'
+            }
+        };
 
-    initialize() {
-        this.update({
-            name: `Player ${this.playerId}`,
-            states: 0,
-            seats: 0,
-            influence: 0
-        });
+        const config = playerConfig[this.playerId];
+        if (config) {
+            this.element.innerHTML = `
+                <div class="player-name">
+                    <span class="name">${config.name}</span>
+                    <span class="party">(${config.party})</span>
+                </div>
+                <div class="player-stats">
+                    <div class="player-funds">
+                        <span class="funds-label">Funds:</span>
+                        <span class="funds-amount">₹250 M</span>
+                    </div>
+                    <div class="rally-tokens">
+                        <span class="rally-tokens-label">Rallies:</span>
+                        <span class="rally-tokens-display">O O</span>
+                    </div>
+                </div>
+            `;
+        }
     }
 
     update(data) {
+        // Future updates to player info can be handled here
         if (!this.statsElement) return;
-
-        this.statsElement.innerHTML = `
-            <div class="player-stat">
-                <strong>Name:</strong> ${data.name}
-            </div>
-            <div class="player-stat">
-                <strong>States Controlled:</strong> ${data.states}
-            </div>
-            <div class="player-stat">
-                <strong>Projected Seats:</strong> ${data.seats}
-            </div>
-            <div class="player-stat">
-                <strong>Influence Level:</strong> ${data.influence}%
-            </div>
-        `;
     }
 }
 
