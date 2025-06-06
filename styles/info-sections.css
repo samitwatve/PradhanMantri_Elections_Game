@@ -1,0 +1,121 @@
+.info-section {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-section h3 {
+    color: #444;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+#player1-info, #player2-info {
+    height: 20vh;
+}
+
+#states-info {
+    height: 28vh;
+}
+
+#actions-section {
+    height: 20vh;
+}
+
+.player-stats, .states-details {
+    flex: 1;
+    overflow-y: auto;
+}
+
+#actions-log {
+    flex: 1;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.9em;
+    background-color: #fafafa;
+    padding: 8px;
+    border-radius: 3px;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.timer-box, .seats-box {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+}
+
+.timer-box h3, .seats-box h3 {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.status-value {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+}
+
+/* State Info Styles */
+.state-info {
+    padding: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.state-info h4 {
+    color: #333;
+    font-size: 1em;
+    margin: 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eee;
+}
+
+.state-info h5 {
+    color: #555;
+    font-size: 0.8em;
+    margin: 0;
+    padding: 0;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+    font-size: 0.8em;
+    color: #444;
+}
+
+.popularity-section, .rallies-section {
+    background: #f8f8f8;
+    padding: 6px;
+    border-radius: 4px;
+    margin: 0;
+}
+
+.groups-section {
+    margin: 0;
+}
+
+.groups-list {
+    font-size: 0.75em;
+    color: #555;
+    line-height: 1.2;
+}

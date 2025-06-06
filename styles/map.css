@@ -1,0 +1,23 @@
+#india-map path {
+    transition: fill 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Create tooltip container */
+#tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    pointer-events: none;
+    z-index: 1100;
+    display: none;
+}
+
+/* Hide tooltip by default */
+#tooltip.visible {
+    display: block;
+}

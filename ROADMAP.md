@@ -292,3 +292,20 @@ Reference: `states_data.json`
 - Bonus value proportional to total seats in group
 - Cultural policies have group-wide impacts
 - Regional party influences within groups
+
+## State Information Display
+
+When hovering over any state or Union Territory on the map, the States Info container displays the following information:
+- State/UT Name
+- Number of Lok Sabha Seats
+- Current Popularity
+  - Player 1's popularity percentage
+  - Player 2's popularity percentage
+  - "Others" popularity percentage
+- Number of Rallies held (current phase)
+  - Player 1's rallies
+  - Player 2's rallies
+- State Groups
+  - List of all groups the state/UT belongs to (e.g., Coastal India, South India, etc.)
+
+This information helps players make strategic decisions about where to focus their campaign efforts and resources
