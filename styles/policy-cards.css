@@ -2,52 +2,79 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 10px;
+    gap: 15px;
+    margin-top: 12px;
 }
 
 .policy-card {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.policy-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .policy-card h4 {
-    font-size: 0.9em;
-    color: #333;
-    margin-bottom: 8px;
+    font-size: 0.95em;
+    color: #fff;
+    margin-bottom: 12px;
     text-align: center;
     font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
 }
 
 .progress-item {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
 }
 
 .progress-item-label {
-    font-size: 0.8em;
-    color: #555;
-    margin-bottom: 4px;
+    font-size: 0.85em;
+    color: #e0e0ff;
+    margin-bottom: 6px;
     display: block;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .progress-bar {
     width: 100%;
-    height: 6px;
-    background: #f0f0f0;
-    border-radius: 3px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.progress-fill {
+[data-player="1"] .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #1976d2 0%, #2196f3 100%);
+    background: linear-gradient(90deg, var(--player1-color-dark) 0%, var(--player1-color) 100%);
     width: 0%;
     transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
 }
 
-.progress-fill.complete {
-    background: linear-gradient(90deg, #388e3c 0%, #4caf50 100%);
+[data-player="2"] .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--player2-color-dark) 0%, var(--player2-color) 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(46, 125, 50, 0.3);
+}
+
+.progress-fill.complete[data-player="1"] {
+    background: linear-gradient(90deg, var(--player1-color) 0%, var(--player1-color-light) 100%);
+}
+
+.progress-fill.complete[data-player="2"] {
+    background: linear-gradient(90deg, var(--player2-color) 0%, var(--player2-color-light) 100%);
 }
