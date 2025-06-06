@@ -1,5 +1,5 @@
 // Timer functionality
-class GameTimer {
+export class GameTimer {
     constructor(duration = 300) { // 5 minutes by default
         this.duration = duration;
         this.remainingTime = duration;

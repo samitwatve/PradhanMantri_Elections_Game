@@ -1,10 +1,12 @@
 import { stateInfo } from './state-info.js';
+import { GameTimer } from './game-timer.js';
 
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all game components
     initializeMap();
-    initializeGameTimer();
+    const gameTimer = new GameTimer();
+    gameTimer.start();
     initializePlayerInfo();
     initializeStateGroups();
     initializeActionsLog();
