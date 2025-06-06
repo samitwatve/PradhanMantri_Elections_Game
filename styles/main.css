@@ -5,6 +5,17 @@
     box-sizing: border-box;
 }
 
+/* Add cursor pointer to all clickable elements */
+button,
+[role="button"],
+a,
+select,
+summary,
+[onclick],
+[data-clickable="true"] {
+    cursor: pointer;
+}
+
 body {
     font-family: Arial, sans-serif;
     height: 100vh;
