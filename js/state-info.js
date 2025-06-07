@@ -1,4 +1,6 @@
 // State information display controller
+import { popularityInitializer } from './popularity-initializer.js';
+
 class StateInfo {
     constructor() {
         this.statesData = null;
@@ -6,20 +8,45 @@ class StateInfo {
         this.statePopularity = new Map(); // Store popularity for each state
         this.stateActions = new Map(); // Store actions taken in each state
         this.initialize();
-    }
-
-    async initialize() {
+    }    async initialize() {
         try {
             const response = await fetch('states_data.json');
             this.statesData = await response.json();
             this.setupEventListeners();
             
-            // Initialize states with default values if they don't exist
-            this.statesData.forEach(state => {
-                if (state.SvgId && !this.statePopularity.has(state.SvgId)) {
-                    this.initializeState(state.SvgId);
-                }
-            });
+            // Initialize states with balanced popularity values
+            console.log('Initializing states with balanced popularity values...');
+            const popularityMap = await popularityInitializer.initializeStatePopularity();
+            
+            if (popularityMap) {
+                this.statesData.forEach(state => {
+                    if (state.SvgId) {
+                        if (popularityMap.has(state.SvgId)) {
+                            // Use the pre-calculated popularity
+                            this.statePopularity.set(state.SvgId, popularityMap.get(state.SvgId));
+                            
+                            // Initialize actions tracking
+                            this.stateActions.set(state.SvgId, {
+                                player1Spent: 0,
+                                player2Spent: 0,
+                                player1Rallies: 0,
+                                player2Rallies: 0
+                            });
+                        } else if (!this.statePopularity.has(state.SvgId)) {
+                            // Fallback to default initialization if not in the map
+                            this.initializeState(state.SvgId);
+                        }
+                    }
+                });
+            } else {
+                // Fallback to default initialization if popularity initializer failed
+                console.warn('Falling back to default state initialization');
+                this.statesData.forEach(state => {
+                    if (state.SvgId && !this.statePopularity.has(state.SvgId)) {
+                        this.initializeState(state.SvgId);
+                    }
+                });
+            }
             
             // Force initial update
             setTimeout(() => this.forceUpdateAllStates(), 500);
@@ -52,15 +79,22 @@ class StateInfo {
             });
         });
     }
-    
-    initializeState(stateId) {
+      initializeState(stateId) {
         if (!this.statePopularity.has(stateId)) {
-            // Initialize popularity and actions for new state
+            // Default initialization with balanced values
             this.statePopularity.set(stateId, {
-                player1: 30,
-                player2: 30,
+                player1: this.getRandomInt(15, 30),
+                player2: this.getRandomInt(15, 30),
                 others: 40
             });
+            
+            // Ensure total is 100%
+            const popularity = this.statePopularity.get(stateId);
+            const total = popularity.player1 + popularity.player2 + popularity.others;
+            if (total !== 100) {
+                // Adjust others to make total 100
+                popularity.others = 100 - popularity.player1 - popularity.player2;
+            }
             
             this.stateActions.set(stateId, {
                 player1Spent: 0,
@@ -73,6 +107,11 @@ class StateInfo {
             popularity: this.statePopularity.get(stateId),
             actions: this.stateActions.get(stateId)
         };
+    }
+    
+    // Helper method to get random integer between min and max (inclusive)
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     getUTFullName(utId) {
