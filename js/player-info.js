@@ -1,5 +1,6 @@
 // Player information management
-class PlayerInfo {    constructor(playerId) {
+class PlayerInfo {    
+    constructor(playerId) {
         this.playerId = playerId;
         this.element = document.getElementById(`player${playerId}-info`);
         this.statsElement = this.element.querySelector('.player-stats');
@@ -26,7 +27,8 @@ class PlayerInfo {    constructor(playerId) {
                     <span class="name">${config.name}</span>
                     <span class="party">(${config.party})</span>
                 </div>
-                <div class="player-stats">                    <div class="player-funds">
+                <div class="player-stats">                    
+                    <div class="player-funds">
                         <span class="funds-label">Funds:</span>
                         <span class="funds-amount">₹${this.funds} M</span>
                     </div>
@@ -44,6 +46,35 @@ class PlayerInfo {    constructor(playerId) {
         const fundsElement = this.element.querySelector('.funds-amount');
         if (fundsElement) {
             fundsElement.textContent = `₹${this.funds} M`;
+            
+            // Create and display transient notification
+            this.showFundChangeNotification(amount);
+        }
+    }
+    
+    showFundChangeNotification(amount) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fund-change-notification ${amount < 0 ? 'decrease' : 'increase'}`;
+        notification.textContent = `${amount > 0 ? '+' : ''}${amount} M`;
+        
+        // Position near funds display
+        const fundsElement = this.element.querySelector('.funds-amount');
+        if (fundsElement) {
+            const fundsRect = fundsElement.getBoundingClientRect();
+            
+            // Append to player info container
+            this.element.style.position = 'relative';
+            notification.style.left = `${fundsRect.left - this.element.getBoundingClientRect().left + fundsRect.width / 2}px`;
+            notification.style.top = `${fundsRect.top - this.element.getBoundingClientRect().top}px`;
+            
+            this.element.appendChild(notification);
+              // Remove after animation completes
+            setTimeout(() => {
+                if (this.element.contains(notification)) {
+                    this.element.removeChild(notification);
+                }
+            }, 600);
         }
     }
 
@@ -57,6 +88,24 @@ class PlayerInfo {    constructor(playerId) {
 
     canSpend(amount) {
         return this.funds >= amount;
+    }
+    
+    showInsufficientFundsError() {
+        const fundsElement = this.element.querySelector('.funds-amount');
+        if (fundsElement) {
+            // Add shake animation
+            fundsElement.classList.add('shake-animation');
+            
+            // Temporarily highlight in red
+            const originalColor = fundsElement.style.color;
+            fundsElement.style.color = 'red';
+            
+            // Remove shake and restore color after animation completes
+            setTimeout(() => {
+                fundsElement.classList.remove('shake-animation');
+                fundsElement.style.color = originalColor;
+            }, 500);
+        }
     }
 
     update(data) {

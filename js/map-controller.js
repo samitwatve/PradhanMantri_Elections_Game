@@ -4,6 +4,7 @@ class MapController {
         this.svgDocument = null;
         this.selectedStates = new Set();
         this.statesData = null;
+        this.rippleContainer = null;
         this.initialize();
     }    async initialize() {
         try {
@@ -29,6 +30,9 @@ class MapController {
 
             // Setup interactions after SVG is loaded
             this.setupStateInteractions();
+            
+            // Create ripple container
+            this.createRippleContainer();
             
             // Listen for popularity changes
             window.addEventListener('popularityChanged', (event) => {
@@ -121,6 +125,12 @@ class MapController {
         const seats = parseInt(stateData.LokSabhaSeats);
         const cost = seats; // Cost in millions = number of seats
 
+        // Get click coordinates for ripple effect
+        const svgPoint = this.svgDocument.querySelector('svg').createSVGPoint();
+        svgPoint.x = event.clientX;
+        svgPoint.y = event.clientY;
+        const point = svgPoint.matrixTransform(stateElement.getScreenCTM().inverse());
+
         // Import required modules
         Promise.all([
             import('./player-info.js'),
@@ -135,6 +145,9 @@ class MapController {
 
             // Check if player 1 has enough funds
             if (player1.canSpend(cost)) {
+                // Create ripple effect
+                this.createRippleEffect(point.x, point.y, 1);
+                
                 // Deduct funds and record the action
                 player1.updateFunds(-cost);
                 stateInfo.recordStateAction(stateId, 1, cost);
@@ -146,12 +159,14 @@ class MapController {
                 } else {
                     // If already selected, toggle selection state
                     console.log(`Deselecting state: ${stateId}`);
-                    this.deselectState(stateId);
-                }
+                    this.deselectState(stateId);                }
             } else {
                 // Visual feedback for insufficient funds
                 stateElement.classList.add('error');
                 setTimeout(() => stateElement.classList.remove('error'), 500);
+                
+                // Show shake animation on funds display
+                player1.showInsufficientFundsError();
             }
         });
     }
@@ -341,6 +356,69 @@ class MapController {
             }
         });
         window.dispatchEvent(event);
+    }
+    
+    createRippleContainer() {
+        if (!this.svgDocument) return;
+        
+        const svgElement = this.svgDocument.querySelector('svg');
+        if (!svgElement) return;
+        
+        // Create ripple container
+        this.rippleContainer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.rippleContainer.setAttribute("class", "ripple-container");
+        
+        // Add to SVG
+        svgElement.appendChild(this.rippleContainer);
+    }
+    
+    createRippleEffect(x, y, playerId) {
+        if (!this.rippleContainer) return;
+          // Create ripple circle
+        const ripple = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        ripple.setAttribute("class", `ripple player${playerId}`);
+        ripple.setAttribute("cx", x);
+        ripple.setAttribute("cy", y);
+        ripple.setAttribute("r", "10");
+        
+        // Set color based on player
+        if (playerId === 1) {
+            ripple.setAttribute("fill", getComputedStyle(document.documentElement).getPropertyValue('--player1-color').trim());
+        } else {
+            ripple.setAttribute("fill", getComputedStyle(document.documentElement).getPropertyValue('--player2-color').trim());
+        }
+        
+        // Add animation
+        const animation = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animation.setAttribute("attributeName", "r");
+        animation.setAttribute("from", "10");
+        animation.setAttribute("to", "50");
+        animation.setAttribute("dur", "0.6s");
+        animation.setAttribute("fill", "freeze");
+        
+        const opacityAnimation = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        opacityAnimation.setAttribute("attributeName", "opacity");
+        opacityAnimation.setAttribute("from", "0.6");
+        opacityAnimation.setAttribute("to", "0");
+        opacityAnimation.setAttribute("dur", "0.6s");
+        opacityAnimation.setAttribute("fill", "freeze");
+        
+        ripple.appendChild(animation);
+        ripple.appendChild(opacityAnimation);
+        
+        // Add to container
+        this.rippleContainer.appendChild(ripple);
+        
+        // Start animation
+        animation.beginElement();
+        opacityAnimation.beginElement();
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (this.rippleContainer.contains(ripple)) {
+                this.rippleContainer.removeChild(ripple);
+            }
+        }, 600);
     }
 }
 
