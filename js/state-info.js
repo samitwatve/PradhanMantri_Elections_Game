@@ -13,6 +13,17 @@ class StateInfo {
             const response = await fetch('states_data.json');
             this.statesData = await response.json();
             this.setupEventListeners();
+            
+            // Initialize states with default values if they don't exist
+            this.statesData.forEach(state => {
+                if (state.SvgId && !this.statePopularity.has(state.SvgId)) {
+                    this.initializeState(state.SvgId);
+                }
+            });
+            
+            // Force initial update
+            setTimeout(() => this.forceUpdateAllStates(), 500);
+            
             console.log('StateInfo initialized successfully');
         } catch (error) {
             console.error('Failed to load states data:', error);
@@ -74,43 +85,73 @@ class StateInfo {
         return utNames[utId] || utId;
     }
 
-    recordStateAction(stateId, player, spentAmount) {
-        const state = this.initializeState(stateId);
-        const actions = state.actions;
-        const popularity = state.popularity;
-        const key = `player${player}`;
+    getStatePopularity(stateId) {
+        return this.statePopularity.get(stateId);
+    }
+
+    updateStatePopularity(stateId, popularity) {
+        this.statePopularity.set(stateId, popularity);
         
-        // Record spending
-        actions[`${key}Spent`] += spentAmount;
-        
-        // Calculate popularity change based on total investment
-        const seats = parseInt(this.statesData.find(s => s.SvgId === stateId).LokSabhaSeats);
-        const totalPossibleSpend = seats * 2; // Maximum reasonable spending
-        const spendEfficiency = Math.min(1, spentAmount / totalPossibleSpend);
-        const popularityGain = Math.round(5 * spendEfficiency);
-        
-        // Update popularity
-        const oldValue = popularity[key];
-        const newValue = Math.min(100, Math.max(0, oldValue + popularityGain));
-        const diff = newValue - oldValue;
-        
-        if (diff !== 0) {
-            popularity[key] = newValue;
-            // Take from others first, then from the opponent if necessary
-            const othersDiff = Math.min(popularity.others, diff);
-            popularity.others -= othersDiff;
+        // Emit an event to notify the map controller
+        window.dispatchEvent(new CustomEvent('popularityChanged', {
+            detail: {
+                stateId,
+                popularity
+            }
+        }));
+    }    
+
+    recordStateAction(stateId, playerId, amount) {
+        if (!this.statePopularity.has(stateId)) {
+            this.initializeState(stateId);
+        }
+
+        const popularity = this.statePopularity.get(stateId);
+        const popularityIncrease = Math.floor(Math.min(5, amount / 10)); // Convert amount to popularity points, round down
+
+        // Create a new object to ensure reactivity
+        const newPopularity = { ...popularity };
+
+        if (playerId === 1) {
+            // Calculate new values
+            const increase = Math.round(popularityIncrease);
+            const decrease = Math.round(popularityIncrease / 2);
             
-            if (diff > othersDiff) {
-                const remainingDiff = diff - othersDiff;
-                const otherPlayer = `player${player === 1 ? 2 : 1}`;
-                popularity[otherPlayer] = Math.max(0, popularity[otherPlayer] - remainingDiff);
+            newPopularity.player1 = Math.min(100, Math.round(popularity.player1 + increase));
+            newPopularity.others = Math.max(0, Math.round(popularity.others - decrease));
+            
+            // Ensure total stays at 100%
+            const total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
+            if (total > 100) {
+                const excess = total - 100;
+                newPopularity.others = Math.max(0, newPopularity.others - excess);
+            }
+        } else if (playerId === 2) {
+            // Calculate new values
+            const increase = Math.round(popularityIncrease);
+            const decrease = Math.round(popularityIncrease / 2);
+            
+            newPopularity.player2 = Math.min(100, Math.round(popularity.player2 + increase));
+            newPopularity.others = Math.max(0, Math.round(popularity.others - decrease));
+            
+            // Ensure total stays at 100%
+            const total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
+            if (total > 100) {
+                const excess = total - 100;
+                newPopularity.others = Math.max(0, newPopularity.others - excess);
             }
         }
 
-        // Update the display if this state is currently being shown
-        this.refreshStateDisplay(stateId);
+        // Update the state with new values
+        this.updateStatePopularity(stateId, newPopularity);
+        
+        // Log the update for debugging
+        console.log(`Updated ${stateId} popularity:`, newPopularity);
+        
+        // Force an immediate re-render of the state info
+        this.updateStateInfo(stateId);
     }
-    
+
     refreshStateDisplay(stateId) {
         const currentStateElement = this.statesDetails.querySelector('.state-info h4');
         if (currentStateElement) {
@@ -149,13 +190,12 @@ class StateInfo {
         this.statesDetails.innerHTML = `
             <div class="state-info">
                 <h4>${stateData.State} (${stateData.LokSabhaSeats} seats)</h4>
-                
-                <div class="popularity-section">
+                  <div class="popularity-section">
                     <h5>Current Popularity</h5>
                     <div class="info-row">
-                        <span>P1: ${popularity.player1}%</span>
-                        <span>P2: ${popularity.player2}%</span>
-                        <span>Others: ${popularity.others}%</span>
+                        <span>P1: ${Math.round(popularity.player1)}%</span>
+                        <span>P2: ${Math.round(popularity.player2)}%</span>
+                        <span>Others: ${Math.round(popularity.others)}%</span>
                     </div>
                 </div>
 
@@ -173,6 +213,25 @@ class StateInfo {
         return key.replace(/([A-Z])/g, ' $1')
             .replace(/^./, str => str.toUpperCase())
             .trim();
+    }
+
+    // Force immediate update of state popularity and color
+    forceUpdateAllStates() {
+        console.log("Forcing update of all states");
+        
+        // Get all states with existing popularity data
+        this.statePopularity.forEach((popularity, stateId) => {
+            // Create a copy of the popularity object to ensure reactivity
+            const popularityCopy = JSON.parse(JSON.stringify(popularity));
+            
+            // Emit an event to update state color
+            window.dispatchEvent(new CustomEvent('popularityChanged', {
+                detail: {
+                    stateId,
+                    popularity: popularityCopy
+                }
+            }));
+        });
     }
 }
 

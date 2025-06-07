@@ -1,16 +1,29 @@
-#india-map path {
-    transition: fill 0.2s ease;
-    cursor: pointer;
-    position: relative;
+#india-map {
+    width: 100%;
+    height: 100%;
 }
 
-#india-map path.hover {
-    fill: #c0c0c0;
+/* Style for all state paths */
+:root {
+    --player1-color: #FF9800;  /* Orange */
+    --player2-color: #4CAF50;  /* Green */
+    --others-color: #9E9E9E;   /* Grey */
 }
 
-#india-map path.selected {
-    fill: #4CAF50;
+object#india-map {
+    pointer-events: all;
 }
+
+#india-map path, 
+#india-map polygon {
+    cursor: pointer !important;
+    /* No transition - we want immediate color changes */
+}
+
+/* 
+   We're not using these classes anymore - colors are applied directly 
+   through style.fill to avoid specificity issues and delayed transitions
+*/
 
 #india-map path.error {
     fill: #ff0000;
@@ -21,6 +34,18 @@
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
+}
+
+#india-map path.player1-leading {
+    fill: var(--player1-color, #4CAF50);
+}
+
+#india-map path.player2-leading {
+    fill: var(--player2-color, #2196F3);
+}
+
+#india-map path.others-leading {
+    fill: var(--others-color, #9E9E9E);
 }
 
 /* Create tooltip container */
