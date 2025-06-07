@@ -145,39 +145,77 @@ class StateInfo {
             this.initializeState(stateId);
         }
 
-        const popularity = this.statePopularity.get(stateId);
-        const popularityIncrease = Math.floor(Math.min(5, amount / 10)); // Convert amount to popularity points, round down
+        // Update the actions record
+        if (!this.stateActions.has(stateId)) {
+            this.stateActions.set(stateId, {
+                player1Spent: 0,
+                player2Spent: 0,
+                player1Rallies: 0,
+                player2Rallies: 0
+            });
+        }
+        
+        const actions = this.stateActions.get(stateId);
+        if (playerId === 1) {
+            actions.player1Spent += amount;
+        } else if (playerId === 2) {
+            actions.player2Spent += amount;
+        }
 
+        const popularity = this.statePopularity.get(stateId);
+        
         // Create a new object to ensure reactivity
         const newPopularity = { ...popularity };
 
+        // Fixed 5% increase for the active player
+        const fixedIncrease = 5;
+        
         if (playerId === 1) {
-            // Calculate new values
-            const increase = Math.round(popularityIncrease);
-            const decrease = Math.round(popularityIncrease / 2);
+            // Player 1 gets a fixed 5% increase
+            newPopularity.player1 = Math.min(100, Math.round(popularity.player1 + fixedIncrease));
             
-            newPopularity.player1 = Math.min(100, Math.round(popularity.player1 + increase));
-            newPopularity.others = Math.max(0, Math.round(popularity.others - decrease));
+            // The 5% comes evenly from player2 and others
+            const p2Share = popularity.player2 / (popularity.player2 + popularity.others);
+            const othersShare = popularity.others / (popularity.player2 + popularity.others);
             
-            // Ensure total stays at 100%
-            const total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
-            if (total > 100) {
-                const excess = total - 100;
-                newPopularity.others = Math.max(0, newPopularity.others - excess);
-            }
+            const p2Decrease = fixedIncrease * p2Share;
+            const othersDecrease = fixedIncrease * othersShare;
+            
+            newPopularity.player2 = Math.max(0, Math.round(popularity.player2 - p2Decrease * 10) / 10);
+            newPopularity.others = Math.max(0, Math.round(popularity.others - othersDecrease * 10) / 10);
+            
         } else if (playerId === 2) {
-            // Calculate new values
-            const increase = Math.round(popularityIncrease);
-            const decrease = Math.round(popularityIncrease / 2);
+            // Player 2 gets a fixed 5% increase
+            newPopularity.player2 = Math.min(100, Math.round(popularity.player2 + fixedIncrease));
             
-            newPopularity.player2 = Math.min(100, Math.round(popularity.player2 + increase));
-            newPopularity.others = Math.max(0, Math.round(popularity.others - decrease));
+            // The 5% comes evenly from player1 and others
+            const p1Share = popularity.player1 / (popularity.player1 + popularity.others);
+            const othersShare = popularity.others / (popularity.player1 + popularity.others);
             
-            // Ensure total stays at 100%
-            const total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
-            if (total > 100) {
-                const excess = total - 100;
-                newPopularity.others = Math.max(0, newPopularity.others - excess);
+            const p1Decrease = fixedIncrease * p1Share;
+            const othersDecrease = fixedIncrease * othersShare;
+            
+            newPopularity.player1 = Math.max(0, Math.round(popularity.player1 - p1Decrease * 10) / 10);
+            newPopularity.others = Math.max(0, Math.round(popularity.others - othersDecrease * 10) / 10);
+        }
+
+        // Ensure total equals exactly 100% (fix any floating-point rounding issues)
+        let total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
+        
+        if (Math.abs(total - 100) > 0.01) {
+            // Adjust the least-changed component to make total exactly 100
+            if (playerId === 1) {
+                if (newPopularity.player2 > newPopularity.others) {
+                    newPopularity.player2 = Math.max(0, Math.round((newPopularity.player2 + (100 - total)) * 10) / 10);
+                } else {
+                    newPopularity.others = Math.max(0, Math.round((newPopularity.others + (100 - total)) * 10) / 10);
+                }
+            } else {
+                if (newPopularity.player1 > newPopularity.others) {
+                    newPopularity.player1 = Math.max(0, Math.round((newPopularity.player1 + (100 - total)) * 10) / 10);
+                } else {
+                    newPopularity.others = Math.max(0, Math.round((newPopularity.others + (100 - total)) * 10) / 10);
+                }
             }
         }
 
@@ -186,6 +224,7 @@ class StateInfo {
         
         // Log the update for debugging
         console.log(`Updated ${stateId} popularity:`, newPopularity);
+        console.log(`State actions:`, this.stateActions.get(stateId));
         
         // Force an immediate re-render of the state info
         this.updateStateInfo(stateId);

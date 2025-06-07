@@ -131,6 +131,7 @@ class MapController {
             
             // Check if state is already selected
             const isSelected = this.selectedStates.has(stateId);
+            console.log(`${stateId} is currently selected:`, isSelected);
 
             // Check if player 1 has enough funds
             if (player1.canSpend(cost)) {
@@ -140,11 +141,12 @@ class MapController {
                 
                 // Visual feedback - select only if not already selected
                 if (!isSelected) {
+                    console.log(`Selecting state: ${stateId}`);
                     this.selectState(stateId);
                 } else {
-                    // If already selected, do not toggle - just update the popularity
-                    const popularity = stateInfo.getStatePopularity(stateId);
-                    this.updateStateColor(stateId, popularity);
+                    // If already selected, toggle selection state
+                    console.log(`Deselecting state: ${stateId}`);
+                    this.deselectState(stateId);
                 }
             } else {
                 // Visual feedback for insufficient funds
@@ -157,16 +159,16 @@ class MapController {
     selectState(stateId) {
         const stateElement = this.svgDocument.getElementById(stateId);
         if (stateElement) {
+            console.log(`Selecting state: ${stateId}`);
+            
             // Store original leader data before selection
             const currentLeader = stateElement.getAttribute('data-leader');
             stateElement.setAttribute('data-prev-leader', currentLeader || 'others');
             
-            // Mark as selected but DO NOT change data-leader attribute
-            // This way we maintain the proper leader information
+            // Mark as selected
             stateElement.setAttribute('data-selected', 'true');
-            stateElement.setAttribute('fill', '#FF9800'); // Player 1 color for selection
-            
             this.selectedStates.add(stateId);
+            
             this.triggerStateSelectionEvent(stateId, true);
         }
     }
@@ -174,11 +176,13 @@ class MapController {
     deselectState(stateId) {
         const stateElement = this.svgDocument.getElementById(stateId);
         if (stateElement) {
+            console.log(`Deselecting state: ${stateId}`);
+            
             // Remove selected marker
             stateElement.removeAttribute('data-selected');
+            this.selectedStates.delete(stateId);
             
-            // Instead of using prev-leader data, request a fresh update from state-info
-            // This ensures we always get the most current popularity data
+            // Get current popularity data and update color
             Promise.all([
                 import('./state-info.js')
             ]).then(([stateModule]) => {
@@ -189,22 +193,12 @@ class MapController {
                     // Update state color based on current popularity data
                     this.updateStateColor(stateId, popularity);
                 } else {
-                    // Fallback to prev-leader if no popularity data found
-                    const prevLeader = stateElement.getAttribute('data-prev-leader') || 'others';
-                    
-                    if (prevLeader === 'player1') {
-                        stateElement.setAttribute('fill', '#FF9800'); // Orange for Player 1
-                        stateElement.setAttribute('data-leader', 'player1');
-                    } else if (prevLeader === 'player2') {
-                        stateElement.setAttribute('fill', '#4CAF50'); // Green for Player 2
-                        stateElement.setAttribute('data-leader', 'player2');
-                    } else {
-                        stateElement.setAttribute('fill', '#9E9E9E'); // Grey for Others
-                        stateElement.setAttribute('data-leader', 'others');
-                    }
+                    console.log(`No popularity data found for ${stateId}, using fallback`);
+                    // This is just a fallback that should rarely be needed
+                    stateElement.setAttribute('fill', '#9E9E9E'); // Grey for Others
+                    stateElement.setAttribute('data-leader', 'others');
                 }
                 
-                this.selectedStates.delete(stateId);
                 this.triggerStateSelectionEvent(stateId, false);
             });
         }
@@ -213,6 +207,8 @@ class MapController {
     resetStateSelection(stateId) {
         const stateElement = this.svgDocument.getElementById(stateId);
         if (stateElement && this.selectedStates.has(stateId)) {
+            console.log(`Resetting selection for state: ${stateId}`);
+            
             // Remove the state from selected states
             this.selectedStates.delete(stateId);
             
@@ -281,37 +277,59 @@ class MapController {
             others: roundedOthers 
         });
 
-        // Check if the state is currently selected
-        const isSelected = stateElement.getAttribute('data-selected') === 'true';
-        
-        // If selected, don't change the fill color, but update the data-leader attribute
-        if (isSelected) {
-            // Just update the leader data but don't change the orange color
-            if (roundedP1 > roundedP2 && roundedP1 > roundedOthers) {
-                stateElement.setAttribute('data-leader', 'player1');
-            } else if (roundedP2 > roundedP1 && roundedP2 > roundedOthers) {
-                stateElement.setAttribute('data-leader', 'player2');
-            } else {
-                stateElement.setAttribute('data-leader', 'others');
-            }
-            // Keep the selection color (orange)
-            stateElement.setAttribute('fill', '#FF9800');
-            return;
+        // Determine the leader based on popularity
+        let leader = 'others';
+        if (roundedP1 > roundedP2 && roundedP1 > roundedOthers) {
+            leader = 'player1';
+        } else if (roundedP2 > roundedP1 && roundedP2 > roundedOthers) {
+            leader = 'player2';
         }
         
-        // If not selected, set fill color directly based on who's leading
-        if (roundedP1 > roundedP2 && roundedP1 > roundedOthers) {
-            console.log(`${stateId}: Setting to Player 1 color (orange) with ${roundedP1}%`);
-            stateElement.setAttribute('fill', '#FF9800'); // Orange for Player 1
-            stateElement.setAttribute('data-leader', 'player1');
-        } else if (roundedP2 > roundedP1 && roundedP2 > roundedOthers) {
-            console.log(`${stateId}: Setting to Player 2 color (green) with ${roundedP2}%`);
-            stateElement.setAttribute('fill', '#4CAF50'); // Green for Player 2
-            stateElement.setAttribute('data-leader', 'player2');
+        console.log(`${stateId} leader determined as: ${leader}`);
+        
+        // Always update the data-leader attribute
+        stateElement.setAttribute('data-leader', leader);
+        
+        // Set fill color based on who's leading with intensity proportional to popularity
+        if (leader === 'player1') {
+            // Calculate color intensity for Player 1 (orange) based on popularity percentage
+            const intensity = Math.max(30, Math.min(100, roundedP1)); // Clamp between 30-100%
+            const normalizedIntensity = intensity / 100;
+            
+            // Start with light orange (#FFEBCC) and go to deep orange (#FF7700)
+            const r = Math.round(255);
+            const g = Math.round(119 + (235 - 119) * (1 - normalizedIntensity));
+            const b = Math.round(0 + (204 - 0) * (1 - normalizedIntensity));
+            
+            const color = `rgb(${r}, ${g}, ${b})`;
+            console.log(`${stateId}: Setting to Player 1 color (${color}) with ${roundedP1}%`);
+            
+            stateElement.setAttribute('fill', color);
+        } else if (leader === 'player2') {
+            // Calculate color intensity for Player 2 (green) based on popularity percentage
+            const intensity = Math.max(30, Math.min(100, roundedP2)); // Clamp between 30-100%
+            const normalizedIntensity = intensity / 100;
+            
+            // Start with light green (#E0F2E0) and go to deep green (#00A000)
+            const r = Math.round(0 + (224 - 0) * (1 - normalizedIntensity));
+            const g = Math.round(160 + (242 - 160) * (1 - normalizedIntensity));
+            const b = Math.round(0 + (224 - 0) * (1 - normalizedIntensity));
+            
+            const color = `rgb(${r}, ${g}, ${b})`;
+            console.log(`${stateId}: Setting to Player 2 color (${color}) with ${roundedP2}%`);
+            
+            stateElement.setAttribute('fill', color);
         } else {
-            console.log(`${stateId}: Setting to Others color (grey) with ${roundedOthers}%`);
-            stateElement.setAttribute('fill', '#9E9E9E'); // Grey for Others
-            stateElement.setAttribute('data-leader', 'others');
+            // Others is leading
+            const intensity = Math.max(30, Math.min(100, roundedOthers)); // Clamp between 30-100%
+            const normalizedIntensity = intensity / 100;
+            
+            // Start with light grey (#E0E0E0) and go to darker grey (#707070)
+            const colorValue = Math.round(112 + (224 - 112) * (1 - normalizedIntensity));
+            const color = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+            
+            console.log(`${stateId}: Setting to Others color (${color}) with ${roundedOthers}%`);
+            stateElement.setAttribute('fill', color);
         }
     }
 
