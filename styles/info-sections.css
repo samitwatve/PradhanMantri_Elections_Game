@@ -60,13 +60,14 @@
 }
 
 .info-row span {
-    font-size: 0.9em;
+    font-size: 1.2em;
+    font-weight: 600;
     color: #444;
-    padding: 2px 0;
+    padding: 3px 0;
 }
 
 .groups-list {
-    font-size: 0.85em;
+    font-size: 0.9em;
     color: #666;
     line-height: 1.4;
 }
