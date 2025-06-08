@@ -5,6 +5,15 @@
     margin-top: 12px;
 }
 
+/* Add a wrapper for the timer boxes */
+.timer-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
 .timer-box, .seats-box {
     background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
     border: 2px solid rgba(100, 100, 255, 0.3);
@@ -145,7 +154,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
 }
 
 .phase-timer-container #game-phase {
@@ -327,6 +335,22 @@
 .parliament-status.hung-parliament {
     color: #ff6b6b;
     text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+/* Timer row layout */
+.timer-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.timer-row .timer-box {
+    flex: 1;
+    width: calc(50% - 4px);
+    min-width: 0;
+    margin: 0;
 }
 
 /* Responsive adjustments */
