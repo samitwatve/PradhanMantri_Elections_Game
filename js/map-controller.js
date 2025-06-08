@@ -113,6 +113,86 @@ class MapController {
             state.addEventListener('mouseover', (e) => this.handleStateHover(e));
             state.addEventListener('mouseout', (e) => this.handleStateUnhover(e));
         });
+
+        // Listen for events from UT buttons
+        window.addEventListener('stateClick', async (event) => {
+            console.log('Received stateClick event:', event);
+            
+            const { stateId } = event.detail;
+            if (!stateId) {
+                console.error('No stateId in event detail');
+                return;
+            }
+
+            console.log('Processing click for state:', stateId);
+
+            try {
+                // Get state data and calculate cost
+                if (!this.statesData) {
+                    const response = await fetch('states_data.json');
+                    this.statesData = await response.json();
+                }
+
+                const stateData = this.statesData.find(state => state.SvgId === stateId);
+                if (!stateData) {
+                    console.error('No state data found for:', stateId);
+                    return;
+                }
+
+                console.log('Found state data:', stateData);
+
+                const seats = parseInt(stateData.LokSabhaSeats);
+                const cost = seats; // Cost in millions = number of seats
+
+                console.log('State cost:', cost);
+
+                // Import required modules
+                const [playerModule, stateModule] = await Promise.all([
+                    import('./player-info.js'),
+                    import('./state-info.js')
+                ]);
+
+                const player1 = playerModule.player1;
+                const stateInfo = stateModule.stateInfo;
+
+                // Check if player 1 has enough funds
+                if (player1.canSpend(cost)) {
+                    console.log('Player has enough funds, processing action...');
+                    
+                    // Deduct funds and record the action
+                    player1.updateFunds(-cost);
+                    stateInfo.recordStateAction(stateId, 1, cost);
+                    
+                    console.log('Action processed successfully');
+                } else {
+                    console.log('Insufficient funds. Required:', cost, 'Available:', player1.funds);
+                    player1.showInsufficientFundsError();
+                }
+            } catch (error) {
+                console.error('Error processing state click:', error);
+            }
+        });
+
+        // Add hover event listeners for UT buttons
+        window.addEventListener('stateHover', (event) => {
+            const { stateId } = event.detail;
+            if (!stateId) return;
+            
+            const stateElement = this.svgDocument.getElementById(stateId);
+            if (stateElement) {
+                this.handleStateHover({ target: stateElement });
+            }
+        });
+
+        window.addEventListener('stateUnhover', (event) => {
+            const { stateId } = event.detail;
+            if (!stateId) return;
+            
+            const stateElement = this.svgDocument.getElementById(stateId);
+            if (stateElement) {
+                this.handleStateUnhover({ target: stateElement });
+            }
+        });
     }    handleStateClick(event) {
         const stateElement = event.target;
         const stateId = stateElement.id;
@@ -304,6 +384,9 @@ class MapController {
         // Always update the data-leader attribute
         stateElement.setAttribute('data-leader', leader);
         
+        // Update UT button if this state has one
+        this.updateUTButtonColor(stateId, popularityData);
+
         // Set fill color based on who's leading with intensity proportional to popularity
         if (leader === 'player1') {
             // Calculate color intensity for Player 1 (orange) based on popularity percentage
@@ -345,6 +428,26 @@ class MapController {
             console.log(`${stateId}: Setting to Others color (${color}) with ${roundedOthers}%`);
             stateElement.setAttribute('fill', color);
         }
+    }
+
+    updateUTButtonColor(stateId, popularity) {
+        const button = document.querySelector(`.small-uts-grid button[data-ut="${stateId}"]`);
+        if (!button) return;
+
+        const roundedP1 = Math.round(popularity.player1);
+        const roundedP2 = Math.round(popularity.player2);
+        const roundedOthers = Math.round(popularity.others);
+
+        // Determine who's leading
+        let leader = 'others';
+        if (roundedP1 > roundedP2 && roundedP1 > roundedOthers) {
+            leader = 'player1';
+        } else if (roundedP2 > roundedP1 && roundedP2 > roundedOthers) {
+            leader = 'player2';
+        }
+
+        // Update button appearance
+        button.setAttribute('data-leading', leader);
     }
 
     triggerStateSelectionEvent(stateId, selected) {

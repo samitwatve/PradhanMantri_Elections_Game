@@ -12,10 +12,12 @@ class StateGroups {
             button.addEventListener('click', (e) => this.handleGroupClick(e));
         });
 
-        // Initialize small UTs panel
+        // Initialize small UTs panel with both click and hover handlers
         const utButtons = document.querySelectorAll('.small-uts-grid button');
         utButtons.forEach(button => {
             button.addEventListener('click', (e) => this.handleUTClick(e));
+            button.addEventListener('mouseover', (e) => this.handleUTHover(e));
+            button.addEventListener('mouseout', (e) => this.handleUTUnhover(e));
         });
     }
 
@@ -30,12 +32,58 @@ class StateGroups {
         this.toggleGroupHighlight(groupName);
     }
 
+    handleUTHover(event) {
+        const button = event.target;
+        const utId = button.dataset.ut;
+        
+        if (!utId) {
+            console.error('No UT ID found on button for hover');
+            return;
+        }
+        
+        // Dispatch hover event
+        const hoverEvent = new CustomEvent('stateHover', {
+            detail: { stateId: utId }
+        });
+        window.dispatchEvent(hoverEvent);
+    }
+
+    handleUTUnhover(event) {
+        const button = event.target;
+        const utId = button.dataset.ut;
+        
+        if (!utId) {
+            console.error('No UT ID found on button for unhover');
+            return;
+        }
+        
+        // Dispatch unhover event
+        const unhoverEvent = new CustomEvent('stateUnhover', {
+            detail: { stateId: utId }
+        });
+        window.dispatchEvent(unhoverEvent);
+    }
+
     handleUTClick(event) {
         const button = event.target;
         const utId = button.dataset.ut;
         
-        // Handle UT selection
-        this.selectUT(utId);
+        console.log('UT button clicked:', utId);
+        
+        if (!utId) {
+            console.error('No UT ID found on button');
+            return;
+        }
+        
+        // Toggle the selection state for the button
+        button.classList.toggle('selected');
+        
+        // Dispatch an event that will be handled like a regular state click
+        const clickEvent = new CustomEvent('stateClick', {
+            detail: { stateId: utId }
+        });
+        console.log('Dispatching stateClick event:', clickEvent);
+        window.dispatchEvent(clickEvent);
     }
 
     toggleGroupHighlight(groupName) {

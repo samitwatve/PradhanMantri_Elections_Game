@@ -48,13 +48,17 @@ class PlayerInfo {
                 </div>
             `;
         }
-    }    updateFunds(amount) {
-        this.funds += amount;
+    }    
+    updateFunds(amount) {
+        console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
+        this.funds = Math.max(0, this.funds + amount);
         const fundsElement = this.element.querySelector('.funds-amount');
         if (fundsElement) {
             fundsElement.textContent = `₹${this.funds} M`;
-            
-            // Create and display transient notification
+        }
+        console.log(`New funds balance: ${this.funds}`);
+        
+        if (amount < 0) {
             this.showFundChangeNotification(amount);
         }
     }
@@ -94,26 +98,21 @@ class PlayerInfo {
     }
 
     canSpend(amount) {
+        console.log(`Checking if player ${this.playerId} can spend ${amount}. Current funds: ${this.funds}`);
         return this.funds >= amount;
     }
     
     showInsufficientFundsError() {
+        console.log(`Showing insufficient funds error for player ${this.playerId}`);
         const fundsElement = this.element.querySelector('.funds-amount');
         if (fundsElement) {
-            // Add shake animation
-            fundsElement.classList.add('shake-animation');
-            
-            // Temporarily highlight in red
-            const originalColor = fundsElement.style.color;
-            fundsElement.style.color = 'red';
-            
-            // Remove shake and restore color after animation completes
-            setTimeout(() => {
-                fundsElement.classList.remove('shake-animation');
-                fundsElement.style.color = originalColor;
-            }, 500);
+            // Add shake animation class
+            fundsElement.classList.add('shake-error');
+            // Remove it after animation completes
+            setTimeout(() => fundsElement.classList.remove('shake-error'), 500);
         }
-    }    replenishFunds() {
+    }    
+    replenishFunds() {
         // Add 250M funds at each phase change (as per roadmap)
         const replenishAmount = 250;
         this.updateFunds(replenishAmount);

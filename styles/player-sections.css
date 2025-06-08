@@ -87,3 +87,14 @@
     font-size: 1.5em;
     letter-spacing: 8px;
 }
+
+@keyframes shake-error {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake-error {
+    animation: shake-error 0.5s;
+    color: #ff4444 !important;
+}
