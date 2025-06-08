@@ -38,8 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // aiPlayerController initializes itself
     
     // Set up event listeners for game-wide events
-    setupGameEventListeners();
-      // DEBUG: Add testing function to window
+    setupGameEventListeners();    // DEBUG: Add testing function to window
     window.testStateColors = function() {
         console.log("Testing state colors...");
         
@@ -48,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add a test button to the UI
         const debugDiv = document.createElement('div');
+    
+    // Expose gameTimer to window object for other modules
+    window.gameTimer = gameTimer;
         debugDiv.style.position = 'fixed';
         debugDiv.style.bottom = '10px';
         debugDiv.style.right = '10px';

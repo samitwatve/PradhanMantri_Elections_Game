@@ -1,0 +1,105 @@
+.game-options {
+    background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
+    border: 2px solid rgba(100, 100, 255, 0.3);
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+}
+
+.game-options:hover {
+    transform: translateY(-2px);
+    border-color: rgba(150, 150, 255, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+}
+
+.options-grid {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.option-button {
+    background: linear-gradient(135deg, rgba(60,60,100,0.5) 0%, rgba(40,40,80,0.5) 100%);
+    border: 1px solid rgba(150, 150, 255, 0.2);
+    border-radius: 6px;
+    padding: 5px;
+    width: calc(20% - 5px);
+    aspect-ratio: 1/0.85;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.option-button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(80,80,130,0.5) 0%, rgba(60,60,110,0.5) 100%);
+    border-color: rgba(150, 150, 255, 0.4);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.option-button.active {
+    background: linear-gradient(135deg, rgba(100,120,200,0.5) 0%, rgba(80,100,180,0.5) 100%);
+    border-color: rgba(150, 150, 255, 0.6);
+    box-shadow: 0 0 15px rgba(100, 150, 255, 0.4);
+}
+
+.option-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.option-icon {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(100, 150, 255, 0.5);
+}
+
+.option-label {
+    font-size: 0.6rem;
+    text-align: center;
+    color: #a0c0ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Toggle states */
+.option-button[data-state="on"] .option-icon {
+    color: #7bf7ff;
+    text-shadow: 0 0 10px rgba(123, 247, 255, 0.8);
+}
+
+.option-button[data-state="off"] .option-icon {
+    color: #ffcc00;
+    opacity: 0.7;
+}
+
+/* Tooltip on hover */
+.option-button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 20, 0.9);
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    color: #ffffff;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.option-button:hover::after {
+    opacity: 1;
+}

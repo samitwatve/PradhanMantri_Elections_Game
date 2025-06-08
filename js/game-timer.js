@@ -170,9 +170,7 @@ export class GameTimer {
     }    // Getter for current phase (1-indexed)
     getCurrentPhase() {
         return this.currentPhase;
-    }
-
-    // Getter for phase time remaining
+    }    // Getter for phase time remaining
     getPhaseTimeRemaining() {
         return this.phaseTimeRemaining;
     }
@@ -180,6 +178,15 @@ export class GameTimer {
     // Getter for total time remaining
     getTotalTimeRemaining() {
         return this.remainingTime;
+    }
+
+    // Public methods for external components
+    pauseTimer() {
+        this.pause();
+    }
+
+    resumeTimer() {
+        this.resume();
     }
 }
 
