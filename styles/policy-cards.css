@@ -2,44 +2,54 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 8px;
+    gap: 10px;
     margin-top: 10px;
 }
 
 .policy-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
+    border: 2px solid rgba(100, 100, 255, 0.3);
+    border-radius: 6px;
     padding: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
 }
 
 .policy-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    border-color: rgba(150, 150, 255, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
 }
 
 .policy-card h4 {
-    font-size: 0.85em;
-    color: #fff;
+    font-size: 0.9em;
+    color: #a0c0ff;
     margin-bottom: 8px;
     text-align: center;
     font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 0, 255, 0.3);
 }
 
 .progress-item {
     margin-bottom: 6px;
-    padding: 4px;
-    background: rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    background: rgba(20, 20, 40, 0.5);
     border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(100, 100, 255, 0.2);
+    position: relative;
+}
+
+.progress-item:hover {
+    background: rgba(30, 30, 60, 0.6);
+    border-color: rgba(150, 150, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 .progress-item-label {
-    font-size: 0.75em;
+    font-size: 0.8em;
     color: #e0e0ff;
     margin-bottom: 4px;
     display: block;
@@ -48,33 +58,86 @@
 
 .progress-bar {
     width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    height: 7px;
+    background: rgba(40, 40, 80, 0.3);
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+    position: relative;
 }
 
 [data-player="1"] .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--player1-color-dark) 0%, var(--player1-color) 100%);
     width: 0%;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
+    transition: width 0.6s ease;
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
+    position: relative;
 }
 
 [data-player="2"] .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--player2-color-dark) 0%, var(--player2-color) 100%);
     width: 0%;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px rgba(46, 125, 50, 0.3);
+    transition: width 0.6s ease;
+    box-shadow: 0 0 10px rgba(46, 125, 50, 0.4);
+    position: relative;
 }
 
 .progress-fill.complete[data-player="1"] {
     background: linear-gradient(90deg, var(--player1-color) 0%, var(--player1-color-light) 100%);
+    box-shadow: 0 0 15px rgba(255, 133, 51, 0.6);
+    animation: glow-pulse 2s infinite;
 }
 
 .progress-fill.complete[data-player="2"] {
     background: linear-gradient(90deg, var(--player2-color) 0%, var(--player2-color-light) 100%);
+    box-shadow: 0 0 15px rgba(67, 160, 71, 0.6);
+    animation: glow-pulse 2s infinite;
+}
+
+/* Add animations for progress filling */
+@keyframes glow-pulse {
+    0% { box-shadow: 0 0 5px rgba(100, 100, 255, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(100, 100, 255, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(100, 100, 255, 0.3); }
+}
+
+/* Add shine effect on hover */
+@keyframes shine-effect {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+.progress-item:hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.1) 25%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shine-effect 1.5s infinite linear;
+    pointer-events: none;
+}
+
+/* Add responsive adjustments */
+@media (max-width: 768px) {
+    .policy-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+    }
+    
+    .policy-card h4 {
+        font-size: 0.8em;
+    }
+    
+    .progress-item-label {
+        font-size: 0.7em;
+    }
 }
