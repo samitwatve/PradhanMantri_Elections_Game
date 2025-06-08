@@ -38,6 +38,7 @@ body {
     overflow: hidden;
     background: var(--bg-dark);
     color: var(--text-light);
+    max-height: 100vh;
 }
 
 /* Layout styles */
@@ -47,7 +48,7 @@ body {
     padding: 20px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: hidden;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -65,10 +66,10 @@ body {
 .right-pane {
     width: 500px;
     background: linear-gradient(225deg, var(--bg-lighter) 0%, var(--bg-darker) 100%);
-    padding: 20px;
+    padding: 12px;
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: hidden; /* Changed from auto to hidden */
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -96,7 +97,7 @@ body {
 
 /* Header styles */
 h2 {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     color: #fff;
     font-size: 1.3em;
     font-weight: 600;
@@ -165,5 +166,34 @@ h2 {
     
     .right-pane {
         width: 400px;
+        padding: 10px;
+    }
+    
+    .campaigns-section.info-section {
+        max-height: calc(100vh - 280px);
+    }
+}
+
+/* Additional adjustments for smaller screens */
+@media (max-height: 900px) {
+    .right-pane {
+        padding: 8px;
+    }
+    
+    h2 {
+        margin-bottom: 5px;
+        font-size: 1.2em;
+    }
+    
+    .campaigns-section.info-section {
+        max-height: calc(100vh - 250px);
+    }
+    
+    .policy-grid {
+        gap: 3px;
+    }
+    
+    .policy-card {
+        padding: 3px;
     }
 }

@@ -2,16 +2,16 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 10px;
+    gap: 5px; /* Reduced from 8px */
+    margin-top: 5px; /* Reduced from 8px */
 }
 
 .policy-card {
     background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
-    border: 4px solid rgba(100, 100, 255, 0.3);
-    border-radius: 6px;
-    padding: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(100, 100, 255, 0.3); /* Reduced from 3px */
+    border-radius: 4px; /* Reduced from 6px */
+    padding: 5px; /* Reduced from 8px */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
     transition: all 0.2s ease;
 }
 
@@ -22,21 +22,21 @@
 }
 
 .policy-card h4 {
-    font-size: 0.9em;
+    font-size: 0.75em; /* Reduced from 0.85em */
     color: #a0c0ff;
-    margin-bottom: 8px;
+    margin-bottom: 4px; /* Reduced from 6px */
     text-align: center;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px; /* Reduced from 1px */
     text-shadow: 0 0 5px rgba(0, 0, 255, 0.3);
 }
 
 .progress-item {
-    margin-bottom: 6px;
-    padding: 5px;
+    margin-bottom: 3px; /* Reduced from 4px */
+    padding: 3px; /* Reduced from 4px */
     background: rgba(20, 20, 40, 0.5);
-    border-radius: 4px;
+    border-radius: 3px; /* Reduced from 4px */
     transition: all 0.2s ease;
     border: 1px solid rgba(100, 100, 255, 0.2);
     position: relative;
@@ -50,18 +50,18 @@
 }
 
 .progress-item-label {
-    font-size: 0.8em;
+    font-size: 0.7em; /* Reduced from 0.8em */
     color: #e0e0ff;
-    margin-bottom: 4px;
+    margin-bottom: 3px; /* Reduced from 4px */
     display: block;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .progress-bar {
     width: 100%;
-    height: 7px;
+    height: 6px; /* Reduced from 7px */
     background: rgba(40, 40, 80, 0.3);
-    border-radius: 4px;
+    border-radius: 3px; /* Reduced from 4px */
     overflow: hidden;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
     position: relative;

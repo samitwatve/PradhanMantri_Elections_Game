@@ -1,10 +1,10 @@
 .game-options {
     background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
-    border: 2px solid rgba(100, 100, 255, 0.3);
-    border-radius: 6px;
-    padding: 8px 8px 12px 8px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(100, 100, 255, 0.3);
+    border-radius: 5px;
+    padding: 4px 4px 6px 4px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     transition: all 0.2s ease;
 }
 
@@ -18,17 +18,17 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: -5px; /* Negative margin to pull content up */
+    gap: 3px; /* Reduced from 5px */
+    margin-bottom: -3px; /* Reduced from -4px */
 }
 
 .option-button {
     background: linear-gradient(135deg, rgba(60,60,100,0.5) 0%, rgba(40,40,80,0.5) 100%);
     border: 1px solid rgba(150, 150, 255, 0.2);
-    border-radius: 6px;
-    padding: 5px;
-    width: calc(20% - 5px);
-    aspect-ratio: 1/0.85; /* Restore original aspect ratio */
+    border-radius: 4px; /* Reduced from 6px */
+    padding: 3px; /* Reduced from 4px */
+    width: calc(20% - 3px); /* Adjusted from calc(20% - 4px) */
+    aspect-ratio: 1/0.75; /* Make it flatter than 1/0.85 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -57,7 +57,7 @@
 }
 
 .option-icon {
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Reduced from 1.2rem */
     margin-bottom: 2px;
     color: #ffffff;
     text-shadow: 0 0 8px rgba(100, 150, 255, 0.5);
