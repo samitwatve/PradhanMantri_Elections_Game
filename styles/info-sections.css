@@ -243,10 +243,9 @@
     border-radius: 6px; /* Reduced from 10px */
     box-shadow: 0 0 15px rgba(0, 0, 100, 0.2);
     min-height: auto;
-    padding: 6px; /* Reduced from 10px */
-    margin-bottom: 8px; /* Reduced from 15px */
+    padding: 6px; /* Reduced from 10px */    margin-bottom: 8px; /* Reduced from 15px */
     transition: all 0.2s ease;
-    max-height: calc(100vh - 300px); /* Adjusted for better fit */
+    max-height: calc(100vh - 280px);
     overflow-y: auto; /* Allow scrolling if needed */
 }
 
