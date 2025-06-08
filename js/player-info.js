@@ -48,9 +48,7 @@ class PlayerInfo {
                 </div>
             `;
         }
-    }
-
-    updateFunds(amount) {
+    }    updateFunds(amount) {
         this.funds += amount;
         const fundsElement = this.element.querySelector('.funds-amount');
         if (fundsElement) {
@@ -120,9 +118,6 @@ class PlayerInfo {
         const replenishAmount = 250;
         this.updateFunds(replenishAmount);
         console.log(`Player ${this.playerId} funds replenished by ${replenishAmount}M (current total: ${this.funds}M)`);
-        
-        // Show a special notification for fund replenishment
-        this.showPhaseReplenishmentNotification(replenishAmount);
     }
       showPhaseReplenishmentNotification(amount) {
         // Create notification element for phase replenishment
