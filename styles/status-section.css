@@ -208,8 +208,8 @@
 }
 
 .seat-projection-container .status-value.player2 {
-    color: #7bf7ff;
-    text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+    color: var(--player2-color-light);
+    text-shadow: 0 0 10px rgba(67, 160, 71, 0.5);
     text-align: right;
 }
 
@@ -226,8 +226,8 @@
 }
 
 .seat-projection-container .status-value.player2.majority {
-    color: #00ffff;
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    color: var(--player2-color);
+    text-shadow: 0 0 15px rgba(46, 125, 50, 0.8);
 }
 
 .seat-projection-container .status-value.majority::after {
@@ -252,6 +252,18 @@
     display: flex;
 }
 
+/* Halfway mark (272 seats) */
+.seats-progress-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    width: 4px;
+    background-color: #000;
+    z-index: 2;
+}
+
 .seats-progress-bar .p1-bar {
     height: 100%;
     background: linear-gradient(90deg, #ff7b00, #ff9d4d);
@@ -266,38 +278,11 @@
 
 .seats-progress-bar .p2-bar {
     height: 100%;
-    background: linear-gradient(90deg, #00c8ff, #7bf7ff);
+    background: linear-gradient(90deg, var(--player2-color-dark), var(--player2-color));
     transition: width 0.8s ease;
 }
 
-/* Majority marker */
-.majority-marker {
-    position: relative;
-    height: 15px;
-    width: 100%;
-}
-
-.majority-marker::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    height: 10px;
-    width: 2px;
-    background: rgba(0, 255, 0, 0.7);
-}
-
-.majority-marker span {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.6em;
-    color: rgba(0, 255, 0, 0.8);
-    background: rgba(20, 20, 40, 0.7);
-    padding: 1px 3px;
-    border-radius: 2px;
-}
+/* Removed majority marker styles */
 
 /* Parliament status indicator */
 .parliament-status {

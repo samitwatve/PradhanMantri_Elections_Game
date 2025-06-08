@@ -167,8 +167,7 @@ class SeatProjection {
             statusElement.className = 'parliament-status ' + analysis.status;
         }
     }
-    
-    analyzeParliamentComposition(p1Seats, p2Seats, othersSeats) {
+      analyzeParliamentComposition(p1Seats, p2Seats, othersSeats) {
         const majorityThreshold = 272;
         let status = '';
         let description = '';
@@ -182,10 +181,10 @@ class SeatProjection {
             description = 'Player 2 majority government';
         } else if (p1Seats + othersSeats >= majorityThreshold && p1Seats > p2Seats) {
             status = 'player1-coalition';
-            description = 'Player 1 potential coalition';
+            description = '';
         } else if (p2Seats + othersSeats >= majorityThreshold && p2Seats > p1Seats) {
             status = 'player2-coalition';
-            description = 'Player 2 potential coalition';
+            description = '';
         } else {
             status = 'hung-parliament';
             description = 'Hung Parliament';
