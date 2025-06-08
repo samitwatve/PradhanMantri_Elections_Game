@@ -1,18 +1,11 @@
 .status-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
     margin-top: 12px;
 }
 
-/* Update grid layout to properly display three items */
-.status-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.timer-box, .seats-box, .phase-box {
+.timer-box, .seats-box {
     background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
     border: 2px solid rgba(100, 100, 255, 0.3);
     border-radius: 8px;
@@ -22,19 +15,13 @@
     transition: all 0.2s ease;
 }
 
-/* Phase box styles */
-.phase-box {
-    margin-top: 0;
-    background: linear-gradient(135deg, rgba(40,40,80,0.9) 0%, rgba(30,30,60,0.95) 100%);
-}
-
-.timer-box:hover, .seats-box:hover, .phase-box:hover {
+.timer-box:hover, .seats-box:hover {
     transform: translateY(-2px);
     border-color: rgba(150, 150, 255, 0.5);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
 }
 
-.timer-box h3, .seats-box h3, .phase-box h3 {
+.timer-box h3, .seats-box h3 {
     font-size: 1em;
     color: #a0c0ff;
     margin-bottom: 10px;
@@ -82,19 +69,286 @@
     text-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
 }
 
+/* Add active timer animation */
+#game-timer.active {
+    animation: subtle-glow 2s infinite alternate;
+}
+
+/* Paused timer styling */
+#game-timer.paused {
+    color: #cccccc;
+    text-shadow: 0 0 8px rgba(204, 204, 204, 0.5);
+    opacity: 0.8;
+    position: relative;
+}
+
+#game-timer.paused::after {
+    content: '(Paused)';
+    position: absolute;
+    font-size: 0.4em;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    color: #ff9d4d;
+}
+
 @keyframes pulse {
     0% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.8; transform: scale(1.05); }
     100% { opacity: 1; transform: scale(1); }
 }
 
+@keyframes subtle-glow {
+    0% { text-shadow: 0 0 8px rgba(255, 204, 0, 0.5); }
+    100% { text-shadow: 0 0 15px rgba(255, 204, 0, 0.8); }
+}
+
+/* Timer controls styling */
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.timer-toggle-btn {
+    background: rgba(40, 40, 80, 0.7);
+    border: 1px solid rgba(100, 100, 255, 0.3);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.timer-toggle-btn:hover {
+    transform: scale(1.1);
+    background: rgba(60, 60, 100, 0.8);
+    border-color: rgba(150, 150, 255, 0.5);
+}
+
+.timer-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.timer-toggle-btn span {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Phase & Timer container styles */
+.phase-timer-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.phase-timer-container #game-phase {
+    color: #7bf7ff;
+    text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+    font-size: 1.4em;
+}
+
+.phase-timer-container #game-timer {
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    font-size: 1.4em;
+}
+
+/* Seat projection container styles */
+.seat-projection-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    position: relative;
+}
+
+.seat-projection-container::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 2px;
+    background: rgba(100, 100, 255, 0.3);
+}
+
+.seat-projection-container .status-value {
+    font-size: 1.4em;
+    flex: 1;
+    padding: 0 5px;
+}
+
+/* Player-specific seat styling */
+.seat-projection-container .status-value.player1 {
+    color: #ff9d4d;
+    text-shadow: 0 0 10px rgba(255, 157, 77, 0.5);
+    text-align: left;
+}
+
+.seat-projection-container .status-value.others {
+    color: #cccccc;
+    text-shadow: 0 0 10px rgba(204, 204, 204, 0.3);
+    font-size: 1em;
+    padding-top: 5px;
+}
+
+.seat-projection-container .status-value.player2 {
+    color: #7bf7ff;
+    text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+    text-align: right;
+}
+
+/* Majority threshold styling */
+.seat-projection-container .status-value.majority {
+    font-weight: bold;
+    font-size: 1.7em;
+    position: relative;
+}
+
+.seat-projection-container .status-value.player1.majority {
+    color: #ffa500;
+    text-shadow: 0 0 15px rgba(255, 165, 0, 0.8);
+}
+
+.seat-projection-container .status-value.player2.majority {
+    color: #00ffff;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+}
+
+.seat-projection-container .status-value.majority::after {
+    content: "✓";
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 14px;
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+}
+
+/* Seat progress bar */
+.seats-progress-bar {
+    height: 10px;
+    width: 100%;
+    background: rgba(20, 20, 40, 0.5);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 15px;
+    position: relative;
+    display: flex;
+}
+
+.seats-progress-bar .p1-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff7b00, #ff9d4d);
+    transition: width 0.8s ease;
+}
+
+.seats-progress-bar .others-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #999999, #cccccc);
+    transition: width 0.8s ease;
+}
+
+.seats-progress-bar .p2-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00c8ff, #7bf7ff);
+    transition: width 0.8s ease;
+}
+
+/* Majority marker */
+.majority-marker {
+    position: relative;
+    height: 15px;
+    width: 100%;
+}
+
+.majority-marker::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 10px;
+    width: 2px;
+    background: rgba(0, 255, 0, 0.7);
+}
+
+.majority-marker span {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6em;
+    color: rgba(0, 255, 0, 0.8);
+    background: rgba(20, 20, 40, 0.7);
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+
+/* Parliament status indicator */
+.parliament-status {
+    font-size: 0.7em;
+    color: #cccccc;
+    text-align: center;
+    margin-top: 5px;
+    font-style: italic;
+    text-shadow: 0 0 5px rgba(204, 204, 204, 0.3);
+    transition: all 0.3s ease;
+}
+
+.parliament-status.player1-majority {
+    color: #ffa500;
+    text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+    font-weight: bold;
+}
+
+.parliament-status.player2-majority {
+    color: #00ffff;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+.parliament-status.player1-coalition {
+    color: #ff9d4d;
+    text-shadow: 0 0 5px rgba(255, 157, 77, 0.5);
+}
+
+.parliament-status.player2-coalition {
+    color: #7bf7ff;
+    text-shadow: 0 0 5px rgba(123, 247, 255, 0.5);
+}
+
+.parliament-status.hung-parliament {
+    color: #ff6b6b;
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .status-value {
-        font-size: 1.8em;
+        font-size: 1.6em;
     }
     
-    .timer-box h3, .seats-box h3, .phase-box h3 {
+    .timer-box h3, .seats-box h3 {
+        font-size: 0.9em;
+    }
+    
+    .phase-timer-container #game-phase,
+    .phase-timer-container #game-timer {
+        font-size: 1.2em;
+    }
+    
+    .seat-projection-container .status-value {
+        font-size: 1.2em;
+    }
+    
+    .seat-projection-container .status-value.others {
         font-size: 0.9em;
     }
 }

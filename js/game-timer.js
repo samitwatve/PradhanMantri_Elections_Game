@@ -1,6 +1,5 @@
 // Timer functionality
-export class GameTimer {
-    constructor(options = {}) {
+export class GameTimer {    constructor(options = {}) {
         // Default configuration
         this.totalPhases = options.totalPhases || 8;
         this.phaseDuration = options.phaseDuration || 30; // seconds per phase
@@ -8,45 +7,38 @@ export class GameTimer {
         
         // Timer state
         this.currentPhase = 1;
-        this.remainingTime = this.phaseDuration;
+        this.remainingTime = this.totalDuration;
         this.phaseTimeRemaining = this.phaseDuration;
         this.intervalId = null;
+        this.isRunning = false;
         
         // UI elements
         this.timerElement = document.getElementById('game-timer');
-        this.phaseElement = document.getElementById('game-phase') || this.createPhaseElement();
+        this.phaseElement = document.getElementById('game-phase');
         
         // Callbacks
         this.callbacks = {
             onTimeUp: new Set(),
             onPhaseChange: new Set()
         };
-    }    createPhaseElement() {
-        // Create phase element if it doesn't exist
-        const statusSection = document.querySelector('.game-status .status-grid');
-        if (statusSection) {
-            const phaseBox = document.createElement('div');
-            phaseBox.className = 'phase-box';
-            phaseBox.innerHTML = `
-                <h3>Current Phase</h3>
-                <div class="status-value" id="game-phase">${this.currentPhase} / ${this.totalPhases}</div>
-            `;
-            
-            // Insert after timer box for better visual order
-            const timerBox = statusSection.querySelector('.timer-box');
-            if (timerBox) {
-                timerBox.insertAdjacentElement('afterend', phaseBox);
-            } else {
-                statusSection.appendChild(phaseBox);
-            }
-            
-            return document.getElementById('game-phase');
-        }
-        return null;
-    }
-
-    start() {
+        
+        // Initialize display when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.initializeDisplay());
+        } else {
+            this.initializeDisplay();
+        }    }initializeDisplay() {
+        // Make sure UI elements are available
+        this.timerElement = document.getElementById('game-timer');
+        this.phaseElement = document.getElementById('game-phase');
+        
+        // Set initial display values
+        this.updateDisplay();
+    }start() {
         if (this.intervalId) return;
+        
+        this.isRunning = true;
+        console.log('Timer started: Phase', this.currentPhase, 'Time remaining:', this.remainingTime);
 
         this.intervalId = setInterval(() => {
             this.remainingTime--;
@@ -72,6 +64,7 @@ export class GameTimer {
         if (this.currentPhase < this.totalPhases) {
             this.currentPhase++;
             this.phaseTimeRemaining = this.phaseDuration;
+            console.log('Phase advanced to:', this.currentPhase);
             this.notifyPhaseChange();
             this.updateDisplay();
         }
@@ -81,17 +74,53 @@ export class GameTimer {
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
+            this.isRunning = false;
+            console.log('Timer stopped');
+        }
+    }
+
+    pause() {
+        if (this.intervalId && this.isRunning) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+            this.isRunning = false;
+            console.log('Timer paused');
+            
+            // Add paused visual indication
+            if (this.timerElement) {
+                this.timerElement.classList.add('paused');
+            }
+        }
+    }
+    
+    resume() {
+        if (!this.isRunning && this.remainingTime > 0) {
+            this.start();
+            console.log('Timer resumed');
+            
+            // Remove paused visual indication
+            if (this.timerElement) {
+                this.timerElement.classList.remove('paused');
+            }
+        }
+    }
+    
+    togglePause() {
+        if (this.isRunning) {
+            this.pause();
+        } else {
+            this.resume();
         }
     }
 
     reset() {
+        this.stop();
         this.currentPhase = 1;
         this.remainingTime = this.totalDuration;
         this.phaseTimeRemaining = this.phaseDuration;
+        console.log('Timer reset');
         this.updateDisplay();
-    }
-
-    updateDisplay() {
+    }    updateDisplay() {
         if (!this.timerElement) return;
 
         // Update timer display
@@ -110,6 +139,13 @@ export class GameTimer {
         } else {
             this.timerElement.classList.remove('warning');
         }
+        
+        // Add subtle animation during active timer
+        if (this.isRunning) {
+            this.timerElement.classList.add('active');
+        } else {
+            this.timerElement.classList.remove('active');
+        }
     }
 
     onTimeUp(callback) {
@@ -127,9 +163,7 @@ export class GameTimer {
     notifyPhaseChange() {
         this.callbacks.onPhaseChange.forEach(callback => 
             callback(this.currentPhase, this.totalPhases));
-    }
-
-    // Getter for current phase (1-indexed)
+    }    // Getter for current phase (1-indexed)
     getCurrentPhase() {
         return this.currentPhase;
     }
@@ -143,6 +177,7 @@ export class GameTimer {
     getTotalTimeRemaining() {
         return this.remainingTime;
     }
+}
 }
 
 // Create and export a single instance of GameTimer with default settings

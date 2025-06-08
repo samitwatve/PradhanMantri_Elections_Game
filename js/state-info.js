@@ -78,6 +78,9 @@ class StateInfo {
                 }
             });
         });
+        
+        // Make stateInfo available globally for seat projection
+        window.stateInfo = this;
     }
       initializeState(stateId) {
         if (!this.statePopularity.has(stateId)) {
