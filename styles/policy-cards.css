@@ -8,7 +8,7 @@
 
 .policy-card {
     background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
-    border: 2px solid rgba(100, 100, 255, 0.3);
+    border: 4px solid rgba(100, 100, 255, 0.3);
     border-radius: 6px;
     padding: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
