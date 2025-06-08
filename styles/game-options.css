@@ -2,7 +2,7 @@
     background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
     border: 2px solid rgba(100, 100, 255, 0.3);
     border-radius: 6px;
-    padding: 8px;
+    padding: 8px 8px 12px 8px;
     margin-bottom: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     transition: all 0.2s ease;
@@ -19,6 +19,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 6px;
+    margin-bottom: -5px; /* Negative margin to pull content up */
 }
 
 .option-button {
@@ -27,7 +28,7 @@
     border-radius: 6px;
     padding: 5px;
     width: calc(20% - 5px);
-    aspect-ratio: 1/0.85;
+    aspect-ratio: 1/0.85; /* Restore original aspect ratio */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -68,6 +69,7 @@
     color: #a0c0ff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    line-height: 1; /* Tighten line height */
 }
 
 /* Toggle states */
@@ -102,4 +104,8 @@
 
 .option-button:hover::after {
     opacity: 1;
+}
+
+.info-section.game-options {
+    min-height: auto !important; /* Override the min-height from info-section */
 }
