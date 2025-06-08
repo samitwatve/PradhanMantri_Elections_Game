@@ -8,6 +8,7 @@
     --player1-color: #FF9800;  /* Orange */
     --player2-color: #4CAF50;  /* Green */
     --others-color: #9E9E9E;   /* Grey */
+    --highlight-color: #ffffff; /* White */
 }
 
 object#india-map {
@@ -71,4 +72,21 @@ svg polygon {
 /* Hide tooltip by default */
 #tooltip.visible {
     display: block;
+}
+
+/* Button active state */
+.button-grid button.active {
+    background-color: var(--highlight-color);
+    color: #000;
+    border: 2px solid #ffffff;
+    transform: scale(0.98);
+    transition: all 0.2s ease;
+}
+
+/* Highlighted state paths */
+#india-map path.highlighted,
+#india-map polygon.highlighted {
+    stroke: var(--highlight-color);
+    stroke-width: 3;
+    transition: stroke 0.3s ease;
 }

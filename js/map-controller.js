@@ -5,6 +5,7 @@ class MapController {
         this.selectedStates = new Set();
         this.statesData = null;
         this.rippleContainer = null;
+        this.highlightedStates = new Set();
         this.initialize();
     }    async initialize() {
         try {
@@ -68,6 +69,12 @@ class MapController {
         } catch (error) {
             console.error('Failed to initialize map:', error);
         }
+
+        // Add event listener for state highlighting
+        window.addEventListener('toggleStateHighlight', (event) => {
+            const { stateId } = event.detail;
+            this.toggleStateHighlight(stateId);
+        });
     }
 
     injectSvgStyles() {
@@ -517,6 +524,38 @@ class MapController {
                 this.rippleContainer.removeChild(ripple);
             }
         }, 600);
+    }    toggleStateHighlight(stateId, forceState = null, forceOff = false) {
+        if (!this.svgDocument) return;
+
+        const statePath = this.svgDocument.getElementById(stateId);
+        if (!statePath) {
+            console.warn(`State path not found for ID: ${stateId}`);
+            return;
+        }
+
+        // Force off takes precedence
+        if (forceOff) {
+            this.highlightedStates.delete(stateId);
+            statePath.style.stroke = '';
+            statePath.style.strokeWidth = '';
+            statePath.style.filter = '';
+            return;
+        }
+
+        // If forceState is provided, use it; otherwise toggle
+        const shouldHighlight = forceState !== null ? forceState : !this.highlightedStates.has(stateId);
+
+        if (shouldHighlight) {
+            this.highlightedStates.add(stateId);
+            statePath.style.stroke = '#ffffff'; // White color for highlight
+            statePath.style.strokeWidth = '3';
+            statePath.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.7))';
+        } else {
+            this.highlightedStates.delete(stateId);
+            statePath.style.stroke = '';
+            statePath.style.strokeWidth = '';
+            statePath.style.filter = '';
+        }
     }
 }
 
