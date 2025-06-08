@@ -40,6 +40,7 @@
     transition: all 0.2s ease;
     border: 1px solid rgba(100, 100, 255, 0.2);
     position: relative;
+    cursor: pointer;
 }
 
 .progress-item:hover {
@@ -66,31 +67,30 @@
     position: relative;
 }
 
-[data-player="1"] .progress-fill {
+.progress-fill {
     height: 100%;
+    width: 0%;
+    transition: width 0.6s ease;
+    position: relative;
+}
+
+.progress-fill.player1 {
     background: linear-gradient(90deg, var(--player1-color-dark) 0%, var(--player1-color) 100%);
-    width: 0%;
-    transition: width 0.6s ease;
     box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
-    position: relative;
 }
 
-[data-player="2"] .progress-fill {
-    height: 100%;
+.progress-fill.player2 {
     background: linear-gradient(90deg, var(--player2-color-dark) 0%, var(--player2-color) 100%);
-    width: 0%;
-    transition: width 0.6s ease;
     box-shadow: 0 0 10px rgba(46, 125, 50, 0.4);
-    position: relative;
 }
 
-.progress-fill.complete[data-player="1"] {
+.progress-fill.complete.player1 {
     background: linear-gradient(90deg, var(--player1-color) 0%, var(--player1-color-light) 100%);
     box-shadow: 0 0 15px rgba(255, 133, 51, 0.6);
     animation: glow-pulse 2s infinite;
 }
 
-.progress-fill.complete[data-player="2"] {
+.progress-fill.complete.player2 {
     background: linear-gradient(90deg, var(--player2-color) 0%, var(--player2-color-light) 100%);
     box-shadow: 0 0 15px rgba(67, 160, 71, 0.6);
     animation: glow-pulse 2s infinite;
@@ -126,6 +126,41 @@
     pointer-events: none;
 }
 
+/* Campaign contribution indicators */
+.contribution-info {
+    display: none;
+}
+
+.contribution-player1 {
+    display: none;
+}
+
+.contribution-player2 {
+    display: none;
+}
+
+/* Campaign completion effect */
+.progress-item.completed {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    animation: completed-pulse 2s infinite;
+}
+
+@keyframes completed-pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+    100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+}
+
+/* Instruction tooltip */
+.progress-item::before {
+    display: none;
+}
+
+.progress-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Add responsive adjustments */
 @media (max-width: 768px) {
     .policy-grid {
@@ -140,4 +175,98 @@
     .progress-item-label {
         font-size: 0.7em;
     }
+}
+
+/* Campaign completion notification */
+.campaign-completion-notification {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 8px;
+    padding: 15px 25px;
+    z-index: 1000;
+    text-align: center;
+    animation: notification-fade 3s ease-in-out;
+}
+
+.campaign-completion-notification.player1 {
+    border: 3px solid var(--player1-color);
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
+}
+
+.campaign-completion-notification.player2 {
+    border: 3px solid var(--player2-color);
+    box-shadow: 0 0 20px rgba(46, 125, 50, 0.6);
+}
+
+.notification-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.notification-policy {
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: #a0c0ff;
+}
+
+.notification-bonus {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #ffca28;
+}
+
+@keyframes notification-fade {
+    0% { opacity: 0; transform: translate(-50%, -20px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Phase bonus notification */
+.phase-bonus-notification {
+    position: fixed;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 8px;
+    padding: 15px 25px;
+    z-index: 1000;
+    text-align: center;
+    animation: notification-slide 3s ease-in-out;
+}
+
+.phase-bonus-notification.player1 {
+    border: 3px solid var(--player1-color);
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
+}
+
+.phase-bonus-notification.player2 {
+    border: 3px solid var(--player2-color);
+    box-shadow: 0 0 20px rgba(46, 125, 50, 0.6);
+}
+
+@keyframes notification-slide {
+    0% { opacity: 0; transform: translate(-50%, 20px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Player instructions */
+.campaigns-section::before {
+    content: 'Click on a campaign to contribute as Player 1. Hold Shift key and click to contribute as Player 2.';
+    display: block;
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 10px;
+    text-align: center;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
 }
