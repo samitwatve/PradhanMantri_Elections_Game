@@ -1,5 +1,6 @@
 // Timer functionality
-export class GameTimer {    constructor(options = {}) {
+export class GameTimer {
+    constructor(options = {}) {
         // Default configuration
         this.totalPhases = options.totalPhases || 8;
         this.phaseDuration = options.phaseDuration || 30; // seconds per phase
@@ -27,14 +28,17 @@ export class GameTimer {    constructor(options = {}) {
             document.addEventListener('DOMContentLoaded', () => this.initializeDisplay());
         } else {
             this.initializeDisplay();
-        }    }initializeDisplay() {
+        }
+    }    initializeDisplay() {
         // Make sure UI elements are available
         this.timerElement = document.getElementById('game-timer');
         this.phaseElement = document.getElementById('game-phase');
         
         // Set initial display values
         this.updateDisplay();
-    }start() {
+    }
+
+    start() {
         if (this.intervalId) return;
         
         this.isRunning = true;
@@ -111,16 +115,16 @@ export class GameTimer {    constructor(options = {}) {
         } else {
             this.resume();
         }
-    }
-
-    reset() {
+    }    reset() {
         this.stop();
         this.currentPhase = 1;
         this.remainingTime = this.totalDuration;
         this.phaseTimeRemaining = this.phaseDuration;
         console.log('Timer reset');
         this.updateDisplay();
-    }    updateDisplay() {
+    }
+    
+    updateDisplay() {
         if (!this.timerElement) return;
 
         // Update timer display
@@ -177,7 +181,6 @@ export class GameTimer {    constructor(options = {}) {
     getTotalTimeRemaining() {
         return this.remainingTime;
     }
-}
 }
 
 // Create and export a single instance of GameTimer with default settings
