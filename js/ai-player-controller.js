@@ -59,43 +59,90 @@ class AIPlayerController {
                 this.statesData = await response.json();
             }
             
-            // Choose a random state for the AI to target
-            const targetState = this.chooseTargetState();
-            
-            if (!targetState) {
-                console.log('AI could not find a suitable target state');
-                return;
-            }
-            
-            console.log(`AI randomly targeting state: ${targetState.SvgId}`);
-            
-            // Calculate cost (equal to number of seats)
-            const cost = parseInt(targetState.LokSabhaSeats);
-            
-            // Check if AI has enough funds
-            if (player2.canSpend(cost)) {
-                // Update state popularity
-                stateInfo.recordStateAction(targetState.SvgId, this.aiPlayerId, cost);
-                
-                // Deduct funds from AI player
-                player2.updateFunds(-cost);
-                
-                // Find coordinates for the ripple effect (center of the state)
-                const stateElement = mapController.svgDocument.getElementById(targetState.SvgId);
-                if (stateElement) {
-                    // Get the bounding box of the state
-                    const bbox = stateElement.getBBox();
-                    const centerX = bbox.x + bbox.width / 2;
-                    const centerY = bbox.y + bbox.height / 2;                    // Create a ripple effect at the center of the state
-                    mapController.createRippleEffect(centerX, centerY, this.aiPlayerId);
-                }
-                
-                console.log(`AI player spent ${cost}M on ${targetState.State}`);
+            // 50% chance to target a state, 50% chance to contribute to a campaign
+            if (Math.random() < 0.5) {
+                this.targetRandomState();
             } else {
-                console.log('AI player does not have enough funds');
+                this.contributeToRandomCampaign();
             }
         } catch (error) {
             console.error('Error during AI turn:', error);
+        }
+    }
+    
+    async targetRandomState() {
+        // Choose a random state for the AI to target
+        const targetState = this.chooseTargetState();
+        
+        if (!targetState) {
+            console.log('AI could not find a suitable target state');
+            return;
+        }
+        
+        console.log(`AI randomly targeting state: ${targetState.SvgId}`);
+        
+        // Calculate cost (equal to number of seats)
+        const cost = parseInt(targetState.LokSabhaSeats);
+        
+        // Check if AI has enough funds
+        if (player2.canSpend(cost)) {
+            // Update state popularity
+            stateInfo.recordStateAction(targetState.SvgId, this.aiPlayerId, cost);
+            
+            // Deduct funds from AI player
+            player2.updateFunds(-cost);
+            
+            // Find coordinates for the ripple effect (center of the state)
+            const stateElement = mapController.svgDocument.getElementById(targetState.SvgId);
+            if (stateElement) {
+                // Get the bounding box of the state
+                const bbox = stateElement.getBBox();
+                const centerX = bbox.x + bbox.width / 2;
+                const centerY = bbox.y + bbox.height / 2;
+                // Create a ripple effect at the center of the state
+                mapController.createRippleEffect(centerX, centerY, this.aiPlayerId);
+            }
+            
+            console.log(`AI player spent ${cost}M on ${targetState.State}`);
+        } else {
+            console.log('AI player does not have enough funds');
+        }
+    }
+
+    contributeToRandomCampaign() {
+        // Get all available campaign categories
+        const categories = Object.keys(window.policyProgress);
+        
+        // List of all available, non-maxed campaigns
+        const availableCampaigns = [];
+        
+        // Check each campaign in each category
+        categories.forEach(category => {
+            window.policyProgress[category].forEach((policy, index) => {
+                // Only consider campaigns that aren't maxed out
+                if (policy.player1 + policy.player2 < 100) {
+                    availableCampaigns.push({ category, index });
+                }
+            });
+        });
+        
+        // If no available campaigns, exit
+        if (availableCampaigns.length === 0) {
+            console.log('AI found no available campaigns to contribute to');
+            return;
+        }
+        
+        // Choose a random campaign
+        const randomCampaign = availableCampaigns[Math.floor(Math.random() * availableCampaigns.length)];
+        const { category, index } = randomCampaign;
+        
+        // Contribute to the campaign using the incrementPolicy function
+        const success = window.incrementPolicy(category, index, this.aiPlayerId);
+        
+        if (success) {
+            console.log(`AI player contributed to ${category}-${index + 1} campaign`);
+        } else {
+            console.log('AI player failed to contribute to campaign');
         }
     }    
     
