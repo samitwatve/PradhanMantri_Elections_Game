@@ -1,6 +1,7 @@
 import { stateInfo } from './state-info.js';
 import { GameTimer } from './game-timer.js';
 import { mapController } from './map-controller.js';
+import { aiPlayerController } from './ai-player-controller.js';
 
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeStateGroups();
     initializeActionsLog();
     // stateInfo initializes itself
+    // aiPlayerController initializes itself
     
     // Set up event listeners for game-wide events
     setupGameEventListeners();

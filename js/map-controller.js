@@ -113,9 +113,7 @@ class MapController {
             state.addEventListener('mouseover', (e) => this.handleStateHover(e));
             state.addEventListener('mouseout', (e) => this.handleStateUnhover(e));
         });
-    }
-
-    handleStateClick(event) {
+    }    handleStateClick(event) {
         const stateElement = event.target;
         const stateId = stateElement.id;
         const stateData = this.statesData.find(state => state.SvgId === stateId);
@@ -159,7 +157,8 @@ class MapController {
                 } else {
                     // If already selected, toggle selection state
                     console.log(`Deselecting state: ${stateId}`);
-                    this.deselectState(stateId);                }
+                    this.deselectState(stateId);
+                }
             } else {
                 // Visual feedback for insufficient funds
                 stateElement.classList.add('error');
