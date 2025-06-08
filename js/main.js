@@ -7,7 +7,18 @@ import { aiPlayerController } from './ai-player-controller.js';
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all game components
     initializeMap();
-    const gameTimer = new GameTimer();
+      // Initialize game timer with 8 phases of 30 seconds each
+    const gameTimer = new GameTimer({
+        totalPhases: 8,
+        phaseDuration: 30
+    });
+      // Set up phase change listener
+    gameTimer.onPhaseChange((currentPhase, totalPhases) => {
+        console.log(`Phase changed: ${currentPhase} of ${totalPhases}`);
+        gameState.updatePhase(currentPhase);
+        // You can add phase-specific logic here
+    });
+    
     gameTimer.start();
     initializePlayerInfo();
     initializeStateGroups();
@@ -77,6 +88,21 @@ function setupGameEventListeners() {
 // Export game state management functions if needed
 export const gameState = {
     currentPlayer: 1,
-    gamePhase: 'setup',
+    gamePhase: 1,
+    totalPhases: 8,
+    phaseDuration: 30,
     // Add more game state properties as needed
+    
+    // Update the current phase
+    updatePhase(newPhase) {
+        this.gamePhase = newPhase;
+        // Dispatch an event that other modules can listen for
+        const event = new CustomEvent('gamePhaseChanged', { 
+            detail: { phase: newPhase, totalPhases: this.totalPhases }
+        });
+        window.dispatchEvent(event);
+    }
 };
+
+// Export the timer for other modules to use
+export { gameTimer };
