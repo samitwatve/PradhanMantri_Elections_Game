@@ -74,10 +74,10 @@ class MapController {
         if (!this.svgDocument) return;
 
         // Create a style element
-        const style = this.svgDocument.createElementNS("http://www.w3.org/2000/svg", "style");
-        style.textContent = `
+        const style = this.svgDocument.createElementNS("http://www.w3.org/2000/svg", "style");        style.textContent = `
             path, polygon {
-                cursor: pointer;
+                cursor: pointer !important;
+                pointer-events: all !important;
             }
             
             path.error {
@@ -105,11 +105,7 @@ class MapController {
         const states = this.svgDocument.querySelectorAll('path, polygon');
         states.forEach(state => {
             if (!state.id) return;
-            
-            // Ensure pointer cursor is visible
-            state.style.cursor = 'pointer';
-            
-            state.addEventListener('click', (e) => this.handleStateClick(e));
+              state.addEventListener('click', (e) => this.handleStateClick(e));
             state.addEventListener('mouseover', (e) => this.handleStateHover(e));
             state.addEventListener('mouseout', (e) => this.handleStateUnhover(e));
         });

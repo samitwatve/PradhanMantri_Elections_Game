@@ -14,10 +14,17 @@ object#india-map {
     pointer-events: all;
 }
 
-#india-map path, 
-#india-map polygon {
+object#india-map path, 
+object#india-map polygon {
     cursor: pointer !important;
     /* No transition - we want immediate color changes */
+    pointer-events: all !important;
+}
+
+svg path,
+svg polygon {
+    cursor: pointer !important;
+    pointer-events: all !important;
 }
 
 /* 
