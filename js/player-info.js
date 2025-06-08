@@ -6,6 +6,15 @@ class PlayerInfo {
         this.statsElement = this.element.querySelector('.player-stats');
         this.funds = 250; // Starting funds in millions
         this.initialize();
+        
+        // Bind the event handler and listen for phase changes to replenish funds
+        this.handlePhaseChange = this.handlePhaseChange.bind(this);
+        window.addEventListener('gamePhaseChanged', this.handlePhaseChange);
+    }
+
+    handlePhaseChange(event) {
+        console.log(`Player ${this.playerId} received phase change event:`, event.detail);
+        this.replenishFunds();
     }
 
     initialize() {
@@ -105,6 +114,49 @@ class PlayerInfo {
                 fundsElement.classList.remove('shake-animation');
                 fundsElement.style.color = originalColor;
             }, 500);
+        }
+    }    replenishFunds() {
+        // Add 250M funds at each phase change (as per roadmap)
+        const replenishAmount = 250;
+        this.updateFunds(replenishAmount);
+        console.log(`Player ${this.playerId} funds replenished by ${replenishAmount}M (current total: ${this.funds}M)`);
+        
+        // Show a special notification for fund replenishment
+        this.showPhaseReplenishmentNotification(replenishAmount);
+    }
+      showPhaseReplenishmentNotification(amount) {
+        // Create notification element for phase replenishment
+        const notification = document.createElement('div');
+        notification.className = 'phase-replenishment-notification';
+        notification.textContent = `+${amount}M`;
+        
+        // Position near funds display
+        const fundsElement = this.element.querySelector('.funds-amount');
+        if (fundsElement) {
+            const fundsRect = fundsElement.getBoundingClientRect();
+            
+            // Append to player info container
+            this.element.style.position = 'relative';
+            notification.style.position = 'absolute';
+            notification.style.left = `${fundsRect.left - this.element.getBoundingClientRect().left + fundsRect.width / 2}px`;
+            notification.style.top = `${fundsRect.top - this.element.getBoundingClientRect().top - 30}px`;
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.backgroundColor = '#4CAF50';
+            notification.style.color = 'white';
+            notification.style.padding = '4px 8px';
+            notification.style.borderRadius = '4px';
+            notification.style.fontSize = '12px';
+            notification.style.fontWeight = 'bold';
+            notification.style.zIndex = '1000';
+            notification.style.animation = 'fadeInOut 2s ease-in-out';
+              this.element.appendChild(notification);
+            
+            // Remove after animation completes (same duration as regular fund notifications)
+            setTimeout(() => {
+                if (this.element.contains(notification)) {
+                    this.element.removeChild(notification);
+                }
+            }, 600);
         }
     }
 

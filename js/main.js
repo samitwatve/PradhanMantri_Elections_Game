@@ -3,11 +3,13 @@ import { gameTimer } from './game-timer.js';
 import { mapController } from './map-controller.js';
 import { aiPlayerController } from './ai-player-controller.js';
 import { seatProjection } from './seat-projection.js';
+import { player1, player2 } from './player-info.js';
 
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all game components
     initializeMap();
+    initializePlayerInfo(); // Initialize player info first so event listeners are set up
     
     // Configure the game timer with 8 phases of 30 seconds each
     gameTimer.totalPhases = 8;
@@ -15,17 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
     gameTimer.totalDuration = gameTimer.totalPhases * gameTimer.phaseDuration;
     gameTimer.remainingTime = gameTimer.totalDuration;
     gameTimer.phaseTimeRemaining = gameTimer.phaseDuration;
-    
-    // Set up phase change listener
+      // Set up phase change listener
     gameTimer.onPhaseChange((currentPhase, totalPhases) => {
         console.log(`Phase changed: ${currentPhase} of ${totalPhases}`);
         gameState.updatePhase(currentPhase);
-        // You can add phase-specific logic here
-    });
-    
+        
+        // Dispatch gamePhaseChanged event for other components to listen to
+        const event = new CustomEvent('gamePhaseChanged', { 
+            detail: { phase: currentPhase, totalPhases: totalPhases }
+        });
+        window.dispatchEvent(event);
+        
+        console.log(`Dispatched gamePhaseChanged event for phase ${currentPhase}`);
+    });    
     // Start the timer
     gameTimer.start();
-    initializePlayerInfo();
     initializeStateGroups();
     initializeActionsLog();
     // stateInfo initializes itself
@@ -209,6 +215,23 @@ function initializeMap() {
     });
 }
 
+function initializePlayerInfo() {
+    // Player instances are created when the module is imported
+    // This function ensures they are properly initialized
+    console.log('Player info initialized:', player1, player2);
+    return { player1, player2 };
+}
+
+function initializeStateGroups() {
+    // Initialize state groups functionality
+    console.log('State groups initialized');
+}
+
+function initializeActionsLog() {
+    // Initialize actions log functionality
+    console.log('Actions log initialized');
+}
+
 function setupGameEventListeners() {
     // Listen for game-wide events
     window.addEventListener('resize', () => {
@@ -224,14 +247,10 @@ export const gameState = {
     totalPhases: 8,
     phaseDuration: 30,
     // Add more game state properties as needed
-    
-    // Update the current phase
+      // Update the current phase
     updatePhase(newPhase) {
         this.gamePhase = newPhase;
-        // Dispatch an event that other modules can listen for
-        const event = new CustomEvent('gamePhaseChanged', { 
-            detail: { phase: newPhase, totalPhases: this.totalPhases }
-        });
-        window.dispatchEvent(event);
+        // Note: gamePhaseChanged event is dispatched from main.js timer callback
+        // to avoid duplicate events
     }
 };
