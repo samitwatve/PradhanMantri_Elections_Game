@@ -5,12 +5,15 @@ import { player2 } from './player-info.js';
 import { stateInfo } from './state-info.js';
 import { mapController } from './map-controller.js';
 
-class AIPlayerController {    constructor() {
+class AIPlayerController {    
+    constructor() {
         this.aiPlayerId = 2;
         this.turnInterval = 2000; // 2 seconds between AI turns
         this.aiActive = true;
         this.initialize();
-    }    initialize() {
+    }    
+    
+    initialize() {
         console.log('AI Player Controller initialized');
         
         // Start the AI turn loop after a short delay
@@ -44,7 +47,9 @@ class AIPlayerController {    constructor() {
             this.turnTimer = null;
         }
         this.aiActive = false;
-    }    async takeAITurn() {
+    }    
+    
+    async takeAITurn() {
         console.log('AI player taking random turn');
         
         try {
@@ -81,9 +86,7 @@ class AIPlayerController {    constructor() {
                     // Get the bounding box of the state
                     const bbox = stateElement.getBBox();
                     const centerX = bbox.x + bbox.width / 2;
-                    const centerY = bbox.y + bbox.height / 2;
-                    
-                    // Create a ripple effect at the center of the state
+                    const centerY = bbox.y + bbox.height / 2;                    // Create a ripple effect at the center of the state
                     mapController.createRippleEffect(centerX, centerY, this.aiPlayerId);
                 }
                 
@@ -94,7 +97,9 @@ class AIPlayerController {    constructor() {
         } catch (error) {
             console.error('Error during AI turn:', error);
         }
-    }chooseTargetState() {
+    }    
+    
+    chooseTargetState() {
         if (!this.statesData) return null;
         
         // Get states where AI can afford to campaign

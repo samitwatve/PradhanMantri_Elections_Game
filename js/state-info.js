@@ -55,9 +55,7 @@ class StateInfo {
         } catch (error) {
             console.error('Failed to load states data:', error);
         }
-    }
-
-    setupEventListeners() {
+    }    setupEventListeners() {
         // Listen for state hovers from map
         window.addEventListener('stateHover', (event) => {
             console.log('Hover event received for state:', event.detail.stateId);
@@ -141,9 +139,7 @@ class StateInfo {
                 popularity
             }
         }));
-    }    
-
-    recordStateAction(stateId, playerId, amount) {
+    }    recordStateAction(stateId, playerId, amount) {
         if (!this.statePopularity.has(stateId)) {
             this.initializeState(stateId);
         }
@@ -253,8 +249,11 @@ class StateInfo {
         console.log(`Updated ${stateId} popularity:`, newPopularity);
         console.log(`State actions:`, this.stateActions.get(stateId));
         
-        // Force an immediate re-render of the state info
-        this.updateStateInfo(stateId);
+        // For player 1 (human player), update the state info display
+        // For player 2 (AI), don't update the display to avoid interfering with hover
+        if (playerId === 1) {
+            this.updateStateInfo(stateId);
+        }
     }
 
     refreshStateDisplay(stateId) {
@@ -267,9 +266,7 @@ class StateInfo {
                 this.updateStateInfo(stateId);
             }
         }
-    }
-
-    updateStateInfo(stateId) {
+    }    updateStateInfo(stateId) {
         if (!this.statesData || !this.statesDetails) {
             console.log('Missing statesData or statesDetails');
             return;
