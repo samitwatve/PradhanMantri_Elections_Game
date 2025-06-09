@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="styles/player-sections.css">
     <link rel="stylesheet" href="styles/states-section.css">
     <link rel="stylesheet" href="styles/actions-section.css">
-    <link rel="stylesheet" href="styles/status-section.css">
-    <link rel="stylesheet" href="styles/effects.css">
+    <link rel="stylesheet" href="styles/status-section.css">    <link rel="stylesheet" href="styles/effects.css">
     <link rel="stylesheet" href="styles/game-options.css">
     <link rel="stylesheet" href="styles/group-domination.css">
+    <link rel="stylesheet" href="styles/tv-display.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>    
@@ -49,8 +49,9 @@
         </div>
     </div>    
     <div class="main-pane">
-        <h2>Game Area</h2>
-        <div class="state-groups-panel">
+        <h2>Game Area</h2>        <div class="map-container">
+            <object id="india-map" data="INDIA_V2.svg" type="image/svg+xml"></object>
+        </div>        <div class="state-groups-panel">
             <h3>Groups</h3>
             <div class="button-grid">                
                 <button>Union Territory</button>
@@ -69,9 +70,6 @@
                 <button>Natural Resources</button>
                 <button>Minority Areas</button>
             </div>
-        </div>        
-        <div class="map-container">
-            <object id="india-map" data="INDIA_V2.svg" type="image/svg+xml"></object>
         </div>
         <div class="small-uts-panel">
             <h3>Small Union Territories</h3>            <div class="small-uts-grid">
@@ -79,7 +77,24 @@
                 <button data-ut="INCH">Chandigarh</button>
                 <button data-ut="INDH" class="merged-ut">Dadra and Nagar Haveli and Daman and Diu</button>
             </div>
-        </div>    </div>    <div class="right-pane">
+        </div>
+        <div class="tv-display-panel">
+            <div class="tv-frame">
+                <div class="tv-header">
+                    <h3>LIVE Updates</h3>
+                    <div class="tv-controls">
+                        <span class="tv-indicator"></span>
+                        <span class="tv-button"></span>
+                        <span class="tv-button"></span>
+                    </div>
+                </div>
+                <div class="tv-content">
+                    <div class="tv-screen">
+                        <p class="tv-text">Welcome to Election Coverage</p>
+                    </div>
+                </div>
+            </div>
+        </div></div>    <div class="right-pane">
         <h2 class="compact-heading">Game Options</h2>
         <div class="info-section game-options">
             <div class="options-grid">
@@ -321,5 +336,6 @@
 <script type="module" src="js/state-info.js"></script>
 <script type="module" src="js/policy-progress.js"></script>
 <script type="module" src="js/game-options.js"></script>
+<script type="module" src="js/tv-display.js"></script>
 </body>
 </html>
