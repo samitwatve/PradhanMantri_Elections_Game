@@ -303,13 +303,13 @@ class StateGroups {    constructor() {
     }    // Check domination for all groups
     async checkAllGroupsDomination() {
         // Debug log group membership first
-        this.debugGroupMembership();
+        // this.debugGroupMembership();
         
         // Get all group names
         const groupNames = Array.from(this.groups.keys());
         
-        console.log(`===== CHECKING DOMINATION FOR ALL GROUPS =====`);
-        console.log(`Checking domination for ${groupNames.length} groups`);
+        // console.log(`===== CHECKING DOMINATION FOR ALL GROUPS =====`);
+        // console.log(`Checking domination for ${groupNames.length} groups`);
         
         // Count of dominated groups by each player
         let player1DominatedGroups = 0;

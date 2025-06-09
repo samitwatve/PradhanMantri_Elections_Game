@@ -254,8 +254,8 @@ class StateInfo {
         this.updateStatePopularity(stateId, newPopularity);
         
         // Log the update for debugging
-        console.log(`Updated ${stateId} popularity:`, newPopularity);
-        console.log(`State actions:`, this.stateActions.get(stateId));
+        // console.log(`Updated ${stateId} popularity:`, newPopularity);
+        // console.log(`State actions:`, this.stateActions.get(stateId));
         
         // For player 1 (human player), update the state info display
         // For player 2 (AI), don't update the display to avoid interfering with hover

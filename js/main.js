@@ -46,37 +46,37 @@ document.addEventListener('DOMContentLoaded', () => {
         stateInfo.forceUpdateAllStates();
         
         // Add a test button to the UI
-        const debugDiv = document.createElement('div');
+        // const debugDiv = document.createElement('div');
     
     // Expose gameTimer to window object for other modules
     window.gameTimer = gameTimer;
-        debugDiv.style.position = 'fixed';
-        debugDiv.style.bottom = '10px';
-        debugDiv.style.right = '10px';
-        debugDiv.style.zIndex = '9999';
-        debugDiv.style.display = 'flex';
-        debugDiv.style.flexDirection = 'column';
-        debugDiv.style.gap = '5px';
+        // debugDiv.style.position = 'fixed';
+        // debugDiv.style.bottom = '10px';
+        // debugDiv.style.right = '10px';
+        // debugDiv.style.zIndex = '9999';
+        // debugDiv.style.display = 'flex';
+        // debugDiv.style.flexDirection = 'column';
+        // debugDiv.style.gap = '5px';
         
         const testButton = document.createElement('button');
         testButton.textContent = 'Update All Colors';
         testButton.onclick = function() {
             stateInfo.forceUpdateAllStates();
         };
-        debugDiv.appendChild(testButton);
+        // debugDiv.appendChild(testButton);
         
         const resetSelectionsButton = document.createElement('button');
         resetSelectionsButton.textContent = 'Reset Selections';
         resetSelectionsButton.onclick = function() {
             mapController.resetAllSelections();
         };
-        debugDiv.appendChild(resetSelectionsButton);
+        // debugDiv.appendChild(resetSelectionsButton);
           const testProjectionsButton = document.createElement('button');
         testProjectionsButton.textContent = 'Test Seat Projections';
         testProjectionsButton.onclick = function() {
             window.testSeatProjections();
         };
-        debugDiv.appendChild(testProjectionsButton);
+        // debugDiv.appendChild(testProjectionsButton);
           const checkDominationButton = document.createElement('button');
         checkDominationButton.textContent = 'Check Group Domination';
         checkDominationButton.onclick = async function() {
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Manually checking group domination');
             await stateGroups.checkAllGroupsDomination();
         };
-        debugDiv.appendChild(checkDominationButton);
+        // debugDiv.appendChild(checkDominationButton);
           const analyzeDominationButton = document.createElement('button');
         analyzeDominationButton.textContent = 'Analyze Group Domination';
         analyzeDominationButton.style.backgroundColor = '#ff9800';
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Analyzing group domination issues');
             await stateGroups.analyzeGroupDomination();
         };
-        debugDiv.appendChild(analyzeDominationButton);
+        // debugDiv.appendChild(analyzeDominationButton);
         
         // Add buttons to force domination of specific groups
         const groupSelect = document.createElement('select');
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = group;
             groupSelect.appendChild(option);
         });
-        debugDiv.appendChild(groupSelect);
+        // debugDiv.appendChild(groupSelect);
         
         const forceP1Button = document.createElement('button');
         forceP1Button.textContent = 'Force P1 Domination';
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedGroup = groupSelect.value;
             await stateGroups.forceGroupDomination(selectedGroup, 1);
         };
-        debugDiv.appendChild(forceP1Button);
+        // debugDiv.appendChild(forceP1Button);
           const forceP2Button = document.createElement('button');
         forceP2Button.textContent = 'Force P2 Domination';
         forceP2Button.style.backgroundColor = '#00a000';
@@ -131,12 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedGroup = groupSelect.value;
             await stateGroups.forceGroupDomination(selectedGroup, 2);
         };
-        debugDiv.appendChild(forceP2Button);
+        // debugDiv.appendChild(forceP2Button);
         
         // Add a separator
         const separator = document.createElement('hr');
         separator.style.margin = '5px 0';
-        debugDiv.appendChild(separator);
+        // debugDiv.appendChild(separator);
         
         // Add buttons to dominate ALL groups
         const forceAllP1Button = document.createElement('button');
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await stateGroups.forceAllGroupsDomination(1);
             }
         };
-        debugDiv.appendChild(forceAllP1Button);
+        // debugDiv.appendChild(forceAllP1Button);
         
         const forceAllP2Button = document.createElement('button');
         forceAllP2Button.textContent = 'Force ALL Groups P2';
@@ -165,9 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 await stateGroups.forceAllGroupsDomination(2);
             }
         };
-        debugDiv.appendChild(forceAllP2Button);
+        // debugDiv.appendChild(forceAllP2Button);
         
-        document.body.appendChild(debugDiv);
+        // document.body.appendChild(debugDiv);
     };
     
     // Run the test function after a delay

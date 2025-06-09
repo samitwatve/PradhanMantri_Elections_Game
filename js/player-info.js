@@ -1,5 +1,6 @@
 // Player information management
-class PlayerInfo {      constructor(playerId) {
+class PlayerInfo {      
+    constructor(playerId) {
         this.playerId = playerId;
         this.element = document.getElementById(`player${playerId}-info`);
         this.statsElement = this.element.querySelector('.player-stats');
@@ -19,7 +20,8 @@ class PlayerInfo {      constructor(playerId) {
         this.replenishFunds();
     }
 
-    initialize() {        const playerConfig = {
+    initialize() {        
+        const playerConfig = {
             1: {
                 name: 'Sam',
                 party: 'BJP'
@@ -34,7 +36,7 @@ class PlayerInfo {      constructor(playerId) {
         if (config) {
             // Add (DEBUG) indicator for Player 1 when funds are set to 10000M
             const debugMode = this.playerId === 1 && this.funds === 10000;
-            const partyText = debugMode ? `(${config.party} - DEBUG)` : `(${config.party})`;
+            const partyText = `(${config.party})`;
             
             this.element.innerHTML = `
                 <div class="player-name">
@@ -54,6 +56,7 @@ class PlayerInfo {      constructor(playerId) {
             `;
         }
     }    
+    
     updateFunds(amount) {
         console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
         this.funds = Math.max(0, this.funds + amount);
@@ -116,7 +119,9 @@ class PlayerInfo {      constructor(playerId) {
             // Remove it after animation completes
             setTimeout(() => fundsElement.classList.remove('shake-error'), 500);
         }
-    }      replenishFunds() {
+    }      
+    
+    replenishFunds() {
         // Add funds at each phase change - large amount for Player 1 in debug mode
         const isDebugMode = this.playerId === 1 && this.funds >= 5000;
         const replenishAmount = isDebugMode ? 5000 : 250;
@@ -124,7 +129,8 @@ class PlayerInfo {      constructor(playerId) {
         this.updateFunds(replenishAmount);
         console.log(`Player ${this.playerId} funds replenished by ${replenishAmount}M (current total: ${this.funds}M)`);
     }
-      showPhaseReplenishmentNotification(amount) {
+      
+    showPhaseReplenishmentNotification(amount) {
         // Create notification element for phase replenishment
         const notification = document.createElement('div');
         notification.className = 'phase-replenishment-notification';
