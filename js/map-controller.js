@@ -1,6 +1,7 @@
 // Map interaction and state management
 import { player1 } from './player-info.js';
 import { stateInfo } from './state-info.js';
+import { gameOptions, isGamePaused } from './game-options.js';
 
 class MapController {
     constructor() {
@@ -152,11 +153,15 @@ class MapController {
                 };
                 this.handleStateUnhover(syntheticEvent);
             });
-        }
-
-        // Listen for events from UT buttons
+        }        // Listen for events from UT buttons
         window.addEventListener('stateClick', async (event) => {
             console.log('Received stateClick event:', event);
+            
+            // Check if game is paused - prevent state interaction while paused
+            if (isGamePaused()) {
+                console.log('Game is paused - state click event ignored');
+                return;
+            }
             
             const { stateId } = event.detail;
             if (!stateId) {
@@ -234,6 +239,12 @@ class MapController {
             }
         });
     }    handleStateClick(event) {
+        // Check if game is paused - prevent state interaction while paused
+        if (isGamePaused()) {
+            console.log('Game is paused - state click ignored');
+            return;
+        }
+        
         const stateElement = event.target;
         const stateId = stateElement.id;
         const stateData = this.statesData.find(state => state.SvgId === stateId);

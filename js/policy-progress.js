@@ -15,6 +15,7 @@ Object.keys(policyProgress).forEach(category => {
 
 // Import player information
 import { player1, player2 } from './player-info.js';
+import { isGamePaused } from './game-options.js';
 
 // Constants
 const CAMPAIGN_CLICK_COST = 10; // 10M per click
@@ -67,6 +68,12 @@ function updateAllProgressBars() {
 
 // Function to increment progress for a specific policy
 function incrementPolicy(category, index, playerId) {
+    // Check if game is paused - prevent policy contributions while paused
+    if (isGamePaused()) {
+        console.log('Game is paused - policy contribution ignored');
+        return false;
+    }
+    
     const policy = policyProgress[category][index];
     const player = playerId === 1 ? player1 : player2;
     

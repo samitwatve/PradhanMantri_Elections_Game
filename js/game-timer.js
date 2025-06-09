@@ -196,14 +196,38 @@ export class GameTimer {
     // Getter for total time remaining
     getTotalTimeRemaining() {
         return this.remainingTime;
-    }
-
-    // Public methods for external components
+    }    // Public methods for external components
     pauseTimer() {
         this.pause();
         
         // Add visual indication that the game is paused
         document.body.classList.add('game-paused');
+        
+        // Show a pause overlay with message
+        let pauseOverlay = document.getElementById('game-pause-overlay');
+        if (!pauseOverlay) {
+            pauseOverlay = document.createElement('div');
+            pauseOverlay.id = 'game-pause-overlay';
+            
+            // Create the pause message element
+            const pauseMessage = document.createElement('div');
+            pauseMessage.className = 'pause-message';
+            pauseMessage.innerHTML = '<div>GAME PAUSED</div><button id="resume-game-btn" class="resume-button">Resume Game</button>';
+            
+            pauseOverlay.appendChild(pauseMessage);
+            document.body.appendChild(pauseOverlay);
+            
+            // Add click event listener to the resume button
+            const resumeBtn = document.getElementById('resume-game-btn');
+            resumeBtn.addEventListener('click', () => {
+                // Import and call the toggleGameplay function
+                import('./game-options.js').then(({ toggleGameplay }) => {
+                    toggleGameplay();
+                });
+            });
+        } else {
+            pauseOverlay.style.display = 'flex';
+        }
     }
 
     resumeTimer() {
@@ -211,6 +235,12 @@ export class GameTimer {
         
         // Remove visual indication that the game is paused
         document.body.classList.remove('game-paused');
+        
+        // Hide the pause overlay
+        const pauseOverlay = document.getElementById('game-pause-overlay');
+        if (pauseOverlay) {
+            pauseOverlay.style.display = 'none';
+        }
     }
 }
 

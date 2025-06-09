@@ -20,28 +20,6 @@
     --text-light: #e0e0ff;
 }
 
-/* Game paused state */
-.game-paused {
-    position: relative;
-}
-
-.game-paused::before {
-    content: "GAME PAUSED";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    font-size: 2rem;
-    font-weight: bold;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: 0.8;
-}
-
 /* Add cursor pointer to all clickable elements */
 button,
 [role="button"],

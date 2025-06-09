@@ -9,6 +9,11 @@ const gameOptions = {
     help: false
 };
 
+// Check if game is paused - utility function for other modules
+function isGamePaused() {
+    return !gameOptions.gameplay;
+}
+
 // Cache DOM elements
 let randomEventsButton;
 let soundButton;
@@ -55,6 +60,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add debug options
     addDebugOptions();
+    
+    // Set up keyboard shortcut for play/pause (Space bar)
+    document.addEventListener('keydown', (event) => {
+        // Only process when not in an input field
+        if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+            if (event.code === 'Space') {
+                event.preventDefault(); // Prevent scrolling the page
+                toggleGameplay();
+            }
+        }
+    });
 });
 
 // Toggle functions
@@ -90,6 +106,16 @@ function toggleGameplay() {
         } else {
             window.gameTimer.pauseTimer();
         }
+    } else {
+        // Fallback if gameTimer not initialized yet
+        if (gameOptions.gameplay) {
+            document.body.classList.remove('game-paused');
+            const pauseOverlay = document.getElementById('game-pause-overlay');
+            if (pauseOverlay) pauseOverlay.style.display = 'none';
+        } else {
+            document.body.classList.add('game-paused');
+            showPauseOverlay();
+        }
     }
     
     // Pause or resume AI player
@@ -111,6 +137,31 @@ function toggleGameplay() {
     });
     
     console.log(`Game is now ${gameOptions.gameplay ? 'playing' : 'paused'}`);
+}
+
+// Helper function to create and show pause overlay
+function showPauseOverlay() {
+    let pauseOverlay = document.getElementById('game-pause-overlay');
+    if (!pauseOverlay) {
+        pauseOverlay = document.createElement('div');
+        pauseOverlay.id = 'game-pause-overlay';
+        
+        // Create the pause message element
+        const pauseMessage = document.createElement('div');
+        pauseMessage.className = 'pause-message';
+        pauseMessage.innerHTML = '<div>GAME PAUSED</div><button id="resume-game-btn" class="resume-button">Resume Game</button>';
+        
+        pauseOverlay.appendChild(pauseMessage);
+        document.body.appendChild(pauseOverlay);
+        
+        // Add click event listener to the resume button
+        const resumeBtn = document.getElementById('resume-game-btn');
+        resumeBtn.addEventListener('click', () => {
+            toggleGameplay();
+        });
+    } else {
+        pauseOverlay.style.display = 'flex';
+    }
 }
 
 function toggleHelp() {
@@ -203,6 +254,7 @@ function addDebugOptions() {
 // Export functions and state for use in other modules
 export {
     gameOptions,
+    isGamePaused,
     toggleRandomEvents,
     toggleSound,
     toggleMusic,
