@@ -1,5 +1,5 @@
 // Player information management
-class PlayerInfo {      
+class PlayerInfo {        
     constructor(playerId) {
         this.playerId = playerId;
         this.element = document.getElementById(`player${playerId}-info`);
@@ -8,16 +8,21 @@ class PlayerInfo {
         // Set starting funds - 10000M for Player 1 (debug mode), 250M for Player 2
         this.funds = playerId === 1 ? 10000 : 250; // Starting funds in millions
         
+        // Rally tokens - each player starts with 2 tokens, reset to 2 every phase
+        this.rallyTokens = 2;
+        this.maxRallyTokens = 2;
+        
         this.initialize();
         
         // Bind the event handler and listen for phase changes to replenish funds
         this.handlePhaseChange = this.handlePhaseChange.bind(this);
         window.addEventListener('gamePhaseChanged', this.handlePhaseChange);
-    }
-
+    }    
+    
     handlePhaseChange(event) {
         console.log(`Player ${this.playerId} received phase change event:`, event.detail);
         this.replenishFunds();
+        this.replenishRallyTokens();
     }
 
     initialize() {        
@@ -47,16 +52,17 @@ class PlayerInfo {
                     <div class="player-funds">
                         <span class="funds-label">Funds:</span>
                         <span class="funds-amount">₹${this.funds} M</span>
-                    </div>
+                    </div>                    
                     <div class="rally-tokens">
-                        <span class="rally-tokens-label">Rallies:</span>
-                        <span class="rally-tokens-display">O O</span>
+                        <span class="rally-tokens-label">Rally:</span>
+                        <span class="rally-tokens-display">${this.getRallyTokensDisplay()}</span>
                     </div>
                 </div>
             `;
         }
     }    
-      updateFunds(amount) {
+    
+    updateFunds(amount) {
         console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
         this.funds = Math.max(0, this.funds + amount);
         const fundsElement = this.element.querySelector('.funds-amount');
@@ -162,10 +168,65 @@ class PlayerInfo {
                 }
             }, 600);
         }
-    }    showGroupDominationBonusNotification(groupName, bonusAmount) {
+    }    
+    
+    showGroupDominationBonusNotification(groupName, bonusAmount) {
         // Add news update to TV display
         var playerName = this.playerId === 1 ? "BJP" : "INC";
         window.tvDisplay.addNewsUpdate("BREAKING: " + playerName + " dominates " + groupName + "! +" + bonusAmount + "M bonus");
+    }
+
+    // Rally token management methods
+    getRallyTokensDisplay() {
+        let display = '';
+        for (let i = 0; i < this.maxRallyTokens; i++) {
+            display += i < this.rallyTokens ? '📢 ' : '⚪ ';
+        }
+        return display.trim();
+    }
+      updateRallyTokensDisplay() {
+        const rallyTokensElement = this.element.querySelector('.rally-tokens-display');
+        if (rallyTokensElement) {
+            rallyTokensElement.textContent = this.getRallyTokensDisplay();
+        }
+        
+        // Update draggable tokens if rally controller is available
+        if (window.rallyController && this.playerId === 1) {
+            setTimeout(() => {
+                window.rallyController.createDraggableRallyIcons(rallyTokensElement);
+            }, 100);
+        }
+    }
+    
+    canUseRallyToken() {
+        return this.rallyTokens > 0;
+    }
+    
+    useRallyToken() {
+        if (this.canUseRallyToken()) {
+            this.rallyTokens--;
+            this.updateRallyTokensDisplay();
+            console.log(`Player ${this.playerId} used rally token. Remaining: ${this.rallyTokens}`);
+            return true;
+        }
+        return false;
+    }
+    
+    replenishRallyTokens() {
+        this.rallyTokens = this.maxRallyTokens;
+        this.updateRallyTokensDisplay();
+        console.log(`Player ${this.playerId} rally tokens replenished to ${this.rallyTokens}`);
+    }
+    
+    showInsufficientRallyTokensError() {
+        console.log(`Showing insufficient rally tokens error for player ${this.playerId}`);
+        const rallyTokensElement = this.element.querySelector('.rally-tokens-display');
+        if (rallyTokensElement) {
+            // Add shake animation class
+            rallyTokensElement.classList.add('shake-error');
+            // Remove it after animation completes
+            setTimeout(() => rallyTokensElement.classList.remove('shake-error'), 500);
+        }
     }
 
     update(data) {

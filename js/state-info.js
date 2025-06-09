@@ -147,26 +147,9 @@ class StateInfo {
                 console.error('Error scheduling group domination check after popularity update:', error);
             }
         }, 100);
-    }recordStateAction(stateId, playerId, amount) {
+    }    updateStatePopularity(stateId, playerId, popularityBoost) {
         if (!this.statePopularity.has(stateId)) {
             this.initializeState(stateId);
-        }
-
-        // Update the actions record
-        if (!this.stateActions.has(stateId)) {
-            this.stateActions.set(stateId, {
-                player1Spent: 0,
-                player2Spent: 0,
-                player1Rallies: 0,
-                player2Rallies: 0
-            });
-        }
-        
-        const actions = this.stateActions.get(stateId);
-        if (playerId === 1) {
-            actions.player1Spent += amount;
-        } else if (playerId === 2) {
-            actions.player2Spent += amount;
         }
 
         const popularity = this.statePopularity.get(stateId);
@@ -174,55 +157,51 @@ class StateInfo {
         // Create a new object to ensure reactivity
         const newPopularity = { ...popularity };
 
-        // Fixed 5% increase for the active player
-        const fixedIncrease = 5;
-        
+        // Rally gives fixed percentage boost
         if (playerId === 1) {
-            // Player 1 gets a fixed 5% increase
-            newPopularity.player1 = Math.min(100, Math.round(popularity.player1 + fixedIncrease));
+            // Player 1 gets the rally boost
+            newPopularity.player1 = Math.min(100, Math.round(popularity.player1 + popularityBoost));
             
-            // The 5% comes proportionally from player2 and others based on their current values
+            // The boost comes proportionally from player2 and others
             const totalOthers = popularity.player2 + popularity.others;
             
             if (totalOthers > 0) {
                 const p2Share = popularity.player2 / totalOthers;
                 const othersShare = popularity.others / totalOthers;
                 
-                const p2Decrease = Math.round(fixedIncrease * p2Share * 10) / 10;
-                const othersDecrease = Math.round(fixedIncrease * othersShare * 10) / 10;
+                const p2Decrease = Math.round(popularityBoost * p2Share * 10) / 10;
+                const othersDecrease = Math.round(popularityBoost * othersShare * 10) / 10;
                 
                 newPopularity.player2 = Math.max(0, Math.round((popularity.player2 - p2Decrease) * 10) / 10);
                 newPopularity.others = Math.max(0, Math.round((popularity.others - othersDecrease) * 10) / 10);
             } else {
-                // Edge case: if player1 already has 100%
                 newPopularity.player2 = 0;
                 newPopularity.others = 0;
             }
             
         } else if (playerId === 2) {
-            // Player 2 gets a fixed 5% increase
-            newPopularity.player2 = Math.min(100, Math.round(popularity.player2 + fixedIncrease));
+            // Player 2 gets the rally boost
+            newPopularity.player2 = Math.min(100, Math.round(popularity.player2 + popularityBoost));
             
-            // The 5% comes proportionally from player1 and others based on their current values
+            // The boost comes proportionally from player1 and others
             const totalOthers = popularity.player1 + popularity.others;
             
             if (totalOthers > 0) {
                 const p1Share = popularity.player1 / totalOthers;
                 const othersShare = popularity.others / totalOthers;
                 
-                const p1Decrease = Math.round(fixedIncrease * p1Share * 10) / 10;
-                const othersDecrease = Math.round(fixedIncrease * othersShare * 10) / 10;
+                const p1Decrease = Math.round(popularityBoost * p1Share * 10) / 10;
+                const othersDecrease = Math.round(popularityBoost * othersShare * 10) / 10;
                 
                 newPopularity.player1 = Math.max(0, Math.round((popularity.player1 - p1Decrease) * 10) / 10);
                 newPopularity.others = Math.max(0, Math.round((popularity.others - othersDecrease) * 10) / 10);
             } else {
-                // Edge case: if player2 already has 100%
                 newPopularity.player1 = 0;
                 newPopularity.others = 0;
             }
         }
 
-        // Ensure total equals exactly 100% (fix any floating-point rounding issues)
+        // Ensure total equals exactly 100%
         let total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
         
         if (Math.abs(total - 100) > 0.01) {
@@ -250,18 +229,54 @@ class StateInfo {
             }
         }
 
-        // Update the state with new values
-        this.updateStatePopularity(stateId, newPopularity);
+        console.log(`Rally popularity update for ${stateId}: Player ${playerId} +${popularityBoost}%`);
+        console.log('Old popularity:', popularity);
+        console.log('New popularity:', newPopularity);
+
+        // Update the popularity
+        this.statePopularity.set(stateId, newPopularity);
         
-        // Log the update for debugging
-        // console.log(`Updated ${stateId} popularity:`, newPopularity);
-        // console.log(`State actions:`, this.stateActions.get(stateId));
+        // Emit an event to notify the map controller
+        window.dispatchEvent(new CustomEvent('popularityChanged', {
+            detail: {
+                stateId,
+                popularity: newPopularity
+            }
+        }));
         
-        // For player 1 (human player), update the state info display
-        // For player 2 (AI), don't update the display to avoid interfering with hover
-        if (playerId === 1) {
-            this.updateStateInfo(stateId);
+        // Record rally action
+        this.recordRallyAction(stateId, playerId);
+        
+        // Check for group domination after rally
+        setTimeout(async () => {
+            try {
+                const { stateGroups } = await import('./state-groups.js');
+                stateGroups.scheduleGroupDominationCheck();
+            } catch (error) {
+                console.error('Error scheduling group domination check after rally:', error);
+            }
+        }, 100);
+    }
+    
+    recordRallyAction(stateId, playerId) {
+        if (!this.stateActions.has(stateId)) {
+            this.stateActions.set(stateId, {
+                player1Spent: 0,
+                player2Spent: 0,
+                player1Rallies: 0,
+                player2Rallies: 0
+            });
         }
+        
+        const actions = this.stateActions.get(stateId);
+        if (playerId === 1) {
+            actions.player1Rallies++;
+        } else if (playerId === 2) {
+            actions.player2Rallies++;
+        }
+        
+        this.stateActions.set(stateId, actions);
+        console.log(`Recorded rally action for player ${playerId} in ${stateId}. Total rallies: P1=${actions.player1Rallies}, P2=${actions.player2Rallies}`);
     }
 
     refreshStateDisplay(stateId) {

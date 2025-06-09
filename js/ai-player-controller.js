@@ -5,6 +5,7 @@ import { player2 } from './player-info.js';
 import { stateInfo } from './state-info.js';
 import { mapController } from './map-controller.js';
 import { gameOptions } from './game-options.js';
+import { rallyController } from './rally-controller.js';
 
 class AIPlayerController {    
     constructor() {
@@ -81,11 +82,21 @@ class AIPlayerController {
                 const response = await fetch('states_data.json');
                 this.statesData = await response.json();
             }
+              // AI decision making: 15% rally, 42.5% campaign state, 42.5% campaign policy
+            const randomAction = Math.random();
             
-            // 50% chance to target a state, 50% chance to contribute to a campaign
-            if (Math.random() < 0.5) {
+            if (randomAction < 0.15) {
+                // 15% chance to place a rally
+                const rallyPlaced = await rallyController.placeAIRally();
+                if (!rallyPlaced) {
+                    // If rally placement failed, fall back to state targeting
+                    this.targetRandomState();
+                }
+            } else if (randomAction < 0.575) {
+                // 42.5% chance to target a state
                 this.targetRandomState();
             } else {
+                // 42.5% chance to contribute to a campaign
                 this.contributeToRandomCampaign();
             }
         } catch (error) {

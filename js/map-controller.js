@@ -2,6 +2,7 @@
 import { player1 } from './player-info.js';
 import { stateInfo } from './state-info.js';
 import { gameOptions, isGamePaused } from './game-options.js';
+import { rallyController } from './rally-controller.js';
 
 class MapController {
     constructor() {
@@ -31,10 +32,9 @@ class MapController {
                 } else {
                     map.addEventListener('load', onLoad);
                 }
-            });
-
-            // Setup interactions after SVG is loaded
+            });            // Setup interactions after SVG is loaded
             this.setupStateInteractions();
+            this.setupStateDropZones();
             
             // Create ripple container
             this.createRippleContainer();
@@ -198,17 +198,15 @@ class MapController {
                 ]);
 
                 const player1 = playerModule.player1;
-                const stateInfo = stateModule.stateInfo;
-
-                // Check if player 1 has enough funds
+                const stateInfo = stateModule.stateInfo;                // Check if player 1 has enough funds
                 if (player1.canSpend(cost)) {
                     console.log('Player has enough funds, processing action...');
                     
+                    // Regular campaign action
                     // Deduct funds and record the action
                     player1.updateFunds(-cost);
                     stateInfo.recordStateAction(stateId, 1, cost);
-                    
-                    console.log('Action processed successfully');
+                    console.log('Campaign action processed successfully');
                 } else {
                     console.log('Insufficient funds. Required:', cost, 'Available:', player1.funds);
                     player1.showInsufficientFundsError();
@@ -238,7 +236,7 @@ class MapController {
                 this.handleStateUnhover({ target: stateElement });
             }
         });
-    }    handleStateClick(event) {
+    }    async handleStateClick(event) {
         // Check if game is paused - prevent state interaction while paused
         if (isGamePaused()) {
             console.log('Game is paused - state click ignored');
@@ -260,6 +258,7 @@ class MapController {
         svgPoint.y = event.clientY;
         const point = svgPoint.matrixTransform(stateElement.getScreenCTM().inverse());
 
+        // Regular campaign logic
         // Check if state is already selected
         const isSelected = this.selectedStates.has(stateId);
         console.log(`${stateId} is currently selected:`, isSelected);
@@ -658,6 +657,224 @@ class MapController {
             // Show shake animation on funds display
             player1.showInsufficientFundsError();
         }
+    }    setupStateDropZones() {
+        console.log('Setting up simplified drop zone for rally tokens');
+        
+        // Set up the main map container as the primary drop zone
+        const mapContainer = document.querySelector('.map-container');
+        if (!mapContainer) {
+            console.log('Map container not found');
+            return;
+        }
+          // Remove existing event listeners to avoid duplicates
+        mapContainer.removeEventListener('dragover', this.handleMapDragOver);
+        mapContainer.removeEventListener('dragenter', this.handleMapDragEnter);
+        mapContainer.removeEventListener('drop', this.handleMapDrop);
+        
+        // Add drag enter event
+        this.handleMapDragEnter = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Drag enter map container');
+        };
+          // Add drag over event to allow dropping
+        this.handleMapDragOver = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = 'move';
+            console.log('Drag over map container - drop effect set to move');
+        };
+        
+        // Add drop event to handle rally placement
+        this.handleMapDrop = async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dragData = e.dataTransfer.getData('text/plain');
+            console.log('Drop on map container, drag data:', dragData);
+            
+            if (dragData === 'rally-token') {
+                // Get the element under the mouse cursor
+                const elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
+                console.log('Element under mouse:', elementUnderMouse);
+                
+                // Check if we need to look inside the SVG
+                let targetStateId = null;
+                
+                if (elementUnderMouse && elementUnderMouse.tagName === 'OBJECT') {
+                    // We dropped on the SVG object, need to find the state inside it
+                    const svgDoc = elementUnderMouse.contentDocument;
+                    if (svgDoc) {
+                        // Get the SVG's bounding rect and calculate relative position
+                        const svgRect = elementUnderMouse.getBoundingClientRect();
+                        const relativeX = e.clientX - svgRect.left;
+                        const relativeY = e.clientY - svgRect.top;
+                        
+                        // Find element at position in SVG document
+                        const svgElement = svgDoc.elementFromPoint(relativeX, relativeY);
+                        console.log('SVG element found:', svgElement);
+                        
+                        if (svgElement && svgElement.tagName === 'path' && svgElement.id) {
+                            targetStateId = svgElement.id;
+                        }
+                    }
+                } else if (elementUnderMouse && elementUnderMouse.id) {
+                    // Direct hit on a state element
+                    targetStateId = elementUnderMouse.id;
+                }
+                
+                console.log('Target state ID:', targetStateId);
+                
+                if (targetStateId) {
+                    // Dispatch rally drop event
+                    const rallyEvent = new CustomEvent('rallyDrop', {
+                        detail: { stateId: targetStateId }
+                    });
+                    window.dispatchEvent(rallyEvent);
+                    console.log(`Dispatched rallyDrop event for ${targetStateId}`);
+                } else {
+                    console.log('No valid state found under drop location');
+                }
+            }
+        };
+          mapContainer.addEventListener('dragenter', this.handleMapDragEnter);
+        mapContainer.addEventListener('dragover', this.handleMapDragOver);
+        mapContainer.addEventListener('drop', this.handleMapDrop);
+          console.log('Map container drop zone set up successfully');
+        
+        // ALSO set up drop zones directly on the SVG document
+        this.setupSVGDropZones();
+        
+        // Also set up drop zones for UT buttons
+        this.setupUTDropZones();
+    }
+    
+    setupSVGDropZones() {
+        if (!this.svgDocument) {
+            console.log('SVG document not available for direct drop zone setup');
+            return;
+        }
+        
+        console.log('Setting up direct SVG drop zones');
+        
+        // Make the entire SVG accept drops
+        const svgElement = this.svgDocument.querySelector('svg');
+        if (svgElement) {
+            svgElement.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'move';
+                console.log('Drag over SVG element');
+            });
+            
+            svgElement.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Drag enter SVG element');
+            });
+            
+            svgElement.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Drop directly on SVG element');
+                
+                const dragData = e.dataTransfer.getData('text/plain');
+                if (dragData === 'rally-token') {
+                    // Find the state under the cursor
+                    const target = e.target;
+                    if (target && target.tagName === 'path' && target.id) {
+                        console.log('Direct SVG drop on state:', target.id);
+                        const rallyEvent = new CustomEvent('rallyDrop', {
+                            detail: { stateId: target.id }
+                        });
+                        window.dispatchEvent(rallyEvent);
+                    }
+                }
+            });
+        }
+        
+        // Also set up individual state drops
+        const states = this.svgDocument.querySelectorAll('path[id]');
+        states.forEach(state => {
+            state.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'move';
+                state.style.filter = 'brightness(1.3)';
+            });
+            
+            state.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            state.addEventListener('dragleave', (e) => {
+                state.style.filter = '';
+            });
+            
+            state.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                state.style.filter = '';
+                
+                console.log('Drop directly on state path:', state.id);
+                
+                const dragData = e.dataTransfer.getData('text/plain');
+                if (dragData === 'rally-token') {
+                    const rallyEvent = new CustomEvent('rallyDrop', {
+                        detail: { stateId: state.id }
+                    });
+                    window.dispatchEvent(rallyEvent);
+                }
+            });
+        });
+    }
+    
+    setupUTDropZones() {
+        const utButtons = document.querySelectorAll('[data-ut]');
+        console.log(`Setting up ${utButtons.length} UT buttons as drop zones`);
+        
+        utButtons.forEach(button => {
+            button.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'move';
+                button.style.backgroundColor = 'rgba(255, 107, 53, 0.3)';
+                console.log(`Drag over UT: ${button.getAttribute('data-ut')}`);
+            });
+
+            button.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            button.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                button.style.backgroundColor = '';
+                console.log(`Drag leave UT: ${button.getAttribute('data-ut')}`);
+            });
+
+            button.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                button.style.backgroundColor = '';
+                
+                console.log(`Drop event on UT: ${button.getAttribute('data-ut')}`);
+                
+                const dragData = e.dataTransfer.getData('text/plain');
+                console.log('UT Drag data:', dragData);
+                
+                if (dragData === 'rally-token') {
+                    const stateId = button.getAttribute('data-ut');
+                    const rallyEvent = new CustomEvent('rallyDrop', {
+                        detail: { stateId: stateId }
+                    });
+                    window.dispatchEvent(rallyEvent);
+                    console.log(`Dispatched rallyDrop event for UT ${stateId}`);
+                }
+            });
+        });
     }
 }
 

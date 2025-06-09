@@ -4,6 +4,7 @@ import { mapController } from './map-controller.js';
 import { aiPlayerController } from './ai-player-controller.js';
 import { seatProjection } from './seat-projection.js';
 import { player1, player2 } from './player-info.js';
+import { rallyController } from './rally-controller.js';
 
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
