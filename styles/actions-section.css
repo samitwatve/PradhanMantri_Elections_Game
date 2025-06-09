@@ -14,3 +14,46 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     line-height: 1.4;
 }
+
+/* Log entry styles */
+.log-entry {
+    margin-bottom: 4px;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Info type logs (default) */
+.log-entry.info {
+    color: #a0f0ff;
+}
+
+/* Action type logs (for important game actions) */
+.log-entry.action {
+    color: #ffcc80;
+    background-color: rgba(255, 152, 0, 0.15);
+    font-weight: bold;
+}
+
+/* Warning type logs */
+.log-entry.warning {
+    color: #ffeb3b;
+    background-color: rgba(255, 235, 59, 0.15);
+}
+
+/* Error type logs */
+.log-entry.error {
+    color: #ff5252;
+    background-color: rgba(255, 82, 82, 0.15);
+    font-weight: bold;
+}
+
+/* Timestamp styling */
+.log-entry .timestamp {
+    opacity: 0.7;
+    margin-right: 5px;
+}
+
+/* Message styling */
+.log-entry .message {
+    display: inline-block;
+}

@@ -52,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize states based on stored preferences (future enhancement)
     // For now, just sync the UI with default values
     updateButtonStates();
+
+    // Add debug options
+    addDebugOptions();
 });
 
 // Toggle functions
@@ -132,6 +135,47 @@ function updateButtonStates() {
     if (helpButton) {
         helpButton.setAttribute('data-state', gameOptions.help ? 'on' : 'off');
         // No icon change needed for help
+    }
+}
+
+// Add a debug button for checking group domination
+function addDebugOptions() {
+    // Only add in development environment
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        console.log('Debug options only available in development environment');
+        return;
+    }
+    
+    // Create debug section
+    const debugSection = document.createElement('div');
+    debugSection.className = 'debug-section';
+    debugSection.innerHTML = `
+        <h3>Debug Tools</h3>
+        <button id="check-domination" class="debug-button">Check Group Domination</button>
+    `;
+    
+    // Add to options section
+    const optionsSection = document.querySelector('.options-section');
+    if (optionsSection) {
+        optionsSection.appendChild(debugSection);
+        
+        // Add event listener
+        const checkDominationButton = document.getElementById('check-domination');
+        if (checkDominationButton) {
+            checkDominationButton.addEventListener('click', async () => {
+                console.log('Manual check for group domination triggered');
+                try {
+                    const { stateGroups } = await import('./state-groups.js');
+                    await stateGroups.checkAllGroupsDomination();
+                    
+                    // Also import actions log to add a message
+                    const { actionsLog } = await import('./actions-log.js');
+                    actionsLog.log('Manual group domination check triggered', 'info');
+                } catch (error) {
+                    console.error('Error during manual domination check:', error);
+                }
+            });
+        }
     }
 }
 

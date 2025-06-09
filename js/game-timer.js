@@ -162,11 +162,18 @@ export class GameTimer {
 
     notifyTimeUp() {
         this.callbacks.onTimeUp.forEach(callback => callback());
-    }
-
-    notifyPhaseChange() {
+    }    notifyPhaseChange() {
         this.callbacks.onPhaseChange.forEach(callback => 
             callback(this.currentPhase, this.totalPhases));
+        
+        // Log phase change in actions log
+        import('./actions-log.js').then(({ actionsLog }) => {
+            if (this.currentPhase === 1) {
+                actionsLog.log(`New Round Started - Bonuses will be calculated`, 'action');
+            } else {
+                actionsLog.log(`Advanced to Phase ${this.currentPhase} of ${this.totalPhases}`, 'info');
+            }
+        });
         
         // Check for group domination after a short delay
         setTimeout(async () => {
@@ -178,7 +185,7 @@ export class GameTimer {
                 console.error('Error checking group domination:', error);
             }
         }, 500);
-    }    // Getter for current phase (1-indexed)
+    }// Getter for current phase (1-indexed)
     getCurrentPhase() {
         return this.currentPhase;
     }    // Getter for phase time remaining

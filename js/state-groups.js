@@ -1,12 +1,15 @@
 // State grouping functionality
-class StateGroups {    constructor() {
+class StateGroups {    
+    constructor() {
         this.groups = new Map();
         this.statesData = null;
         this.groupDominationStatus = new Map(); // Track which groups are dominated by a player
+        this.previousDominationStatus = new Map(); // Track previous domination status to identify changes
         this.dominationCheckTimeout = null; // For debouncing
         this.checkingDomination = false; // Prevent concurrent checks
         this.initialize();
-    }async initialize() {
+    }    
+    async initialize() {
         try {
             // Load states data
             const response = await fetch('states_data.json');
@@ -46,8 +49,8 @@ class StateGroups {    constructor() {
         } catch (error) {
             console.error('Failed to load states data:', error);
         }
-    }
-      // Schedule a check with debouncing to prevent too many checks
+    }    
+    // Schedule a check with debouncing to prevent too many checks
     scheduleGroupDominationCheck() {
         // Clear any existing timeout
         if (this.dominationCheckTimeout) {
@@ -74,8 +77,7 @@ class StateGroups {    constructor() {
                 this.checkingDomination = false;
             }
         }, 500); // Wait for 500ms after the last change before checking
-    }
-
+    }    
     initializeGroups() {
         // Clear existing groups
         this.groups.clear();
@@ -117,11 +119,13 @@ class StateGroups {    constructor() {
             if (state.IndustrialCorridor === "TRUE") this.groups.get('Industrial Corridor').push(state.SvgId);
             if (state.Manufacturing === "TRUE") this.groups.get('Manufacturing').push(state.SvgId);
             if (state.Education === "TRUE") this.groups.get('Education').push(state.SvgId);
-            if (state.TribalLands === "TRUE") this.groups.get('Tribal Lands').push(state.SvgId);            if (state.TravelAndTourism === "TRUE") this.groups.get('Travel and Tourism').push(state.SvgId);
+            if (state.TribalLands === "TRUE") this.groups.get('Tribal Lands').push(state.SvgId);            
+            if (state.TravelAndTourism === "TRUE") this.groups.get('Travel and Tourism').push(state.SvgId);
             if (state.NaturalResources === "TRUE") this.groups.get('Natural Resources').push(state.SvgId);
             if (state.MinorityAreas === "TRUE") this.groups.get('Minority Areas').push(state.SvgId);
         });
-    }handleGroupClick(event) {
+    }    
+    handleGroupClick(event) {
         const button = event.target;
         const groupName = button.textContent.trim();
         const isActive = button.classList.toggle('active');
@@ -133,7 +137,8 @@ class StateGroups {    constructor() {
         if (isActive) {
             // Clear all other highlights
             const allButtons = document.querySelectorAll('.button-grid button');
-            allButtons.forEach(otherButton => {                if (otherButton !== button && otherButton.classList.contains('active')) {
+            allButtons.forEach(otherButton => {                
+                if (otherButton !== button && otherButton.classList.contains('active')) {
                     otherButton.classList.remove('active');
                     const otherGroupName = otherButton.textContent.trim();
                     const otherStates = this.getStatesInGroup(otherGroupName);
@@ -152,8 +157,7 @@ class StateGroups {    constructor() {
                 detail: { stateId, forceState: isActive }
             }));
         });
-    }
-
+    }    
     handleUTHover(event) {
         const button = event.target;
         const utId = button.dataset.ut;
@@ -168,8 +172,7 @@ class StateGroups {    constructor() {
             detail: { stateId: utId }
         });
         window.dispatchEvent(hoverEvent);
-    }
-
+    }    
     handleUTUnhover(event) {
         const button = event.target;
         const utId = button.dataset.ut;
@@ -184,8 +187,7 @@ class StateGroups {    constructor() {
             detail: { stateId: utId }
         });
         window.dispatchEvent(unhoverEvent);
-    }
-
+    }    
     handleUTClick(event) {
         const button = event.target;
         const utId = button.dataset.ut;
@@ -206,12 +208,10 @@ class StateGroups {    constructor() {
         });
         console.log('Dispatching stateClick event:', clickEvent);
         window.dispatchEvent(clickEvent);
-    }
-
+    }    
     getStatesInGroup(groupName) {
         return this.groups.get(groupName) || [];
-    }
-
+    }    
     toggleGroupHighlight(groupName) {
         const states = this.getStatesInGroup(groupName);
         states.forEach(stateId => {
@@ -219,13 +219,13 @@ class StateGroups {    constructor() {
                 detail: { stateId }
             }));
         });
-    }
-
+    }    
     selectUT(utId) {
         window.dispatchEvent(new CustomEvent('selectUT', {
             detail: { utId }
         }));
-    }    // Check if all states in a group have >50% popularity for a player
+    }    
+    // Check if all states in a group have >50% popularity for a player
     async checkGroupDomination(groupName) {
         if (!this.groups.has(groupName)) {
             console.log(`Group "${groupName}" not found in groups map`);
@@ -267,7 +267,8 @@ class StateGroups {    constructor() {
             const p2 = Math.round(popularity.player2);
             
             console.log(`State ${stateId} popularity: P1=${p1}, P2=${p2}`);
-              // Check if player1 has >50% popularity
+            
+            // Check if player1 has >50% popularity
             if (p1 >= 50) {
                 p1DominatingStates++;
             } else {
@@ -280,7 +281,8 @@ class StateGroups {    constructor() {
             } else {
                 player2Domination = false;
             }
-              // If neither player can dominate, we can stop checking
+            
+            // If neither player can dominate, we can stop checking
             if (!player1Domination && !player2Domination) {
                 console.log(`No player can dominate ${groupName}, stopping check early`);
                 break;
@@ -300,7 +302,7 @@ class StateGroups {    constructor() {
         }
         console.log(`No player dominates group ${groupName}`);
         return null;
-    }    // Check domination for all groups
+    }      // Check domination for all groups
     async checkAllGroupsDomination() {
         // Debug log group membership first
         // this.debugGroupMembership();
@@ -310,6 +312,9 @@ class StateGroups {    constructor() {
         
         // console.log(`===== CHECKING DOMINATION FOR ALL GROUPS =====`);
         // console.log(`Checking domination for ${groupNames.length} groups`);
+        
+        // Copy current domination status to previous status before updating
+        this.previousDominationStatus = new Map(this.groupDominationStatus);
         
         // Count of dominated groups by each player
         let player1DominatedGroups = 0;
@@ -331,8 +336,22 @@ class StateGroups {    constructor() {
                     } catch (highlightError) {
                         console.error(`Error highlighting group ${groupName}:`, highlightError);
                     }
+                    
+                    // If a player gained domination, award initial bonus
+                    if (dominatingPlayer !== null) {
+                        this.awardGroupDominationBonus(groupName, dominatingPlayer);
+                    }
                 } else {
                     console.log(`No change in domination status for ${groupName}: still ${dominatingPlayer}`);
+                    
+                    // If still dominated by a player, award carry-forward bonus
+                    if (dominatingPlayer !== null) {
+                        const { gameTimer } = await import('./game-timer.js');
+                        // Only award carry-forward bonuses at the start of a new round (phase 1)
+                        if (gameTimer.currentPhase === 1) {
+                            this.awardGroupDominationBonus(groupName, dominatingPlayer);
+                        }
+                    }
                 }
                 
                 // Count dominated groups
@@ -348,7 +367,8 @@ class StateGroups {    constructor() {
         console.log(`Player 1 dominates ${player1DominatedGroups} groups`);
         console.log(`Player 2 dominates ${player2DominatedGroups} groups`);
         console.log(`===== END DOMINATION CHECK =====`);
-    }// Highlight all states in a group if dominated by a player
+    }
+    // Highlight all states in a group if dominated by a player
     highlightGroupDomination(groupName, playerId) {
         if (!this.groups.has(groupName)) {
             console.log(`Group "${groupName}" not found in groups map`);
@@ -412,7 +432,7 @@ class StateGroups {    constructor() {
                 }));
             });
         }
-    }
+    }    
     // Debug method to log all groups and their members
     debugGroupMembership() {
         console.log('===== DEBUG: GROUP MEMBERSHIP =====');
@@ -424,7 +444,7 @@ class StateGroups {    constructor() {
         });
         
         console.log('===== END DEBUG =====');
-    }
+    }    
     // Debug method to analyze what's missing for group domination
     async analyzeGroupDomination() {
         const { stateInfo } = await import('./state-info.js');
@@ -502,7 +522,7 @@ class StateGroups {    constructor() {
         }
         
         console.log('===== END ANALYSIS =====');
-    }
+    }    
     // Debug method to force domination of a group by a player
     async forceGroupDomination(groupName, playerId) {
         if (!this.groups.has(groupName)) {
@@ -546,7 +566,7 @@ class StateGroups {    constructor() {
         
         // Check domination after a short delay
         setTimeout(() => this.checkAllGroupsDomination(), 500);
-    }
+    }    
     // Debug method to force domination of all groups by a player
     async forceAllGroupsDomination(playerId) {
         console.log(`===== FORCING ALL GROUPS DOMINATION FOR PLAYER ${playerId} =====`);
@@ -560,8 +580,7 @@ class StateGroups {    constructor() {
         
         // Final check
         setTimeout(() => this.checkAllGroupsDomination(), 1000);
-    }
-
+    }    
     // Find all groups that a state belongs to
     getGroupsForState(stateId) {
         const groups = [];
@@ -573,6 +592,73 @@ class StateGroups {    constructor() {
         });
         
         return groups;
+    }    
+    // Calculate total seats in a state group
+    calculateTotalSeatsInGroup(groupName) {
+        const states = this.getStatesInGroup(groupName);
+        let totalSeats = 0;
+        
+        states.forEach(stateId => {
+            const stateData = this.statesData.find(state => state.SvgId === stateId);
+            if (stateData) {
+                totalSeats += stateData.Seats;
+            }
+        });
+        
+        return totalSeats;
+    }
+
+    // Calculate the total number of Lok Sabha seats in a state group
+    getTotalSeatsInGroup(groupName) {
+        if (!this.groups.has(groupName)) {
+            console.log(`Group "${groupName}" not found in groups map`);
+            return 0;
+        }
+        
+        const states = this.getStatesInGroup(groupName);
+        if (states.length === 0) {
+            console.log(`Group "${groupName}" has no states`);
+            return 0;
+        }
+        
+        let totalSeats = 0;
+        
+        // Sum up the seats from all states in the group
+        for (const stateId of states) {
+            const stateData = this.statesData.find(state => state.SvgId === stateId);
+            if (stateData) {
+                totalSeats += parseInt(stateData.LokSabhaSeats, 10) || 0;
+            }
+        }
+        
+        console.log(`Group "${groupName}" has ${totalSeats} total Lok Sabha seats`);
+        return totalSeats;
+    }    // Award bonus to player for dominating a state group
+    awardGroupDominationBonus(groupName, playerId) {
+        const totalSeats = this.getTotalSeatsInGroup(groupName);
+        if (totalSeats === 0) {
+            console.log(`No bonus awarded for group "${groupName}" - 0 seats`);
+            return;
+        }
+        
+        // Calculate bonus as 50% of seats value (e.g., 130 seats = 65M bonus)
+        const bonusAmount = Math.round(totalSeats * 0.5);
+        
+        console.log(`Awarding ${bonusAmount}M bonus to Player ${playerId} for dominating group "${groupName}" (${totalSeats} seats)`);
+        
+        // Import player info to award the bonus
+        import('./player-info.js').then(({ player1, player2 }) => {
+            const player = playerId === 1 ? player1 : player2;
+            player.updateFunds(bonusAmount);
+            
+            // Show a special notification for the group domination bonus
+            player.showGroupDominationBonusNotification(groupName, bonusAmount);
+            
+            // Also show a message in the actions log
+            import('./actions-log.js').then(({ actionsLog }) => {
+                actionsLog.addAction(`Player ${playerId} received ${bonusAmount}M bonus for dominating ${groupName} (${totalSeats} seats)`);
+            });
+        });
     }
 }
 

@@ -6,6 +6,10 @@ class ActionsLog {
         this.logs = [];
     }
 
+    addAction(message, type = 'action') {
+        this.log(message, type);
+    }
+
     log(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
         const logEntry = {

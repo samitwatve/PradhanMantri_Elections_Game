@@ -108,3 +108,40 @@
 .info-section.game-options {
     min-height: auto !important; /* Override the min-height from info-section */
 }
+
+/* Debug section styling */
+.debug-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(150, 150, 255, 0.2);
+}
+
+.debug-section h3 {
+    color: #ff9800;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.debug-button {
+    background: linear-gradient(135deg, rgba(255,152,0,0.3) 0%, rgba(200,120,0,0.3) 100%);
+    border: 1px solid rgba(255, 180, 0, 0.4);
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: #fff;
+    font-size: 12px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.debug-button:hover {
+    background: linear-gradient(135deg, rgba(255,152,0,0.5) 0%, rgba(200,120,0,0.5) 100%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+.debug-button:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
