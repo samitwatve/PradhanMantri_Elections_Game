@@ -71,13 +71,101 @@ document.addEventListener('DOMContentLoaded', () => {
             mapController.resetAllSelections();
         };
         debugDiv.appendChild(resetSelectionsButton);
-        
-        const testProjectionsButton = document.createElement('button');
+          const testProjectionsButton = document.createElement('button');
         testProjectionsButton.textContent = 'Test Seat Projections';
         testProjectionsButton.onclick = function() {
             window.testSeatProjections();
         };
         debugDiv.appendChild(testProjectionsButton);
+          const checkDominationButton = document.createElement('button');
+        checkDominationButton.textContent = 'Check Group Domination';
+        checkDominationButton.onclick = async function() {
+            const { stateGroups } = await import('./state-groups.js');
+            console.log('Manually checking group domination');
+            await stateGroups.checkAllGroupsDomination();
+        };
+        debugDiv.appendChild(checkDominationButton);
+          const analyzeDominationButton = document.createElement('button');
+        analyzeDominationButton.textContent = 'Analyze Group Domination';
+        analyzeDominationButton.style.backgroundColor = '#ff9800';
+        analyzeDominationButton.style.color = 'white';
+        analyzeDominationButton.onclick = async function() {
+            const { stateGroups } = await import('./state-groups.js');
+            console.log('Analyzing group domination issues');
+            await stateGroups.analyzeGroupDomination();
+        };
+        debugDiv.appendChild(analyzeDominationButton);
+        
+        // Add buttons to force domination of specific groups
+        const groupSelect = document.createElement('select');
+        groupSelect.style.margin = '5px 0';
+        groupSelect.style.padding = '5px';
+        
+        // Add all group options
+        ['South India', 'North India', 'Hindi Heartland', 'Northeast India', 
+         'Coastal India', 'Union Territory', 'Agricultural Region', 'Border Lands', 
+         'Pilgrimage', 'Industrial Corridor', 'Manufacturing', 'Education', 
+         'Tribal Lands', 'Travel and Tourism', 'Natural Resources', 'Minority Areas'].forEach(group => {
+            const option = document.createElement('option');
+            option.value = group;
+            option.textContent = group;
+            groupSelect.appendChild(option);
+        });
+        debugDiv.appendChild(groupSelect);
+        
+        const forceP1Button = document.createElement('button');
+        forceP1Button.textContent = 'Force P1 Domination';
+        forceP1Button.style.backgroundColor = '#ff7700';
+        forceP1Button.onclick = async function() {
+            const { stateGroups } = await import('./state-groups.js');
+            const selectedGroup = groupSelect.value;
+            await stateGroups.forceGroupDomination(selectedGroup, 1);
+        };
+        debugDiv.appendChild(forceP1Button);
+          const forceP2Button = document.createElement('button');
+        forceP2Button.textContent = 'Force P2 Domination';
+        forceP2Button.style.backgroundColor = '#00a000';
+        forceP2Button.style.color = 'white';
+        forceP2Button.onclick = async function() {
+            const { stateGroups } = await import('./state-groups.js');
+            const selectedGroup = groupSelect.value;
+            await stateGroups.forceGroupDomination(selectedGroup, 2);
+        };
+        debugDiv.appendChild(forceP2Button);
+        
+        // Add a separator
+        const separator = document.createElement('hr');
+        separator.style.margin = '5px 0';
+        debugDiv.appendChild(separator);
+        
+        // Add buttons to dominate ALL groups
+        const forceAllP1Button = document.createElement('button');
+        forceAllP1Button.textContent = 'Force ALL Groups P1';
+        forceAllP1Button.style.backgroundColor = '#d32f2f';
+        forceAllP1Button.style.color = 'white';
+        forceAllP1Button.style.padding = '8px';
+        forceAllP1Button.style.margin = '5px 0';
+        forceAllP1Button.onclick = async function() {
+            if (confirm('This will set all states to P1 dominance. Continue?')) {
+                const { stateGroups } = await import('./state-groups.js');
+                await stateGroups.forceAllGroupsDomination(1);
+            }
+        };
+        debugDiv.appendChild(forceAllP1Button);
+        
+        const forceAllP2Button = document.createElement('button');
+        forceAllP2Button.textContent = 'Force ALL Groups P2';
+        forceAllP2Button.style.backgroundColor = '#388e3c';
+        forceAllP2Button.style.color = 'white';
+        forceAllP2Button.style.padding = '8px';
+        forceAllP2Button.style.margin = '5px 0';
+        forceAllP2Button.onclick = async function() {
+            if (confirm('This will set all states to P2 dominance. Continue?')) {
+                const { stateGroups } = await import('./state-groups.js');
+                await stateGroups.forceAllGroupsDomination(2);
+            }
+        };
+        debugDiv.appendChild(forceAllP2Button);
         
         document.body.appendChild(debugDiv);
     };
@@ -193,12 +281,22 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Update game phase
             gameState.updatePhase(currentPhase);
-            
-            // Update game timer display
+              // Update game timer display
             if (window.gameTimer) {
                 gameTimer.currentPhase = currentPhase;
                 gameTimer.updateDisplay();
             }
+            
+            // Check for group domination
+            setTimeout(async () => {
+                try {
+                    const { stateGroups } = await import('./state-groups.js');
+                    console.log('Checking group domination after simulation');
+                    await stateGroups.checkAllGroupsDomination();
+                } catch (error) {
+                    console.error('Error checking group domination:', error);
+                }
+            }, 300);
             
             currentPhase++;
         }
@@ -227,6 +325,17 @@ function initializePlayerInfo() {
 function initializeStateGroups() {
     // Initialize state groups functionality
     console.log('State groups initialized');
+    
+    // Check for group domination after a short delay
+    setTimeout(async () => {
+        try {
+            const { stateGroups } = await import('./state-groups.js');
+            console.log('Initial check for group domination');
+            await stateGroups.checkAllGroupsDomination();
+        } catch (error) {
+            console.error('Error during initial group domination check:', error);
+        }
+    }, 2000); // Give more time for state data to load
 }
 
 function initializeActionsLog() {

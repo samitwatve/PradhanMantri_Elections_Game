@@ -1,10 +1,12 @@
 // Player information management
-class PlayerInfo {    
-    constructor(playerId) {
+class PlayerInfo {      constructor(playerId) {
         this.playerId = playerId;
         this.element = document.getElementById(`player${playerId}-info`);
         this.statsElement = this.element.querySelector('.player-stats');
-        this.funds = 250; // Starting funds in millions
+        
+        // Set starting funds - 10000M for Player 1 (debug mode), 250M for Player 2
+        this.funds = playerId === 1 ? 10000 : 250; // Starting funds in millions
+        
         this.initialize();
         
         // Bind the event handler and listen for phase changes to replenish funds
@@ -17,8 +19,7 @@ class PlayerInfo {
         this.replenishFunds();
     }
 
-    initialize() {
-        const playerConfig = {
+    initialize() {        const playerConfig = {
             1: {
                 name: 'Sam',
                 party: 'BJP'
@@ -31,10 +32,14 @@ class PlayerInfo {
 
         const config = playerConfig[this.playerId];
         if (config) {
+            // Add (DEBUG) indicator for Player 1 when funds are set to 10000M
+            const debugMode = this.playerId === 1 && this.funds === 10000;
+            const partyText = debugMode ? `(${config.party} - DEBUG)` : `(${config.party})`;
+            
             this.element.innerHTML = `
                 <div class="player-name">
                     <span class="name">${config.name}</span>
-                    <span class="party">(${config.party})</span>
+                    <span class="party">${partyText}</span>
                 </div>
                 <div class="player-stats">                    
                     <div class="player-funds">
@@ -111,10 +116,11 @@ class PlayerInfo {
             // Remove it after animation completes
             setTimeout(() => fundsElement.classList.remove('shake-error'), 500);
         }
-    }    
-    replenishFunds() {
-        // Add 250M funds at each phase change (as per roadmap)
-        const replenishAmount = 250;
+    }      replenishFunds() {
+        // Add funds at each phase change - large amount for Player 1 in debug mode
+        const isDebugMode = this.playerId === 1 && this.funds >= 5000;
+        const replenishAmount = isDebugMode ? 5000 : 250;
+        
         this.updateFunds(replenishAmount);
         console.log(`Player ${this.playerId} funds replenished by ${replenishAmount}M (current total: ${this.funds}M)`);
     }

@@ -1,12 +1,12 @@
 // State grouping functionality
-class StateGroups {
-    constructor() {
+class StateGroups {    constructor() {
         this.groups = new Map();
         this.statesData = null;
+        this.groupDominationStatus = new Map(); // Track which groups are dominated by a player
+        this.dominationCheckTimeout = null; // For debouncing
+        this.checkingDomination = false; // Prevent concurrent checks
         this.initialize();
-    }
-
-    async initialize() {
+    }async initialize() {
         try {
             // Load states data
             const response = await fetch('states_data.json');
@@ -15,8 +15,17 @@ class StateGroups {
             // Initialize groups from states data
             this.initializeGroups();
             
-            // Initialize event listeners for group buttons
+            // Add data-group attributes to the buttons
             const buttons = document.querySelectorAll('.button-grid button');
+            buttons.forEach(button => {
+                const groupName = button.textContent.trim();
+                if (this.groups.has(groupName)) {
+                    console.log(`Setting data-group attribute for ${groupName}`);
+                    button.setAttribute('data-group', groupName);
+                }
+            });
+            
+            // Initialize event listeners for group buttons
             buttons.forEach(button => {
                 button.addEventListener('click', (e) => this.handleGroupClick(e));
             });
@@ -28,9 +37,43 @@ class StateGroups {
                 button.addEventListener('mouseover', (e) => this.handleUTHover(e));
                 button.addEventListener('mouseout', (e) => this.handleUTUnhover(e));
             });
+            
+            // Listen for popularity changes to check group domination (with debouncing)
+            window.addEventListener('popularityChanged', (event) => {
+                console.log(`Popularity changed for ${event.detail.stateId}, scheduling group domination check`);
+                this.scheduleGroupDominationCheck();
+            });
         } catch (error) {
             console.error('Failed to load states data:', error);
         }
+    }
+      // Schedule a check with debouncing to prevent too many checks
+    scheduleGroupDominationCheck() {
+        // Clear any existing timeout
+        if (this.dominationCheckTimeout) {
+            clearTimeout(this.dominationCheckTimeout);
+        }
+        
+        // Set a new timeout
+        this.dominationCheckTimeout = setTimeout(async () => {
+            // Prevent concurrent checks
+            if (this.checkingDomination) {
+                console.log('Group domination check already in progress, will try again later');
+                // Try again in a moment
+                setTimeout(() => this.scheduleGroupDominationCheck(), 500);
+                return;
+            }
+            
+            try {
+                this.checkingDomination = true;
+                console.log('Running scheduled group domination check');
+                await this.checkAllGroupsDomination();
+            } catch (error) {
+                console.error('Error during scheduled group domination check:', error);
+            } finally {
+                this.checkingDomination = false;
+            }
+        }, 500); // Wait for 500ms after the last change before checking
     }
 
     initializeGroups() {
@@ -74,16 +117,13 @@ class StateGroups {
             if (state.IndustrialCorridor === "TRUE") this.groups.get('Industrial Corridor').push(state.SvgId);
             if (state.Manufacturing === "TRUE") this.groups.get('Manufacturing').push(state.SvgId);
             if (state.Education === "TRUE") this.groups.get('Education').push(state.SvgId);
-            if (state.TribalLands === "TRUE") this.groups.get('Tribal Lands').push(state.SvgId);
-            if (state.TravelAndTourism === "TRUE") this.groups.get('Travel and Tourism').push(state.SvgId);
+            if (state.TribalLands === "TRUE") this.groups.get('Tribal Lands').push(state.SvgId);            if (state.TravelAndTourism === "TRUE") this.groups.get('Travel and Tourism').push(state.SvgId);
             if (state.NaturalResources === "TRUE") this.groups.get('Natural Resources').push(state.SvgId);
             if (state.MinorityAreas === "TRUE") this.groups.get('Minority Areas').push(state.SvgId);
         });
-    }
-
-    handleGroupClick(event) {
+    }handleGroupClick(event) {
         const button = event.target;
-        const groupName = button.textContent;
+        const groupName = button.textContent.trim();
         const isActive = button.classList.toggle('active');
         
         // Get states for this group
@@ -93,10 +133,9 @@ class StateGroups {
         if (isActive) {
             // Clear all other highlights
             const allButtons = document.querySelectorAll('.button-grid button');
-            allButtons.forEach(otherButton => {
-                if (otherButton !== button && otherButton.classList.contains('active')) {
+            allButtons.forEach(otherButton => {                if (otherButton !== button && otherButton.classList.contains('active')) {
                     otherButton.classList.remove('active');
-                    const otherGroupName = otherButton.textContent;
+                    const otherGroupName = otherButton.textContent.trim();
                     const otherStates = this.getStatesInGroup(otherGroupName);
                     otherStates.forEach(stateId => {
                         window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
@@ -186,9 +225,355 @@ class StateGroups {
         window.dispatchEvent(new CustomEvent('selectUT', {
             detail: { utId }
         }));
+    }    // Check if all states in a group have >50% popularity for a player
+    async checkGroupDomination(groupName) {
+        if (!this.groups.has(groupName)) {
+            console.log(`Group "${groupName}" not found in groups map`);
+            return null;
+        }
+        
+        const states = this.getStatesInGroup(groupName);
+        if (states.length === 0) {
+            console.log(`Group "${groupName}" has no states`);
+            return null;
+        }
+        
+        // Import stateInfo to get popularity data
+        const { stateInfo } = await import('./state-info.js');
+        
+        let player1Domination = true;
+        let player2Domination = true;
+        
+        console.log(`===== GROUP DOMINATION CHECK: ${groupName} =====`);
+        console.log(`Checking domination for group ${groupName} with ${states.length} states`);
+        
+        // Count states with >50% for each player
+        let p1DominatingStates = 0;
+        let p2DominatingStates = 0;
+        let totalStates = states.length;
+        
+        // Check each state in the group
+        for (const stateId of states) {
+            const popularity = stateInfo.getStatePopularity(stateId);
+            if (!popularity) {
+                console.log(`No popularity data for state ${stateId}`);
+                player1Domination = false;
+                player2Domination = false;
+                continue;
+            }
+            
+            // Round the values to ensure consistent comparisons
+            const p1 = Math.round(popularity.player1);
+            const p2 = Math.round(popularity.player2);
+            
+            console.log(`State ${stateId} popularity: P1=${p1}, P2=${p2}`);
+              // Check if player1 has >50% popularity
+            if (p1 >= 50) {
+                p1DominatingStates++;
+            } else {
+                player1Domination = false;
+            }
+            
+            // Check if player2 has >50% popularity
+            if (p2 >= 50) {
+                p2DominatingStates++;
+            } else {
+                player2Domination = false;
+            }
+              // If neither player can dominate, we can stop checking
+            if (!player1Domination && !player2Domination) {
+                console.log(`No player can dominate ${groupName}, stopping check early`);
+                break;
+            }
+        }
+        
+        console.log(`Group "${groupName}": P1 dominates ${p1DominatingStates}/${totalStates} states, P2 dominates ${p2DominatingStates}/${totalStates} states`);
+        
+        // Return the dominating player (1, 2) or null if none
+        if (player1Domination) {
+            console.log(`Player 1 dominates group ${groupName}`);
+            return 1;
+        }
+        if (player2Domination) {
+            console.log(`Player 2 dominates group ${groupName}`);
+            return 2;
+        }
+        console.log(`No player dominates group ${groupName}`);
+        return null;
+    }    // Check domination for all groups
+    async checkAllGroupsDomination() {
+        // Debug log group membership first
+        this.debugGroupMembership();
+        
+        // Get all group names
+        const groupNames = Array.from(this.groups.keys());
+        
+        console.log(`===== CHECKING DOMINATION FOR ALL GROUPS =====`);
+        console.log(`Checking domination for ${groupNames.length} groups`);
+        
+        // Count of dominated groups by each player
+        let player1DominatedGroups = 0;
+        let player2DominatedGroups = 0;
+        
+        for (const groupName of groupNames) {
+            try {
+                const dominatingPlayer = await this.checkGroupDomination(groupName);
+                const previousStatus = this.groupDominationStatus.get(groupName);
+                
+                // If domination status changed
+                if (dominatingPlayer !== previousStatus) {
+                    console.log(`Domination status changed for ${groupName}: ${previousStatus} -> ${dominatingPlayer}`);
+                    this.groupDominationStatus.set(groupName, dominatingPlayer);
+                    
+                    // Apply highlight
+                    try {
+                        this.highlightGroupDomination(groupName, dominatingPlayer);
+                    } catch (highlightError) {
+                        console.error(`Error highlighting group ${groupName}:`, highlightError);
+                    }
+                } else {
+                    console.log(`No change in domination status for ${groupName}: still ${dominatingPlayer}`);
+                }
+                
+                // Count dominated groups
+                if (dominatingPlayer === 1) player1DominatedGroups++;
+                if (dominatingPlayer === 2) player2DominatedGroups++;
+                
+            } catch (error) {
+                console.error(`Error checking domination for group ${groupName}:`, error);
+            }
+        }
+        
+        console.log(`===== DOMINATION SUMMARY =====`);
+        console.log(`Player 1 dominates ${player1DominatedGroups} groups`);
+        console.log(`Player 2 dominates ${player2DominatedGroups} groups`);
+        console.log(`===== END DOMINATION CHECK =====`);
+    }// Highlight all states in a group if dominated by a player
+    highlightGroupDomination(groupName, playerId) {
+        if (!this.groups.has(groupName)) {
+            console.log(`Group "${groupName}" not found in groups map`);
+            return;
+        }
+        
+        const states = this.getStatesInGroup(groupName);
+        console.log(`Highlighting ${states.length} states for group "${groupName}", player ${playerId}`);
+        
+        // Try getting button both ways - by data-group attribute or by text content
+        let button = document.querySelector(`.button-grid button[data-group="${groupName}"]`);
+        if (!button) {
+            // Fallback to finding by text content
+            console.log(`Button with data-group="${groupName}" not found, trying text content match`);
+            const buttons = document.querySelectorAll('.button-grid button');
+            for (const btn of buttons) {
+                if (btn.textContent.trim() === groupName) {
+                    button = btn;
+                    // Add the data-group attribute for future use
+                    btn.setAttribute('data-group', groupName);
+                    console.log(`Found button by text content and set data-group attribute`);
+                    break;
+                }
+            }
+        }
+        
+        console.log(`Highlighting group ${groupName} for player ${playerId}, found button: ${!!button}`);
+        
+        // If there's a button for this group, update its appearance
+        if (button) {
+            // Remove previous domination classes
+            button.classList.remove('player1-dominated', 'player2-dominated');
+            
+            // Add appropriate class if dominated
+            if (playerId === 1) {
+                console.log(`Adding player1-dominated class to ${groupName} button`);
+                button.classList.add('player1-dominated');
+            } else if (playerId === 2) {
+                console.log(`Adding player2-dominated class to ${groupName} button`);
+                button.classList.add('player2-dominated');
+            }
+        } else {
+            console.warn(`Button not found for group "${groupName}"`);
+        }
+        
+        // Highlight states based on domination
+        if (playerId) {
+            console.log(`Highlighting ${states.length} states for domination by player ${playerId}`);
+            states.forEach(stateId => {
+                console.log(`Highlighting state ${stateId} for domination by player ${playerId}`);
+                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                    detail: { stateId, forceState: true }
+                }));
+            });
+        } else {
+            console.log(`Removing highlights from ${states.length} states in group "${groupName}"`);
+            states.forEach(stateId => {
+                console.log(`Removing highlight from state ${stateId}`);
+                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                    detail: { stateId, forceOff: true }
+                }));
+            });
+        }
+    }
+    // Debug method to log all groups and their members
+    debugGroupMembership() {
+        console.log('===== DEBUG: GROUP MEMBERSHIP =====');
+        console.log(`Total groups: ${this.groups.size}`);
+        
+        this.groups.forEach((states, groupName) => {
+            console.log(`Group "${groupName}": ${states.length} states`);
+            console.log(states);
+        });
+        
+        console.log('===== END DEBUG =====');
+    }
+    // Debug method to analyze what's missing for group domination
+    async analyzeGroupDomination() {
+        const { stateInfo } = await import('./state-info.js');
+        
+        console.log('===== GROUP DOMINATION ANALYSIS =====');
+        
+        // For each group
+        for (const [groupName, states] of this.groups.entries()) {
+            if (states.length === 0) continue;
+            
+            console.log(`\n----- Group "${groupName}" (${states.length} states) -----`);
+            
+            // Count states with adequate popularity
+            let p1States = 0;
+            let p2States = 0;
+            
+            // Track states that don't meet the threshold for each player
+            const p1MissingStates = [];
+            const p2MissingStates = [];
+            
+            for (const stateId of states) {
+                const popularity = stateInfo.getStatePopularity(stateId);
+                if (!popularity) continue;
+                
+                const p1 = Math.round(popularity.player1);
+                const p2 = Math.round(popularity.player2);
+                
+                // Check each player's popularity
+                if (p1 >= 50) {
+                    p1States++;
+                } else {
+                    const stateData = stateInfo.statesData.find(s => s.SvgId === stateId);
+                    const stateName = stateData ? stateData.State : stateId;
+                    p1MissingStates.push({
+                        id: stateId,
+                        name: stateName,
+                        popularity: p1
+                    });
+                }
+                
+                if (p2 >= 50) {
+                    p2States++;
+                } else {
+                    const stateData = stateInfo.statesData.find(s => s.SvgId === stateId);
+                    const stateName = stateData ? stateData.State : stateId;
+                    p2MissingStates.push({
+                        id: stateId,
+                        name: stateName,
+                        popularity: p2
+                    });
+                }
+            }
+            
+            // Report results
+            console.log(`Player 1: ${p1States}/${states.length} states with >=50% popularity`);
+            console.log(`Player 2: ${p2States}/${states.length} states with >=50% popularity`);
+            
+            if (p1States === states.length) {
+                console.log("Group is DOMINATED by Player 1");
+            } else if (p1MissingStates.length > 0) {
+                console.log("Player 1 missing domination in these states:");
+                p1MissingStates.forEach(state => {
+                    console.log(`  - ${state.name} (${state.id}): ${state.popularity}%`);
+                });
+            }
+            
+            if (p2States === states.length) {
+                console.log("Group is DOMINATED by Player 2");
+            } else if (p2MissingStates.length > 0) {
+                console.log("Player 2 missing domination in these states:");
+                p2MissingStates.forEach(state => {
+                    console.log(`  - ${state.name} (${state.id}): ${state.popularity}%`);
+                });
+            }
+        }
+        
+        console.log('===== END ANALYSIS =====');
+    }
+    // Debug method to force domination of a group by a player
+    async forceGroupDomination(groupName, playerId) {
+        if (!this.groups.has(groupName)) {
+            console.log(`Group "${groupName}" not found`);
+            return;
+        }
+        
+        const states = this.getStatesInGroup(groupName);
+        if (states.length === 0) {
+            console.log(`Group "${groupName}" has no states`);
+            return;
+        }
+        
+        console.log(`Forcing Player ${playerId} to dominate group "${groupName}" (${states.length} states)`);
+        
+        const { stateInfo } = await import('./state-info.js');
+        
+        // For each state in the group
+        for (const stateId of states) {
+            const currentPopularity = stateInfo.getStatePopularity(stateId);
+            if (!currentPopularity) continue;
+            
+            // Create new popularity object
+            const newPopularity = { ...currentPopularity };
+            
+            // Set the specified player to 60%, distribute rest between other player and others
+            if (playerId === 1) {
+                newPopularity.player1 = 60;
+                newPopularity.player2 = 20;
+                newPopularity.others = 20;
+            } else {
+                newPopularity.player2 = 60;
+                newPopularity.player1 = 20;
+                newPopularity.others = 20;
+            }
+            
+            // Update the state
+            stateInfo.updateStatePopularity(stateId, newPopularity);
+            console.log(`Set ${stateId} popularity to P1=${newPopularity.player1}, P2=${newPopularity.player2}, Others=${newPopularity.others}`);
+        }
+        
+        // Check domination after a short delay
+        setTimeout(() => this.checkAllGroupsDomination(), 500);
+    }
+    // Debug method to force domination of all groups by a player
+    async forceAllGroupsDomination(playerId) {
+        console.log(`===== FORCING ALL GROUPS DOMINATION FOR PLAYER ${playerId} =====`);
+        
+        const groupNames = Array.from(this.groups.keys());
+        for (const groupName of groupNames) {
+            await this.forceGroupDomination(groupName, playerId);
+        }
+        
+        console.log(`===== COMPLETED FORCING ALL GROUPS DOMINATION =====`);
+        
+        // Final check
+        setTimeout(() => this.checkAllGroupsDomination(), 1000);
     }
 
-    // Add more methods as needed for group management
+    // Find all groups that a state belongs to
+    getGroupsForState(stateId) {
+        const groups = [];
+        
+        this.groups.forEach((states, groupName) => {
+            if (states.includes(stateId)) {
+                groups.push(groupName);
+            }
+        });
+        
+        return groups;
+    }
 }
 
 // Create and export a single instance

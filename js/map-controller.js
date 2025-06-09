@@ -34,12 +34,21 @@ class MapController {
             
             // Create ripple container
             this.createRippleContainer();
-            
-            // Listen for popularity changes
-            window.addEventListener('popularityChanged', (event) => {
+              // Listen for popularity changes
+            window.addEventListener('popularityChanged', async (event) => {
                 const { stateId, popularity } = event.detail;
                 console.log(`Popularity changed for ${stateId}:`, popularity);
                 this.updateStateColor(stateId, popularity);
+                
+                // Check for group domination after a short delay
+                setTimeout(async () => {
+                    try {
+                        const { stateGroups } = await import('./state-groups.js');
+                        stateGroups.scheduleGroupDominationCheck();
+                    } catch (error) {
+                        console.error('Error checking group domination:', error);
+                    }
+                }, 100);
             });
 
             // Import state info and initialize all states with colors after a short delay
@@ -61,19 +70,27 @@ class MapController {
                         this.updateStateColor(state.id, popularity);
                         console.log(`Initialized ${state.id} with popularity:`, popularity);
                     }
-                });
-                
+                });                
                 console.log("All states should now be colored");
+                
+                // Check for group domination once all states are colored
+                setTimeout(async () => {
+                    try {
+                        const { stateGroups } = await import('./state-groups.js');
+                        console.log('Initial check for group domination after all states are colored');
+                        await stateGroups.checkAllGroupsDomination();
+                    } catch (error) {
+                        console.error('Error checking group domination:', error);
+                    }
+                }, 1000);
             }, 500);
 
         } catch (error) {
             console.error('Failed to initialize map:', error);
-        }
-
-        // Add event listener for state highlighting
+        }        // Add event listener for state highlighting
         window.addEventListener('toggleStateHighlight', (event) => {
-            const { stateId } = event.detail;
-            this.toggleStateHighlight(stateId);
+            const { stateId, forceState, forceOff } = event.detail;
+            this.toggleStateHighlight(stateId, forceState, forceOff);
         });
     }
 
@@ -431,6 +448,17 @@ class MapController {
             console.log(`${stateId}: Setting to Others color (${color}) with ${roundedOthers}%`);
             stateElement.setAttribute('fill', color);
         }
+        
+        // After updating the color, check for group domination
+        // This ensures that if a state becomes > 50% for a player, groups are checked
+        setTimeout(async () => {
+            try {
+                const { stateGroups } = await import('./state-groups.js');
+                stateGroups.scheduleGroupDominationCheck();
+            } catch (error) {
+                console.error('Error scheduling group domination check after color update:', error);
+            }
+        }, 100);
     }
 
     updateUTButtonColor(stateId, popularity) {
@@ -535,6 +563,7 @@ class MapController {
 
         // Force off takes precedence
         if (forceOff) {
+            console.log(`Force removing highlight from state: ${stateId}`);
             this.highlightedStates.delete(stateId);
             statePath.style.stroke = '';
             statePath.style.strokeWidth = '';
@@ -546,11 +575,13 @@ class MapController {
         const shouldHighlight = forceState !== null ? forceState : !this.highlightedStates.has(stateId);
 
         if (shouldHighlight) {
+            console.log(`Adding highlight to state: ${stateId}`);
             this.highlightedStates.add(stateId);
             statePath.style.stroke = '#ffffff'; // White color for highlight
             statePath.style.strokeWidth = '3';
             statePath.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.7))';
         } else {
+            console.log(`Removing highlight from state: ${stateId}`);
             this.highlightedStates.delete(stateId);
             statePath.style.stroke = '';
             statePath.style.strokeWidth = '';

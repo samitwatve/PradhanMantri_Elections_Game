@@ -90,3 +90,40 @@ svg polygon {
     stroke-width: 3;
     transition: stroke 0.3s ease;
 }
+
+/* Group domination styles */
+.button-grid button.player1-dominated {
+    border: 4px solid var(--player1-color);
+    box-shadow: 0 0 15px var(--player1-color);
+    animation: pulse-player1 1.5s infinite;
+    background-color: rgba(255, 152, 0, 0.4);
+    font-weight: bold;
+    color: #000;
+    outline: 2px solid white;
+    z-index: 10;
+    position: relative;
+}
+
+.button-grid button.player2-dominated {
+    border: 4px solid var(--player2-color);
+    box-shadow: 0 0 15px var(--player2-color);
+    animation: pulse-player2 1.5s infinite;
+    background-color: rgba(76, 175, 80, 0.4);
+    font-weight: bold;
+    color: #000;
+    outline: 2px solid white;
+    z-index: 10;
+    position: relative;
+}
+
+@keyframes pulse-player1 {
+    0% { box-shadow: 0 0 5px var(--player1-color); }
+    50% { box-shadow: 0 0 20px var(--player1-color); border-color: #ffcc80; }
+    100% { box-shadow: 0 0 5px var(--player1-color); }
+}
+
+@keyframes pulse-player2 {
+    0% { box-shadow: 0 0 5px var(--player2-color); }
+    50% { box-shadow: 0 0 20px var(--player2-color); border-color: #a5d6a7; }
+    100% { box-shadow: 0 0 5px var(--player2-color); }
+}

@@ -167,6 +167,17 @@ export class GameTimer {
     notifyPhaseChange() {
         this.callbacks.onPhaseChange.forEach(callback => 
             callback(this.currentPhase, this.totalPhases));
+        
+        // Check for group domination after a short delay
+        setTimeout(async () => {
+            try {
+                const { stateGroups } = await import('./state-groups.js');
+                console.log('Checking group domination after phase change');
+                await stateGroups.checkAllGroupsDomination();
+            } catch (error) {
+                console.error('Error checking group domination:', error);
+            }
+        }, 500);
     }    // Getter for current phase (1-indexed)
     getCurrentPhase() {
         return this.currentPhase;

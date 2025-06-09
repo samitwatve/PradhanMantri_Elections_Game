@@ -127,9 +127,7 @@ class StateInfo {
 
     getStatePopularity(stateId) {
         return this.statePopularity.get(stateId);
-    }
-
-    updateStatePopularity(stateId, popularity) {
+    }    updateStatePopularity(stateId, popularity) {
         this.statePopularity.set(stateId, popularity);
         
         // Emit an event to notify the map controller
@@ -139,7 +137,17 @@ class StateInfo {
                 popularity
             }
         }));
-    }    recordStateAction(stateId, playerId, amount) {
+        
+        // Check for group domination after direct popularity updates
+        setTimeout(async () => {
+            try {
+                const { stateGroups } = await import('./state-groups.js');
+                stateGroups.scheduleGroupDominationCheck();
+            } catch (error) {
+                console.error('Error scheduling group domination check after popularity update:', error);
+            }
+        }, 100);
+    }recordStateAction(stateId, playerId, amount) {
         if (!this.statePopularity.has(stateId)) {
             this.initializeState(stateId);
         }
@@ -266,7 +274,7 @@ class StateInfo {
                 this.updateStateInfo(stateId);
             }
         }
-    }    updateStateInfo(stateId) {
+    }    async updateStateInfo(stateId) {
         if (!this.statesData || !this.statesDetails) {
             console.log('Missing statesData or statesDetails');
             return;
@@ -288,6 +296,22 @@ class StateInfo {
         // Initialize or get state data
         const state = this.initializeState(stateId);
         const popularity = state.popularity;
+        
+        // Import state groups to get current domination status
+        const { stateGroups } = await import('./state-groups.js');
+        const stateGroupsList = stateGroups.getGroupsForState(stateId);
+        
+        // Format the groups list with domination status
+        const groupsWithStatus = stateGroupsList.map(groupName => {
+            const dominationStatus = stateGroups.groupDominationStatus.get(groupName);
+            let marker = '';
+            if (dominationStatus === 1) {
+                marker = ' 🟠'; // Orange circle for Player 1
+            } else if (dominationStatus === 2) {
+                marker = ' 🟢'; // Green circle for Player 2
+            }
+            return `${groupName}${marker}`;
+        });
 
         this.statesDetails.innerHTML = `
             <div class="state-info">
@@ -302,9 +326,9 @@ class StateInfo {
                 </div>
 
                 <div class="groups-section">
-                    <h5>Groups</h5>
+                    <h5>Groups (${groupsWithStatus.length})</h5>
                     <div class="groups-list">
-                        ${groups.join(' • ')}
+                        ${groupsWithStatus.join(' • ')}
                     </div>
                 </div>
             </div>
@@ -315,9 +339,7 @@ class StateInfo {
         return key.replace(/([A-Z])/g, ' $1')
             .replace(/^./, str => str.toUpperCase())
             .trim();
-    }
-
-    // Force immediate update of state popularity and color
+    }    // Force immediate update of state popularity and color
     forceUpdateAllStates() {
         console.log("Forcing update of all states");
         
@@ -334,6 +356,17 @@ class StateInfo {
                 }
             }));
         });
+        
+        // Check for group domination after all states have been updated
+        setTimeout(async () => {
+            try {
+                console.log("Force checking all groups domination after updating all states");
+                const { stateGroups } = await import('./state-groups.js');
+                await stateGroups.checkAllGroupsDomination();
+            } catch (error) {
+                console.error('Error checking group domination after force update:', error);
+            }
+        }, 500);
     }
 }
 
