@@ -20,12 +20,14 @@ object#india-map polygon {
     cursor: pointer !important;
     /* No transition - we want immediate color changes */
     pointer-events: all !important;
+    touch-action: manipulation;
 }
 
 svg path,
 svg polygon {
     cursor: pointer !important;
     pointer-events: all !important;
+    touch-action: manipulation;
 }
 
 /* 
@@ -76,11 +78,10 @@ svg polygon {
 
 /* Button active state */
 .button-grid button.active {
-    background-color: var(--highlight-color);
-    color: #000;
+    background-color: var(--highlight-color);    color: #000;
     border: 2px solid #ffffff;
     transform: scale(0.98);
-    transition: all 0.2s ease;
+    transition: all 0.05s ease;
 }
 
 /* Highlighted state paths */
@@ -88,7 +89,7 @@ svg polygon {
 #india-map polygon.highlighted {
     stroke: var(--highlight-color);
     stroke-width: 3;
-    transition: stroke 0.3s ease;
+    transition: stroke 0.1s ease;
 }
 
 /* Group domination styles */

@@ -1,4 +1,7 @@
 // Map interaction and state management
+import { player1 } from './player-info.js';
+import { stateInfo } from './state-info.js';
+
 class MapController {
     constructor() {
         this.svgDocument = null;
@@ -7,7 +10,7 @@ class MapController {
         this.rippleContainer = null;
         this.highlightedStates = new Set();
         this.initialize();
-    }    async initialize() {
+    }async initialize() {
         try {
             // Load states data
             const response = await fetch('states_data.json');
@@ -126,10 +129,9 @@ class MapController {
     setupStateInteractions() {
         if (!this.svgDocument) return;
 
-        const states = this.svgDocument.querySelectorAll('path, polygon');
-        states.forEach(state => {
+        const states = this.svgDocument.querySelectorAll('path, polygon');        states.forEach(state => {
             if (!state.id) return;
-              state.addEventListener('click', (e) => this.handleStateClick(e));
+              state.addEventListener('mousedown', (e) => this.handleStateClick(e));
             state.addEventListener('mouseover', (e) => this.handleStateHover(e));
             state.addEventListener('mouseout', (e) => this.handleStateUnhover(e));
         });
@@ -229,45 +231,35 @@ class MapController {
         svgPoint.y = event.clientY;
         const point = svgPoint.matrixTransform(stateElement.getScreenCTM().inverse());
 
-        // Import required modules
-        Promise.all([
-            import('./player-info.js'),
-            import('./state-info.js')
-        ]).then(([playerModule, stateModule]) => {
-            const player1 = playerModule.player1;
-            const stateInfo = stateModule.stateInfo;
-            
-            // Check if state is already selected
-            const isSelected = this.selectedStates.has(stateId);
-            console.log(`${stateId} is currently selected:`, isSelected);
+        // Check if state is already selected
+        const isSelected = this.selectedStates.has(stateId);
+        console.log(`${stateId} is currently selected:`, isSelected);
 
-            // Check if player 1 has enough funds
-            if (player1.canSpend(cost)) {
-                // Create ripple effect
-                this.createRippleEffect(point.x, point.y, 1);
-                
-                // Deduct funds and record the action
-                player1.updateFunds(-cost);
-                stateInfo.recordStateAction(stateId, 1, cost);
-                
-                // Visual feedback - select only if not already selected
-                if (!isSelected) {
-                    console.log(`Selecting state: ${stateId}`);
-                    this.selectState(stateId);
-                } else {
-                    // If already selected, toggle selection state
-                    console.log(`Deselecting state: ${stateId}`);
-                    this.deselectState(stateId);
-                }
+        // Check if player 1 has enough funds
+        if (player1.canSpend(cost)) {
+            // Create ripple effect
+            this.createRippleEffect(point.x, point.y, 1);
+              // Deduct funds and record the action
+            player1.updateFunds(-cost);
+            stateInfo.recordStateAction(stateId, 1, cost);
+            
+            // Visual feedback - select only if not already selected
+            if (!isSelected) {
+                console.log(`Selecting state: ${stateId}`);
+                this.selectState(stateId);
             } else {
-                // Visual feedback for insufficient funds
-                stateElement.classList.add('error');
-                setTimeout(() => stateElement.classList.remove('error'), 500);
-                
-                // Show shake animation on funds display
-                player1.showInsufficientFundsError();
+                // If already selected, toggle selection state
+                console.log(`Deselecting state: ${stateId}`);
+                this.deselectState(stateId);
             }
-        });
+        } else {
+            // Visual feedback for insufficient funds
+            stateElement.classList.add('error');
+            setTimeout(() => stateElement.classList.remove('error'), 500);
+            
+            // Show shake animation on funds display
+            player1.showInsufficientFundsError();
+        }
     }
 
     selectState(stateId) {
