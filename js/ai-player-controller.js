@@ -4,6 +4,7 @@
 import { player2 } from './player-info.js';
 import { stateInfo } from './state-info.js';
 import { mapController } from './map-controller.js';
+import { gameOptions } from './game-options.js';
 
 class AIPlayerController {    
     constructor() {
@@ -35,7 +36,8 @@ class AIPlayerController {
         
         // Set up recurring turns
         this.turnTimer = setInterval(() => {
-            if (this.aiActive) {
+            // Only take turn if AI is active AND game is not paused
+            if (this.aiActive && gameOptions.gameplay) {
                 this.takeAITurn();
             }
         }, this.turnInterval);
@@ -47,9 +49,30 @@ class AIPlayerController {
             this.turnTimer = null;
         }
         this.aiActive = false;
+    }
+    
+    pauseAI() {
+        this.aiActive = false;
+        console.log('AI player paused');
+    }
+    
+    resumeAI() {
+        this.aiActive = true;
+        console.log('AI player resumed');
+        
+        // Restart the turn timer if it was cleared
+        if (!this.turnTimer) {
+            this.startAITurnLoop();
+        }
     }    
     
     async takeAITurn() {
+        // Skip turn if game is paused
+        if (!gameOptions.gameplay) {
+            console.log('AI turn skipped - game is paused');
+            return;
+        }
+        
         console.log('AI player taking random turn');
         
         try {

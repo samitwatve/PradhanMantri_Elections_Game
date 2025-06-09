@@ -109,6 +109,30 @@
     min-height: auto !important; /* Override the min-height from info-section */
 }
 
+/* Make the gameplay button stand out */
+#gameplay-toggle {
+    background: linear-gradient(135deg, rgba(80,80,140,0.7) 0%, rgba(60,60,120,0.7) 100%);
+    border: 1px solid rgba(150, 150, 255, 0.4);
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.3);
+}
+
+#gameplay-toggle:hover {
+    background: linear-gradient(135deg, rgba(100,100,170,0.7) 0%, rgba(80,80,150,0.7) 100%);
+    border-color: rgba(150, 150, 255, 0.6);
+    box-shadow: 0 0 15px rgba(100, 150, 255, 0.5);
+}
+
+#gameplay-toggle[data-state="on"] .option-icon {
+    color: #ff7b7b;
+    text-shadow: 0 0 10px rgba(255, 123, 123, 0.8);
+}
+
+#gameplay-toggle[data-state="off"] .option-icon {
+    color: #7bff7b;
+    text-shadow: 0 0 10px rgba(123, 255, 123, 0.8);
+    opacity: 1;
+}
+
 /* Debug section styling */
 .debug-section {
     margin-top: 15px;

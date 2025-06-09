@@ -92,6 +92,24 @@ function toggleGameplay() {
         }
     }
     
+    // Pause or resume AI player
+    import('./ai-player-controller.js').then(({ aiPlayerController }) => {
+        if (gameOptions.gameplay) {
+            aiPlayerController.resumeAI();
+        } else {
+            aiPlayerController.pauseAI();
+        }
+    });
+    
+    // Log the action in the actions log
+    import('./actions-log.js').then(({ actionsLog }) => {
+        if (gameOptions.gameplay) {
+            actionsLog.log('Game resumed', 'info');
+        } else {
+            actionsLog.log('Game paused', 'info');
+        }
+    });
+    
     console.log(`Game is now ${gameOptions.gameplay ? 'playing' : 'paused'}`);
 }
 
@@ -123,12 +141,15 @@ function updateButtonStates() {
         musicButton.setAttribute('data-state', gameOptions.music ? 'on' : 'off');
         // No icon change needed for music
     }
-    
-    // Update Gameplay button
+      // Update Gameplay button
     if (gameplayButton) {
         gameplayButton.setAttribute('data-state', gameOptions.gameplay ? 'on' : 'off');
+        // Show pause icon when game is playing, play icon when game is paused
         gameplayButton.querySelector('.option-icon').className = 
-            `option-icon fas ${gameOptions.gameplay ? 'fa-play' : 'fa-pause'}`;
+            `option-icon fas ${gameOptions.gameplay ? 'fa-pause' : 'fa-play'}`;
+        // Update the label text based on state
+        gameplayButton.querySelector('.option-label').textContent = 
+            gameOptions.gameplay ? 'Pause' : 'Play';
     }
     
     // Update Help button

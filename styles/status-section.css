@@ -94,12 +94,14 @@
 #game-timer.paused::after {
     content: '(Paused)';
     position: absolute;
-    font-size: 0.4em;
+    font-size: 0.5em;
     bottom: -15px;
     left: 50%;
     transform: translateX(-50%);
+    color: #ff7b7b;
+    text-shadow: 0 0 5px rgba(255, 123, 123, 0.5);
     white-space: nowrap;
-    color: #ff9d4d;
+    animation: blink 1.5s infinite;
 }
 
 @keyframes pulse {

@@ -201,10 +201,16 @@ export class GameTimer {
     // Public methods for external components
     pauseTimer() {
         this.pause();
+        
+        // Add visual indication that the game is paused
+        document.body.classList.add('game-paused');
     }
 
     resumeTimer() {
         this.resume();
+        
+        // Remove visual indication that the game is paused
+        document.body.classList.remove('game-paused');
     }
 }
 
