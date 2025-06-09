@@ -124,9 +124,7 @@ class MapController {
         if (svgElement) {
             svgElement.insertBefore(style, svgElement.firstChild);
         }
-    }
-
-    setupStateInteractions() {
+    }    setupStateInteractions() {
         if (!this.svgDocument) return;
 
         const states = this.svgDocument.querySelectorAll('path, polygon');        states.forEach(state => {
@@ -134,7 +132,27 @@ class MapController {
               state.addEventListener('mousedown', (e) => this.handleStateClick(e));
             state.addEventListener('mouseover', (e) => this.handleStateHover(e));
             state.addEventListener('mouseout', (e) => this.handleStateUnhover(e));
-        });
+        });        // Add interaction for Lakshadweep bounding box
+        const lakshadweepBbox = this.svgDocument.getElementById('bbox-lakshadweep');
+        if (lakshadweepBbox) {
+            lakshadweepBbox.addEventListener('mousedown', (e) => {
+                this.handleLakshadweepClick(e);
+            });
+            lakshadweepBbox.addEventListener('mouseover', (e) => {
+                const syntheticEvent = {
+                    ...e,
+                    target: { ...e.target, id: 'INLD' }
+                };
+                this.handleStateHover(syntheticEvent);
+            });
+            lakshadweepBbox.addEventListener('mouseout', (e) => {
+                const syntheticEvent = {
+                    ...e,
+                    target: { ...e.target, id: 'INLD' }
+                };
+                this.handleStateUnhover(syntheticEvent);
+            });
+        }
 
         // Listen for events from UT buttons
         window.addEventListener('stateClick', async (event) => {
@@ -578,6 +596,56 @@ class MapController {
             statePath.style.stroke = '';
             statePath.style.strokeWidth = '';
             statePath.style.filter = '';
+        }    }
+
+    handleLakshadweepClick(event) {
+        // Handle click on Lakshadweep bounding box
+        const stateId = 'INLD'; // Lakshadweep's SVG ID
+        const stateData = this.statesData.find(state => state.SvgId === stateId);
+        
+        if (!stateData) return;
+
+        const seats = parseInt(stateData.LokSabhaSeats);
+        const cost = seats; // Cost in millions = number of seats
+
+        // Get the actual state element for visual feedback
+        const stateElement = this.svgDocument.getElementById(stateId);
+        if (!stateElement) return;
+
+        // For ripple effect, use the center of the bounding box
+        const bbox = event.target.getBBox();
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+
+        // Check if state is already selected
+        const isSelected = this.selectedStates.has(stateId);
+        console.log(`${stateId} is currently selected:`, isSelected);
+
+        // Check if player 1 has enough funds
+        if (player1.canSpend(cost)) {
+            // Create ripple effect at the center of the bounding box
+            this.createRippleEffect(centerX, centerY, 1);
+              
+            // Deduct funds and record the action
+            player1.updateFunds(-cost);
+            stateInfo.recordStateAction(stateId, 1, cost);
+            
+            // Visual feedback - select only if not already selected
+            if (!isSelected) {
+                console.log(`Selecting state: ${stateId}`);
+                this.selectState(stateId);
+            } else {
+                // If already selected, toggle selection state
+                console.log(`Deselecting state: ${stateId}`);
+                this.deselectState(stateId);
+            }
+        } else {
+            // Visual feedback for insufficient funds
+            stateElement.classList.add('error');
+            setTimeout(() => stateElement.classList.remove('error'), 500);
+            
+            // Show shake animation on funds display
+            player1.showInsufficientFundsError();
         }
     }
 }

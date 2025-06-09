@@ -153,8 +153,7 @@
   <circle class="Uttaranchal" cx="401.4" cy="272.1" id="INUT">
   </circle>
   <circle class="West Bengal" cx="637.1" cy="485.8" id="INWB">
-  </circle>
- <g id="lakshadweep-group">
+  </circle> <g id="lakshadweep-group">
   <circle class="Lakshadweep" cx="233" cy="912.6" id="INLD" />
   <rect id="bbox-lakshadweep" x="200" y="802.6" width="60" height="150" fill="none" stroke="red" pointer-events="all"/>
 </g>
