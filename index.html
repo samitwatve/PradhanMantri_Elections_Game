@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="styles/actions-section.css">
     <link rel="stylesheet" href="styles/status-section.css">    <link rel="stylesheet" href="styles/effects.css">
     <link rel="stylesheet" href="styles/game-options.css">
-    <link rel="stylesheet" href="styles/group-domination.css">
-    <link rel="stylesheet" href="styles/tv-display.css">
+    <link rel="stylesheet" href="styles/group-domination.css">    <link rel="stylesheet" href="styles/tv-display.css">
+    <link rel="stylesheet" href="styles/help-screen.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>    
@@ -326,6 +326,179 @@
             </div>
         </div>
     </div>
+    
+    <!-- Help Overlay -->
+    <div id="help-overlay" class="help-overlay" style="display: none;">
+        <div class="help-container">
+            <div class="help-header">
+                <h2><i class="fas fa-graduation-cap"></i> India Elections Game - Help Guide</h2>
+                <button id="close-help" class="close-help-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="help-content">
+                <div class="help-tabs">
+                    <button class="help-tab active" data-tab="overview">Game Overview</button>
+                    <button class="help-tab" data-tab="controls">Controls & Interface</button>
+                    <button class="help-tab" data-tab="gameplay">Gameplay</button>
+                    <button class="help-tab" data-tab="strategy">Strategy Tips</button>
+                </div>
+                
+                <div class="help-sections">
+                    <!-- Overview Tab -->
+                    <div class="help-section active" id="help-overview">
+                        <h3><i class="fas fa-info-circle"></i> Game Overview</h3>
+                        <div class="help-content-section">
+                            <h4>Objective</h4>
+                            <p>Win India's Lok Sabha Elections by securing at least <strong>272 out of 543 seats</strong>. You compete against an AI opponent across multiple phases of campaigning.</p>
+                            
+                            <h4>Game Phases</h4>
+                            <p>The election campaign is divided into <strong>8 phases</strong>, each lasting 30 seconds. Use your limited time and funds wisely!</p>
+                            
+                            <h4>Victory Conditions</h4>
+                            <ul>
+                                <li><strong>Majority Government:</strong> Get 272+ seats to form government</li>
+                                <li><strong>Hung Parliament:</strong> If neither player reaches 272, it's a tie</li>
+                            </ul>
+                            
+                            <h4>Your Resources</h4>
+                            <ul>
+                                <li><strong>Campaign Funds:</strong> Start with 250M, get more each phase</li>
+                                <li><strong>Time:</strong> Limited time per phase to make decisions</li>
+                                <li><strong>Strategic Planning:</strong> Choose where and how to spend wisely</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls Tab -->
+                    <div class="help-section" id="help-controls">
+                        <h3><i class="fas fa-mouse-pointer"></i> Controls & Interface</h3>
+                        <div class="help-content-section">
+                            <h4>Map Interaction</h4>
+                            <ul>
+                                <li><strong>Click on States:</strong> Invest funds directly in any state or UT</li>
+                                <li><strong>State Groups:</strong> Use group buttons to target multiple states at once</li>
+                                <li><strong>Small UTs:</strong> Special buttons for tiny territories like Puducherry</li>
+                            </ul>
+                            
+                            <h4>Campaign Policies</h4>
+                            <ul>
+                                <li><strong>Policy Cards:</strong> Right panel shows 6 policy categories</li>
+                                <li><strong>Investment:</strong> Click progress bars to invest in specific policies</li>
+                                <li><strong>Progress Tracking:</strong> Visual bars show your investment levels</li>
+                            </ul>
+                            
+                            <h4>Game Controls</h4>
+                            <ul>
+                                <li><strong>Pause:</strong> Space bar or pause button to pause/resume</li>
+                                <li><strong>Sound:</strong> Toggle sound effects and music</li>
+                                <li><strong>Events:</strong> Enable/disable random campaign events</li>
+                                <li><strong>Help:</strong> This guide (click Help button again to close)</li>
+                            </ul>
+                            
+                            <h4>Information Panels</h4>
+                            <ul>
+                                <li><strong>Player Info:</strong> Your funds and AI opponent status</li>
+                                <li><strong>States Info:</strong> Details about selected states</li>
+                                <li><strong>Actions Log:</strong> History of game events and actions</li>
+                                <li><strong>Game Status:</strong> Current phase, timer, seat projections</li>
+                                <li><strong>TV Display:</strong> Live updates and breaking news</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Gameplay Tab -->
+                    <div class="help-section" id="help-gameplay">
+                        <h3><i class="fas fa-gamepad"></i> How to Play</h3>
+                        <div class="help-content-section">
+                            <h4>Building Popularity</h4>
+                            <p>Your goal is to increase your popularity in states to win their seats:</p>
+                            <ul>
+                                <li><strong>Direct Investment:</strong> Click states on the map to invest funds</li>
+                                <li><strong>Policy Campaigns:</strong> Invest in policies that appeal to different regions</li>
+                                <li><strong>Group Strategies:</strong> Target state groups for regional dominance</li>
+                            </ul>
+                            
+                            <h4>Seat Calculation</h4>
+                            <p>Seats are awarded proportionally based on popularity:</p>
+                            <ul>
+                                <li>If you have 40% popularity in a state, you get ~40% of its seats</li>
+                                <li>Example: Uttar Pradesh (80 seats) with 40% popularity = 32 seats</li>
+                                <li>The AI and "Others" get the remaining seats based on their popularity</li>
+                            </ul>
+                            
+                            <h4>Policy Categories</h4>
+                            <ul>
+                                <li><strong>Social Policy:</strong> Hindutva, Uniform Civil Code, Hindi mandate, Secularism</li>
+                                <li><strong>Justice & Inclusion:</strong> Reservations, Women's rights, Tribal rights</li>
+                                <li><strong>Infrastructure:</strong> Highways, Ports, Smart Cities, Defense</li>
+                                <li><strong>Economic Policy:</strong> MGNREGA, GST, Digital India, Industry</li>
+                                <li><strong>Agriculture:</strong> Farm loans, River projects, GMOs, Farm bills</li>
+                                <li><strong>Health & Welfare:</strong> Swachh Bharat, Ayushman, Financial inclusion</li>
+                            </ul>
+                            
+                            <h4>Bonus Opportunities</h4>
+                            <ul>
+                                <li><strong>Group Domination:</strong> Get >50% in all states of a group for big bonuses</li>
+                                <li><strong>Policy Mastery:</strong> Max out policy investments for rewards</li>
+                                <li><strong>Regional Strongholds:</strong> Focus on specific regions for guaranteed wins</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Strategy Tab -->
+                    <div class="help-section" id="help-strategy">
+                        <h3><i class="fas fa-chess"></i> Strategy Tips</h3>
+                        <div class="help-content-section">
+                            <h4>Early Game (Phases 1-3)</h4>
+                            <ul>
+                                <li><strong>Secure Your Base:</strong> Focus on states where you start with an advantage</li>
+                                <li><strong>Broad Investment:</strong> Spread funds across multiple states initially</li>
+                                <li><strong>Policy Foundation:</strong> Start building key policy platforms</li>
+                                <li><strong>Monitor AI:</strong> Watch which states the AI is targeting</li>
+                            </ul>
+                            
+                            <h4>Mid Game (Phases 4-6)</h4>
+                            <ul>
+                                <li><strong>Regional Focus:</strong> Try to dominate entire state groups</li>
+                                <li><strong>Contested States:</strong> Fight for swing states where you're competitive</li>
+                                <li><strong>Policy Synergy:</strong> Align policies with regional preferences</li>
+                                <li><strong>Defensive Play:</strong> Protect your strongholds from AI attacks</li>
+                            </ul>
+                            
+                            <h4>End Game (Phases 7-8)</h4>
+                            <ul>
+                                <li><strong>Calculate Path to 272:</strong> Know exactly which seats you need</li>
+                                <li><strong>All-In Strategy:</strong> Concentrate remaining funds on winnable states</li>
+                                <li><strong>Block AI:</strong> Prevent AI from reaching 272 if you can't</li>
+                                <li><strong>Last-Minute Pushes:</strong> Use any remaining funds strategically</li>
+                            </ul>
+                            
+                            <h4>Regional Strategies</h4>
+                            <ul>
+                                <li><strong>Hindi Heartland:</strong> UP, Bihar, MP - High seat count, social policies important</li>
+                                <li><strong>South India:</strong> TN, AP, Karnataka, Kerala - Infrastructure and economic policies</li>
+                                <li><strong>Coastal States:</strong> Focus on ports and maritime development</li>
+                                <li><strong>Northeast:</strong> Tribal rights and border security matter</li>
+                                <li><strong>Agricultural Regions:</strong> Farm policies and rural development</li>
+                            </ul>
+                            
+                            <h4>Pro Tips</h4>
+                            <ul>
+                                <li><strong>Efficiency:</strong> Don't over-invest in states you've already secured</li>
+                                <li><strong>Information:</strong> Click states to see detailed popularity breakdowns</li>
+                                <li><strong>Timing:</strong> Save some funds for final phases when competition intensifies</li>
+                                <li><strong>Adaptation:</strong> Adjust strategy based on AI behavior and random events</li>
+                                <li><strong>Group Bonuses:</strong> Prioritize completing state groups for bonus funds</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script type="module" src="js/main.js"></script>
 <script type="module" src="js/map-controller.js"></script>
 <script type="module" src="js/game-timer.js"></script>

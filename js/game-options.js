@@ -167,8 +167,91 @@ function showPauseOverlay() {
 function toggleHelp() {
     gameOptions.help = !gameOptions.help;
     updateButtonStates();
-    // Additional functionality to show/hide help overlay or guide
+    
+    const helpOverlay = document.getElementById('help-overlay');
+    if (helpOverlay) {
+        if (gameOptions.help) {
+            showHelpOverlay();
+        } else {
+            hideHelpOverlay();
+        }
+    }
+    
     console.log(`Help is now ${gameOptions.help ? 'shown' : 'hidden'}`);
+}
+
+// Function to show help overlay
+function showHelpOverlay() {
+    const helpOverlay = document.getElementById('help-overlay');
+    if (helpOverlay) {
+        helpOverlay.style.display = 'flex';
+        // Small delay to ensure display is set before adding show class
+        setTimeout(() => {
+            helpOverlay.classList.add('show');
+        }, 10);
+        
+        // Set up help tab functionality
+        initializeHelpTabs();
+        
+        // Set up close button
+        const closeButton = document.getElementById('close-help');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                toggleHelp();
+            });
+        }
+        
+        // Close on escape key
+        const escapeHandler = (event) => {
+            if (event.key === 'Escape') {
+                toggleHelp();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+        
+        // Close on overlay click (but not container click)
+        helpOverlay.addEventListener('click', (event) => {
+            if (event.target === helpOverlay) {
+                toggleHelp();
+            }
+        });
+    }
+}
+
+// Function to hide help overlay
+function hideHelpOverlay() {
+    const helpOverlay = document.getElementById('help-overlay');
+    if (helpOverlay) {
+        helpOverlay.classList.remove('show');
+        // Wait for animation to complete before hiding
+        setTimeout(() => {
+            helpOverlay.style.display = 'none';
+        }, 300);
+    }
+}
+
+// Function to initialize help tab functionality
+function initializeHelpTabs() {
+    const helpTabs = document.querySelectorAll('.help-tab');
+    const helpSections = document.querySelectorAll('.help-section');
+    
+    helpTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and sections
+            helpTabs.forEach(t => t.classList.remove('active'));
+            helpSections.forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding section
+            tab.classList.add('active');
+            const targetSection = document.getElementById(`help-${targetTab}`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+        });
+    });
 }
 
 // Update the UI based on current states
@@ -259,5 +342,7 @@ export {
     toggleSound,
     toggleMusic,
     toggleGameplay,
-    toggleHelp
+    toggleHelp,
+    showHelpOverlay,
+    hideHelpOverlay
 };
