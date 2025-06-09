@@ -56,8 +56,7 @@ class PlayerInfo {
             `;
         }
     }    
-    
-    updateFunds(amount) {
+      updateFunds(amount) {
         console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
         this.funds = Math.max(0, this.funds + amount);
         const fundsElement = this.element.querySelector('.funds-amount');
@@ -66,9 +65,8 @@ class PlayerInfo {
         }
         console.log(`New funds balance: ${this.funds}`);
         
-        if (amount < 0) {
-            this.showFundChangeNotification(amount);
-        }
+        // Show notification for both positive and negative amounts
+        this.showFundChangeNotification(amount);
     }
     
     showFundChangeNotification(amount) {
