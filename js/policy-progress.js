@@ -136,46 +136,17 @@ function showCampaignCompletionNotification(category, index, playerId) {
     const progressItem = document.getElementById(progressId).closest('.progress-item');
     const policyLabel = progressItem.querySelector('.progress-item-label').textContent;
     
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `campaign-completion-notification player${playerId}`;
-    notification.innerHTML = `
-        <div class="notification-title">Campaign Completed!</div>
-        <div class="notification-policy">${policyLabel}</div>
-        <div class="notification-bonus">+${CAMPAIGN_COMPLETION_BONUS}M Bonus</div>
-    `;
-    
-    // Add to document
-    document.body.appendChild(notification);
-    
-    // Remove after animation
-    setTimeout(() => {
-        if (document.body.contains(notification)) {
-            document.body.removeChild(notification);
-        }
-    }, 3000);
+    // Add news update to TV display
+    const playerName = playerId === 1 ? "BJP" : "INC";
+    window.tvDisplay.addNewsUpdate(`🎉 ${playerName} completes ${policyLabel}! +${CAMPAIGN_COMPLETION_BONUS}M`);
 }
 
 // Function to show phase bonus notification
 function showPhaseBonusNotification(playerId, amount, completedCount) {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `phase-bonus-notification player${playerId}`;
-    notification.innerHTML = `
-        <div class="notification-title">Phase Bonus!</div>
-        <div class="notification-policy">${completedCount} Completed Campaigns</div>
-        <div class="notification-bonus">+${amount * completedCount}M</div>
-    `;
-    
-    // Add to document
-    document.body.appendChild(notification);
-    
-    // Remove after animation
-    setTimeout(() => {
-        if (document.body.contains(notification)) {
-            document.body.removeChild(notification);
-        }
-    }, 3000);
+    // Add news update to TV display
+    const playerName = playerId === 1 ? "BJP" : "INC";
+    const totalBonus = amount * completedCount;
+    window.tvDisplay.addNewsUpdate(`💰 Phase Bonus: ${playerName} gains +${totalBonus}M for ${completedCount} campaigns`);
 }
 
 // Function to award phase bonuses for completed policies

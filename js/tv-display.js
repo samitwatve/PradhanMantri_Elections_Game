@@ -76,12 +76,31 @@ class TVDisplay {
         }, 1500);
     }
 
-    // Add a method to add new messages from game events
+    // Add a method to add new messages from game events    
     addNewsUpdate(message) {
-        this.messages.push(message);
-        // Show the new message immediately
-        this.currentMessageIndex = this.messages.length - 1;
-        this.updateTVDisplay();
+        // Create news message with timestamp
+        var now = new Date();
+        var time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var newsMessage = '[' + time + '] ' + message;
+        
+        // Add to messages array at the beginning
+        this.messages.unshift(newsMessage);
+        
+        // Keep only last 5 messages
+        if (this.messages.length > 5) {
+            this.messages.pop();
+        }
+        
+        // Update display
+        this.currentMessageIndex = 0;
+        this.tvText.style.opacity = '0';
+        
+        var self = this;
+        setTimeout(function() {
+            // Display all current messages
+            self.tvText.textContent = self.messages.slice(0, 4).join('\n');
+            self.tvText.style.opacity = '1';
+        }, 200);
     }
 }
 

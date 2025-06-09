@@ -175,55 +175,7 @@
     }
 }
 
-/* Campaign completion notification */
-.campaign-completion-notification {
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.9);
-    border-radius: 8px;
-    padding: 15px 25px;
-    z-index: 1000;
-    text-align: center;
-    animation: notification-fade 3s ease-in-out;
-}
-
-.campaign-completion-notification.player1 {
-    border: 3px solid var(--player1-color);
-    box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
-}
-
-.campaign-completion-notification.player2 {
-    border: 3px solid var(--player2-color);
-    box-shadow: 0 0 20px rgba(46, 125, 50, 0.6);
-}
-
-.notification-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: white;
-}
-
-.notification-policy {
-    font-size: 1em;
-    margin-bottom: 10px;
-    color: #a0c0ff;
-}
-
-.notification-bonus {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #ffca28;
-}
-
-@keyframes notification-fade {
-    0% { opacity: 0; transform: translate(-50%, -20px); }
-    10% { opacity: 1; transform: translate(-50%, 0); }
-    80% { opacity: 1; }
-    100% { opacity: 0; }
-}
+/* Campaign completion notifications moved to tv-display.css */
 
 /* Phase bonus notification */
 .phase-bonus-notification {

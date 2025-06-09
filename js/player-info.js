@@ -164,45 +164,10 @@ class PlayerInfo {
                 }
             }, 600);
         }
-    }
-
-    showGroupDominationBonusNotification(groupName, bonusAmount) {
-        // Create notification element for group domination bonus
-        const notification = document.createElement('div');
-        notification.className = 'group-domination-bonus-notification';
-        notification.innerHTML = `<span>Group Domination Bonus: ${groupName}<br>+${bonusAmount}M</span>`;
-        
-        // Position near funds display
-        const fundsElement = this.element.querySelector('.funds-amount');
-        if (fundsElement) {
-            const fundsRect = fundsElement.getBoundingClientRect();
-            
-            // Append to player info container
-            this.element.style.position = 'relative';
-            notification.style.position = 'absolute';
-            notification.style.left = `${fundsRect.left - this.element.getBoundingClientRect().left + fundsRect.width / 2}px`;
-            notification.style.top = `${fundsRect.top - this.element.getBoundingClientRect().top - 40}px`;
-            notification.style.transform = 'translateX(-50%)';
-            notification.style.backgroundColor = this.playerId === 1 ? '#FF9933' : '#138808';
-            notification.style.color = 'white';
-            notification.style.padding = '6px 10px';
-            notification.style.borderRadius = '4px';
-            notification.style.fontSize = '12px';
-            notification.style.fontWeight = 'bold';
-            notification.style.zIndex = '1000';
-            notification.style.animation = 'fadeInOut 2.5s ease-in-out';
-            notification.style.textAlign = 'center';
-            notification.style.minWidth = '180px';
-            
-            this.element.appendChild(notification);
-            
-            // Remove after animation completes
-            setTimeout(() => {
-                if (this.element.contains(notification)) {
-                    this.element.removeChild(notification);
-                }
-            }, 2500);
-        }
+    }    showGroupDominationBonusNotification(groupName, bonusAmount) {
+        // Add news update to TV display
+        var playerName = this.playerId === 1 ? "BJP" : "INC";
+        window.tvDisplay.addNewsUpdate("BREAKING: " + playerName + " dominates " + groupName + "! +" + bonusAmount + "M bonus");
     }
 
     update(data) {
