@@ -1,10 +1,12 @@
 #player1-info,
 #player2-info {
-    border-radius: 6px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 15px;
     min-height: 20vh;
-    background: #ffffff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 #player1-info {
@@ -23,10 +25,10 @@
 .player-stats {
     flex: 1;
     overflow-y: auto;
-    color: #333;
+    color: #e0e0ff;
     padding: 0;
     margin: 0;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
     border-radius: 4px;
     margin-top: 8px;
 }
@@ -35,12 +37,13 @@
     font-size: 2em;
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .player-name .name {
-    color: black;
+    color: #fff;
     font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .player-name .party {
@@ -63,11 +66,12 @@
 .funds-label {
     font-size: 1.5em;
     font-weight: 600;
+    color: #e0e0ff;
 }
 
 .funds-amount {
     font-size: 1.5em;
-    color: #2c3e50;
+    color: #7bb3f7;
 }
 
 .rally-tokens {
@@ -81,11 +85,13 @@
 .rally-tokens-label {
     font-size: 1.5em;
     font-weight: 600;
+    color: #e0e0ff;
 }
 
 .rally-tokens-display {
     font-size: 1.5em;
     letter-spacing: 8px;
+    color: #fff;
 }
 
 @keyframes shake-error {

@@ -1,13 +1,14 @@
 .info-section {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
     margin-bottom: 15px;
     min-height: 150px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
     position: relative;
     transition: transform 0.2s ease;
 }
@@ -17,12 +18,13 @@
 }
 
 .info-section h3 {
-    color: #333;
+    color: #fff;
     font-size: 1.2em;
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -40,13 +42,13 @@
 }
 
 .state-info h4 {
-    color: #2980b9;
+    color: #7bb3f7;
     font-weight: 600;
     margin-bottom: 12px;
 }
 
 .state-info h5 {
-    color: #666;
+    color: #ccc;
     font-size: 0.8em;
     margin-bottom: 4px;
 }
@@ -62,13 +64,13 @@
 .info-row span {
     font-size: 1.2em;
     font-weight: 600;
-    color: #444;
+    color: #e0e0ff;
     padding: 3px 0;
 }
 
 .groups-list {
     font-size: 0.9em;
-    color: #666;
+    color: #ccc;
     line-height: 1.4;
 }
 
@@ -98,12 +100,12 @@
     padding: 12px;
     margin: 8px 0;
     border-radius: 8px;
-    background: #f8f8f8;
-    border: 1px solid #e0e0e0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .state-name {
-    color: #2980b9;
+    color: #7bb3f7;
     font-size: 1.1em;
     font-weight: 600;
     margin-bottom: 8px;
@@ -112,7 +114,7 @@
 .popularity-label {
     display: flex;
     justify-content: space-between;
-    color: #666;
+    color: #ccc;
     font-size: 0.9em;
     margin-top: 4px;
 }
@@ -124,12 +126,11 @@
 
 .popularity-section .info-row {
     display: flex;
-    justify-content: space-between;
-    padding: 8px;
+    justify-content: space-between;    padding: 8px;
     min-height: 32px;
     font-size: 1em;
     gap: 8px;
-    background: #f8f8f8;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
 }
 
 .popularity-section .info-row span {
@@ -198,12 +199,12 @@
 }
 
 .groups-list {
-    color: #666;
+    color: #ccc;
 }
 
 /* State name and seats */
 .state-info h4 {
-    color: #2980b9;
+    color: #7bb3f7;
     font-weight: 600;
     margin-bottom: 12px;
 }
