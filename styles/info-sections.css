@@ -3,7 +3,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     min-height: 150px;
     display: flex;
     flex-direction: column;
@@ -11,6 +11,11 @@
     backdrop-filter: blur(10px);
     position: relative;
     transition: transform 0.2s ease;
+}
+
+/* Remove constraints from states info section - let it expand naturally */
+#states-info {
+    flex: 1;
 }
 
 .info-section::before {
@@ -344,4 +349,27 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+/* Custom scrollbar styling for better appearance */
+#states-info::-webkit-scrollbar,
+.states-details::-webkit-scrollbar {
+    width: 8px;
+}
+
+#states-info::-webkit-scrollbar-track,
+.states-details::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+#states-info::-webkit-scrollbar-thumb,
+.states-details::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+#states-info::-webkit-scrollbar-thumb:hover,
+.states-details::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }

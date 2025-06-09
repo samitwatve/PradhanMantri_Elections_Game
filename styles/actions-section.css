@@ -1,18 +1,22 @@
 #actions-section {
-    height: 20vh;
+    height: 120px;
+    max-height: 120px;
+    min-height: 80px;
+    flex-shrink: 0;
 }
 
 #actions-log {
     flex: 1;
     overflow-y: auto;
     font-family: 'Fira Code', monospace;
-    font-size: 0.9em;
+    font-size: 0.75em;
     background: rgba(0, 0, 0, 0.2);
-    padding: 12px;
-    border-radius: 8px;
+    padding: 8px;
+    border-radius: 6px;
     color: #a0f0ff;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    line-height: 1.4;
+    line-height: 1.2;
+    max-height: 80px;
 }
 
 /* Log entry styles */
