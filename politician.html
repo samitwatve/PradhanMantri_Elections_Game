@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politician Trading Cards</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+        .slide-container {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        .card-stack {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }        .card-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            border: 3px solid #f97316;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .card-container.active {
+            z-index: 10;
+            transform: translateZ(0) rotateY(0deg);
+        }
+        .card-container.prev {
+            z-index: 5;
+            transform: translateX(-50px) translateZ(-100px) rotateY(25deg);
+            opacity: 0.7;
+        }
+        .card-container.next {
+            z-index: 5;
+            transform: translateX(50px) translateZ(-100px) rotateY(-25deg);
+            opacity: 0.7;
+        }
+        .card-container.hidden {
+            z-index: 1;
+            transform: translateZ(-200px) scale(0.8);
+            opacity: 0.3;
+        }/* New styling for the policy items, separating label from bar */
+        .policy-item-wrapper {
+            background-color: #fff7ed; /* Default very light orange background */
+            border-radius: 0.375rem; /* Rounded corners for the block */
+            padding: 0.6rem 0.8rem; /* Padding around the label and bar */
+            border: 1px solid #fed7aa; /* Default subtle orange border */
+            overflow: hidden;
+            transition: all 0.2s ease; /* Smooth transition for hover effects */
+        }
+        .policy-item-wrapper:hover {
+            transform: translateY(-1px); /* Slight lift on hover */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .policy-label {
+            color: #c2410c; /* Default darker orange text for policy title */
+            font-size: 0.95rem; /* Slightly smaller font */
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem; /* Small gap between label and bar */
+        }
+
+        .progress-bar-container {
+            height: 6px; /* The new, skinnier height for the progress bar */
+            background-color: #ffedd5; /* Default lighter orange for the empty track */
+            border-radius: 0.25rem; /* Rounded corners for the bar track */
+            overflow: hidden; /* Ensure the fill stays within bounds */
+        }
+
+        .policy-progress-fill {
+            height: 100%; /* Fill takes full height of its container (6px) */
+            background-color: #f97316; /* Default vibrant orange for the 'filled' part of the bar */
+            border-radius: 0.25rem; /* Match parent's border radius */
+            transition: width 0.5s ease-out; /* Smooth transition for width changes */
+        }
+          .page-header {
+            text-align: center;
+            margin: 2rem 0;
+            color: white;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .navigation-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .card-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        .card-info {
+            text-align: center;
+            color: white;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="antialiased">    <div class="page-header">
+        <h1>Indian Political Leaders</h1>
+        <p>Browse through profile cards of prominent politicians</p>
+    </div>
+    
+    <div class="slide-container">
+        <div id="card-stack" class="card-stack">
+            <!-- Cards will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <div class="navigation-controls">
+        <button id="prev-btn" class="nav-btn">← Previous</button>
+        <button id="next-btn" class="nav-btn">Next →</button>
+    </div>
+
+    <div id="card-indicator" class="card-indicator">
+        <!-- Indicator dots will be dynamically inserted here -->
+    </div>
+
+    <div id="card-info" class="card-info">
+        <span id="current-card">1</span> of <span id="total-cards">8</span>
+    </div>    <!-- Card Template (Hidden) -->
+    <template id="politician-card-template">
+        <div class="card-container w-full p-5 md:p-6">
+            <!-- Politician Image Section -->
+            <div class="relative w-full h-48 bg-gray-200 rounded-lg overflow-hidden mb-4 border-3 border-gray-300">
+                <img class="politician-image w-full h-full object-cover rounded-lg"
+                     alt="Politician Image"
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x192/E2E8F0/A0AEC0?text=Image+Not+Found';">
+                <!-- Party Logo Overlay -->
+                <div class="absolute top-2 right-2 w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center shadow-md border-2 border-gray-200">
+                    <img class="party-logo w-full h-full object-contain rounded-full"
+                         alt="Party Logo"
+                         onerror="this.onerror=null; this.src='https://placehold.co/40x40/FFFFFF/F97316?text=Logo';">
+                </div>
+            </div>
+
+            <!-- Politician Details Section -->
+            <div class="text-center mb-4">
+                <h2 class="text-xl font-extrabold text-gray-900 leading-tight">
+                    <span class="politician-name"></span> <span class="politician-party text-sm font-semibold text-orange-600"></span>
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">
+                    Home State: <span class="politician-state font-medium text-gray-800"></span>
+                </p>
+            </div>
+
+            <!-- Policy Section -->
+            <div>
+                <h3 class="text-base font-bold text-gray-800 mb-2 text-center border-b-2 border-orange-200 pb-1">Key Policies</h3>
+                <div class="policies-grid grid grid-cols-2 gap-2">
+                    <!-- Policy items will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </template>    <script>
+        let politicians = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch the politicians data            // Use embedded data instead of fetch to avoid CORS issues
+            const politiciansData = {
+                "politicians": [
+                    {
+                        "id": "narendra-modi",
+                        "name": "Narendra Modi",
+                        "party": "BJP",
+                        "homeState": "Gujarat",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Modi",
+                        "partyLogo": "https://placehold.co/40x40/FF9933/FFFFFF?text=BJP",
+                        "primaryColor": "#FF9933",
+                        "policies": [
+                            { "name": "Hindutva", "progress": 95, "bonus": 40 },
+                            { "name": "Infrastructure", "progress": 85, "bonus": 35 },
+                            { "name": "Economic Liberalization", "progress": 80, "bonus": 30 },
+                            { "name": "National Defense", "progress": 90, "bonus": 25 }
+                        ]
+                    },
+                    {
+                        "id": "manmohan-singh",
+                        "name": "Manmohan Singh",
+                        "party": "INC",
+                        "homeState": "Punjab",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Manmohan",
+                        "partyLogo": "https://placehold.co/40x40/138808/FFFFFF?text=INC",
+                        "primaryColor": "#138808",
+                        "policies": [
+                            { "name": "Economic Liberalization", "progress": 95, "bonus": 40 },
+                            { "name": "Education", "progress": 85, "bonus": 30 },
+                            { "name": "Secularism", "progress": 90, "bonus": 35 },
+                            { "name": "Public Sector", "progress": 75, "bonus": 25 }
+                        ]
+                    },
+                    {
+                        "id": "rahul-gandhi",
+                        "name": "Rahul Gandhi",
+                        "party": "INC",
+                        "homeState": "Uttar Pradesh",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Rahul",
+                        "partyLogo": "https://placehold.co/40x40/138808/FFFFFF?text=INC",
+                        "primaryColor": "#138808",
+                        "policies": [
+                            { "name": "Social Welfare", "progress": 90, "bonus": 35 },
+                            { "name": "Women's Empowerment", "progress": 85, "bonus": 30 },
+                            { "name": "Land Reforms", "progress": 80, "bonus": 25 },
+                            { "name": "Anti-Corruption", "progress": 75, "bonus": 20 }
+                        ]
+                    },
+                    {
+                        "id": "atal-bihari-vajpayee",
+                        "name": "Atal Bihari Vajpayee",
+                        "party": "BJP",
+                        "homeState": "Madhya Pradesh",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Vajpayee",
+                        "partyLogo": "https://placehold.co/40x40/FF9933/FFFFFF?text=BJP",
+                        "primaryColor": "#FF9933",
+                        "policies": [
+                            { "name": "National Defense", "progress": 95, "bonus": 40 },
+                            { "name": "Infrastructure", "progress": 90, "bonus": 35 },
+                            { "name": "Hindi Language", "progress": 80, "bonus": 25 },
+                            { "name": "Economic Liberalization", "progress": 85, "bonus": 30 }
+                        ]
+                    },
+                    {
+                        "id": "arvind-kejriwal",
+                        "name": "Arvind Kejriwal",
+                        "party": "AAP",
+                        "homeState": "Delhi",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Kejriwal",
+                        "partyLogo": "https://placehold.co/40x40/2196F3/FFFFFF?text=AAP",
+                        "primaryColor": "#2196F3",
+                        "policies": [
+                            { "name": "Anti-Corruption", "progress": 95, "bonus": 40 },
+                            { "name": "Education", "progress": 90, "bonus": 35 },
+                            { "name": "Social Welfare", "progress": 85, "bonus": 30 },
+                            { "name": "State's Rights", "progress": 80, "bonus": 25 }
+                        ]
+                    },
+                    {
+                        "id": "mamata-banerjee",
+                        "name": "Mamata Banerjee",
+                        "party": "AITC",
+                        "homeState": "West Bengal",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Mamata",
+                        "partyLogo": "https://placehold.co/40x40/00AAFF/FFFFFF?text=AITC",
+                        "primaryColor": "#00AAFF",
+                        "policies": [
+                            { "name": "Women's Empowerment", "progress": 95, "bonus": 40 },
+                            { "name": "Social Welfare", "progress": 90, "bonus": 35 },
+                            { "name": "State's Rights", "progress": 85, "bonus": 30 },
+                            { "name": "Secularism", "progress": 80, "bonus": 25 }
+                        ]
+                    },
+                    {
+                        "id": "nitish-kumar",
+                        "name": "Nitish Kumar",
+                        "party": "JD(U)",
+                        "homeState": "Bihar",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Nitish",
+                        "partyLogo": "https://placehold.co/40x40/5CB85C/FFFFFF?text=JDU",
+                        "primaryColor": "#5CB85C",
+                        "policies": [
+                            { "name": "Women's Empowerment", "progress": 90, "bonus": 35 },
+                            { "name": "Social Welfare", "progress": 85, "bonus": 30 },
+                            { "name": "Education", "progress": 80, "bonus": 25 },
+                            { "name": "Caste Reservation", "progress": 75, "bonus": 20 }
+                        ]
+                    },
+                    {
+                        "id": "yogi-adityanath",
+                        "name": "Yogi Adityanath",
+                        "party": "BJP",
+                        "homeState": "Uttar Pradesh",
+                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Yogi",
+                        "partyLogo": "https://placehold.co/40x40/FF9933/FFFFFF?text=BJP",
+                        "primaryColor": "#FF9933",
+                        "policies": [
+                            { "name": "Hindutva", "progress": 95, "bonus": 40 },
+                            { "name": "National Defense", "progress": 85, "bonus": 30 },
+                            { "name": "Anti-Corruption", "progress": 80, "bonus": 25 },
+                            { "name": "Hindi Language", "progress": 90, "bonus": 35 }
+                        ]
+                    }
+                ]
+            };
+
+            politicians = politiciansData.politicians;
+            renderPoliticianCards(politicians);
+            setupNavigation();
+            updateCardPositions();
+        });
+
+        function renderPoliticianCards(politicians) {
+            const container = document.getElementById('card-stack');
+            const template = document.getElementById('politician-card-template');
+            
+            politicians.forEach((politician, index) => {
+                // Clone the template
+                const card = template.content.cloneNode(true);
+                
+                // Set politician details
+                card.querySelector('.politician-name').textContent = politician.name;
+                card.querySelector('.politician-party').textContent = `(${politician.party})`;
+                card.querySelector('.politician-state').textContent = politician.homeState;
+                
+                // Set images with fallbacks
+                const politicianImage = card.querySelector('.politician-image');
+                politicianImage.src = politician.image;
+                politicianImage.alt = `${politician.name} - Photo`;
+                
+                const partyLogo = card.querySelector('.party-logo');
+                partyLogo.src = politician.partyLogo;
+                partyLogo.alt = `${politician.party} Logo`;
+                
+                // Apply primary color to card elements
+                const primaryColor = politician.primaryColor;
+                const cardContainer = card.querySelector('.card-container');
+                cardContainer.dataset.index = index;
+                
+                // Apply color to card border
+                cardContainer.style.borderColor = primaryColor;
+                
+                // Generate lighter and darker shades for hover and text effects
+                const lighterShade = lightenColor(primaryColor, 20);
+                const darkerShade = darkenColor(primaryColor, 20);
+                const veryLightShade = lightenColor(primaryColor, 45);
+                const veryLightBorder = lightenColor(primaryColor, 30);
+                
+                // Apply color to party affiliation text
+                const partyText = card.querySelector('.politician-party');
+                partyText.style.color = primaryColor;
+                
+                // Render policy items
+                const policiesGrid = card.querySelector('.policies-grid');
+                politician.policies.forEach(policy => {                    const policyItem = document.createElement('div');
+                    policyItem.className = 'policy-item-wrapper';
+                    policyItem.innerHTML = `
+                        <p class="policy-label" style="font-size: 0.8rem;">${policy.name} <span class="font-bold text-xs">+${policy.bonus}%</span></p>
+                        <div class="progress-bar-container">
+                            <div class="policy-progress-fill" style="width: ${policy.progress}%"></div>
+                        </div>
+                    `;
+                    
+                    // Apply styling to the newly created policy item
+                    policyItem.style.backgroundColor = veryLightShade;
+                    policyItem.style.borderColor = veryLightBorder;
+                    policyItem.style.padding = '0.4rem 0.6rem';
+                    
+                    const label = policyItem.querySelector('.policy-label');
+                    label.style.color = darkerShade;
+                    
+                    const progressContainer = policyItem.querySelector('.progress-bar-container');
+                    progressContainer.style.backgroundColor = lightenColor(primaryColor, 35);
+                    
+                    const progressFill = policyItem.querySelector('.policy-progress-fill');
+                    progressFill.style.backgroundColor = primaryColor;
+                    
+                    policiesGrid.appendChild(policyItem);
+                });
+                
+                // Add click event to card for navigation
+                cardContainer.addEventListener('click', () => {
+                    if (index !== currentIndex) {
+                        currentIndex = index;
+                        updateCardPositions();
+                        updateIndicators();
+                        updateCardInfo();
+                    }
+                });
+                
+                // Add the card to the container
+                container.appendChild(card);
+            });            // Update total cards display
+            document.getElementById('total-cards').textContent = politicians.length;
+        }
+
+        function setupNavigation() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const indicatorContainer = document.getElementById('card-indicator');
+
+            // Create indicator dots
+            politicians.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'indicator-dot';
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    currentIndex = index;
+                    updateCardPositions();
+                    updateIndicators();
+                    updateCardInfo();
+                });
+                indicatorContainer.appendChild(dot);
+            });
+
+            // Previous button
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCardPositions();
+                    updateIndicators();
+                    updateCardInfo();
+                }
+            });
+
+            // Next button
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < politicians.length - 1) {
+                    currentIndex++;
+                    updateCardPositions();
+                    updateIndicators();
+                    updateCardInfo();
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                    currentIndex--;
+                    updateCardPositions();
+                    updateIndicators();
+                    updateCardInfo();
+                } else if (e.key === 'ArrowRight' && currentIndex < politicians.length - 1) {
+                    currentIndex++;
+                    updateCardPositions();
+                    updateIndicators();
+                    updateCardInfo();
+                }
+            });
+        }
+
+        function updateCardPositions() {
+            const cards = document.querySelectorAll('.card-container');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            cards.forEach((card, index) => {
+                // Remove all position classes
+                card.classList.remove('active', 'prev', 'next', 'hidden');
+                
+                if (index === currentIndex) {
+                    card.classList.add('active');
+                } else if (index === currentIndex - 1) {
+                    card.classList.add('prev');
+                } else if (index === currentIndex + 1) {
+                    card.classList.add('next');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Update button states
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === politicians.length - 1;
+        }
+
+        function updateIndicators() {
+            const dots = document.querySelectorAll('.indicator-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        function updateCardInfo() {
+            document.getElementById('current-card').textContent = currentIndex + 1;
+        }
+        // Helper function to lighten a color
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return '#' + (
+                0x1000000 + 
+                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + 
+                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + 
+                (B < 255 ? (B < 1 ? 0 : B) : 255)
+            ).toString(16).slice(1);
+        }
+        
+        // Helper function to darken a color
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            return '#' + (
+                0x1000000 + 
+                (R > 0 ? (R > 255 ? 255 : R) : 0) * 0x10000 + 
+                (G > 0 ? (G > 255 ? 255 : G) : 0) * 0x100 + 
+                (B > 0 ? (B > 255 ? 255 : B) : 0)
+            ).toString(16).slice(1);
+        }
+    </script>
+</body>
+</html>

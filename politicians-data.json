@@ -1,0 +1,252 @@
+{
+  "politicians": [
+    {
+      "id": "narendra-modi",
+      "name": "Narendra Modi",
+      "party": "BJP",
+      "homeState": "Gujarat",
+      "image": "https://example.com/images/modi.jpg",
+      "partyLogo": "https://example.com/images/bjp-logo.png",
+      "primaryColor": "#FF9933",
+      "policies": [
+        {
+          "name": "Hindutva",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Infrastructure",
+          "progress": 85,
+          "bonus": 35
+        },
+        {
+          "name": "Economic Liberalization",
+          "progress": 80,
+          "bonus": 30
+        },
+        {
+          "name": "National Defense",
+          "progress": 90,
+          "bonus": 25
+        }
+      ]
+    },
+    {
+      "id": "manmohan-singh",
+      "name": "Manmohan Singh",
+      "party": "INC",
+      "homeState": "Punjab",
+      "image": "https://example.com/images/manmohan-singh.jpg",
+      "partyLogo": "https://example.com/images/inc-logo.png",
+      "primaryColor": "#138808",
+      "policies": [
+        {
+          "name": "Economic Liberalization",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Education",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Secularism",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Public Sector",
+          "progress": 75,
+          "bonus": 25
+        }
+      ]
+    },
+    {
+      "id": "rahul-gandhi",
+      "name": "Rahul Gandhi",
+      "party": "INC",
+      "homeState": "Uttar Pradesh",
+      "image": "https://example.com/images/rahul-gandhi.jpg",
+      "partyLogo": "https://example.com/images/inc-logo.png",
+      "primaryColor": "#138808",
+      "policies": [
+        {
+          "name": "Social Welfare",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Women's Empowerment",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Land Reforms",
+          "progress": 80,
+          "bonus": 25
+        },
+        {
+          "name": "Anti-Corruption",
+          "progress": 75,
+          "bonus": 20
+        }
+      ]
+    },
+    {
+      "id": "atal-bihari-vajpayee",
+      "name": "Atal Bihari Vajpayee",
+      "party": "BJP",
+      "homeState": "Madhya Pradesh",
+      "image": "https://example.com/images/vajpayee.jpg",
+      "partyLogo": "https://example.com/images/bjp-logo.png",
+      "primaryColor": "#FF9933",
+      "policies": [
+        {
+          "name": "National Defense",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Infrastructure",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Hindi Language",
+          "progress": 80,
+          "bonus": 25
+        },
+        {
+          "name": "Economic Liberalization",
+          "progress": 85,
+          "bonus": 30
+        }
+      ]
+    },
+    {
+      "id": "arvind-kejriwal",
+      "name": "Arvind Kejriwal",
+      "party": "AAP",
+      "homeState": "Delhi",
+      "image": "https://example.com/images/kejriwal.jpg",
+      "partyLogo": "https://example.com/images/aap-logo.png",
+      "primaryColor": "#2196F3",
+      "policies": [
+        {
+          "name": "Anti-Corruption",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Education",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Social Welfare",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "State's Rights",
+          "progress": 80,
+          "bonus": 25
+        }
+      ]
+    },
+    {
+      "id": "mamata-banerjee",
+      "name": "Mamata Banerjee",
+      "party": "AITC",
+      "homeState": "West Bengal",
+      "image": "https://example.com/images/mamata-banerjee.jpg",
+      "partyLogo": "https://example.com/images/aitc-logo.png",
+      "primaryColor": "#00AAFF",
+      "policies": [
+        {
+          "name": "Women's Empowerment",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Social Welfare",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "State's Rights",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Secularism",
+          "progress": 80,
+          "bonus": 25
+        }
+      ]
+    },
+    {
+      "id": "nitish-kumar",
+      "name": "Nitish Kumar",
+      "party": "JD(U)",
+      "homeState": "Bihar",
+      "image": "https://example.com/images/nitish-kumar.jpg",
+      "partyLogo": "https://example.com/images/jdu-logo.png",
+      "primaryColor": "#5CB85C",
+      "policies": [
+        {
+          "name": "Women's Empowerment",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Social Welfare",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Education",
+          "progress": 80,
+          "bonus": 25
+        },
+        {
+          "name": "Caste Reservation",
+          "progress": 75,
+          "bonus": 20
+        }
+      ]
+    },
+    {
+      "id": "yogi-adityanath",
+      "name": "Yogi Adityanath",
+      "party": "BJP",
+      "homeState": "Uttar Pradesh",
+      "image": "https://example.com/images/yogi-adityanath.jpg",
+      "partyLogo": "https://example.com/images/bjp-logo.png",
+      "primaryColor": "#FF9933",
+      "policies": [
+        {
+          "name": "Hindutva",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "National Defense",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Anti-Corruption",
+          "progress": 80,
+          "bonus": 25
+        },
+        {
+          "name": "Hindi Language",
+          "progress": 90,
+          "bonus": 35
+        }
+      ]
+    }
+  ]
+}
