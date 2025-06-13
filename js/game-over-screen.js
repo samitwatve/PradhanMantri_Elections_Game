@@ -183,8 +183,18 @@ class GameOverScreen {
                 const parser = new DOMParser();
                 const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
                 const svgElement = svgDoc.querySelector('svg');
-                
-                if (svgElement) {
+                  if (svgElement) {
+                    // Fix SVG scaling by adding viewBox if it doesn't exist
+                    if (!svgElement.getAttribute('viewBox')) {
+                        const width = svgElement.getAttribute('width') || '360';
+                        const height = svgElement.getAttribute('height') || '185';
+                        svgElement.setAttribute('viewBox', `0 0 ${parseFloat(width)} ${parseFloat(height)}`);
+                    }
+                    
+                    // Remove fixed width/height to allow responsive scaling
+                    svgElement.removeAttribute('width');
+                    svgElement.removeAttribute('height');
+                    
                     // Recolor the seats based on results
                     this.recolorParliamentSeats(svgElement, results);
                     
