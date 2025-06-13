@@ -165,7 +165,7 @@ export class GameTimer {
         }
         
         this.callbacks.onTimeUp.forEach(callback => callback());
-    }notifyPhaseChange() {
+    }    notifyPhaseChange() {
         this.callbacks.onPhaseChange.forEach(callback => 
             callback(this.currentPhase, this.totalPhases));
         
@@ -173,6 +173,9 @@ export class GameTimer {
         if (window.soundManager) {
             window.soundManager.playPhaseReset();
         }
+        
+        // Trigger visual phase reset effect
+        this.triggerPhaseResetEffect();
         
         // Log phase change in actions log
         import('./actions-log.js').then(({ actionsLog }) => {
@@ -248,6 +251,79 @@ export class GameTimer {
         const pauseOverlay = document.getElementById('game-pause-overlay');
         if (pauseOverlay) {
             pauseOverlay.style.display = 'none';
+        }
+    }    // Trigger visual phase reset effect
+    triggerPhaseResetEffect() {
+        // Add effect to phase display
+        if (this.phaseElement) {
+            this.phaseElement.classList.add('phase-reset-effect');
+            
+            // Find the parent timer box for the phase element
+            const phaseTimerBox = this.phaseElement.closest('.timer-box');
+            if (phaseTimerBox) {
+                phaseTimerBox.classList.add('phase-reset-effect');
+                
+                // Create particle effect around the phase timer box
+                this.createPhaseResetParticles(phaseTimerBox);
+            }
+            
+            // Remove the effect classes after animation completes
+            setTimeout(() => {
+                this.phaseElement.classList.remove('phase-reset-effect');
+                if (phaseTimerBox) {
+                    phaseTimerBox.classList.remove('phase-reset-effect');
+                }
+            }, 1500);
+        }
+        
+        // Add a subtle effect to the timer element as well
+        if (this.timerElement) {
+            this.timerElement.classList.add('timer-reset-highlight');
+            
+            // Find the parent timer box for the timer element
+            const timerTimerBox = this.timerElement.closest('.timer-box');
+            if (timerTimerBox) {
+                timerTimerBox.classList.add('timer-reset-highlight');
+            }
+            
+            // Remove the effect classes after animation completes
+            setTimeout(() => {
+                this.timerElement.classList.remove('timer-reset-highlight');
+                if (timerTimerBox) {
+                    timerTimerBox.classList.remove('timer-reset-highlight');
+                }
+            }, 1000);
+        }
+    }
+
+    // Create particle effect for phase reset
+    createPhaseResetParticles(container) {
+        const particleCount = 8;
+        const containerRect = container.getBoundingClientRect();
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'phase-reset-particle';
+            
+            // Position particles around the container
+            const angle = (i / particleCount) * 2 * Math.PI;
+            const radius = 20;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            particle.style.left = `50%`;
+            particle.style.top = `50%`;
+            particle.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+            
+            container.style.position = 'relative';
+            container.appendChild(particle);
+            
+            // Remove particle after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 1200);
         }
     }
 }

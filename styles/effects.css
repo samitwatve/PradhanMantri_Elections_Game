@@ -182,3 +182,156 @@
 .game-paused #resume-game-btn {
     pointer-events: auto;
 }
+
+/* Phase Reset Effect */
+.phase-reset-effect {
+    animation: phaseResetPulse 1.5s ease-out;
+}
+
+.timer-box.phase-reset-effect {
+    animation: phaseResetGlow 1.5s ease-out;
+}
+
+@keyframes phaseResetPulse {
+    0% {
+        transform: scale(1);
+        color: #7bf7ff;
+        text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+    }
+    25% {
+        transform: scale(1.2);
+        color: #ffffff;
+        text-shadow: 0 0 25px rgba(123, 247, 255, 1), 0 0 35px rgba(255, 255, 255, 0.8);
+    }
+    50% {
+        transform: scale(1.1);
+        color: #00ffff;
+        text-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9);
+    }
+    75% {
+        transform: scale(1.05);
+        color: #7bf7ff;
+        text-shadow: 0 0 20px rgba(123, 247, 255, 0.8);
+    }
+    100% {
+        transform: scale(1);
+        color: #7bf7ff;
+        text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+    }
+}
+
+@keyframes phaseResetGlow {
+    0% {
+        border-color: rgba(100, 100, 255, 0.3);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    }
+    25% {
+        border-color: rgba(0, 255, 255, 0.8);
+        box-shadow: 0 5px 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.4);
+        transform: translateY(-3px);
+    }
+    50% {
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(0, 255, 255, 0.6);
+        transform: translateY(-4px);
+    }
+    75% {
+        border-color: rgba(123, 247, 255, 0.6);
+        box-shadow: 0 6px 18px rgba(123, 247, 255, 0.5), 0 0 25px rgba(123, 247, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    100% {
+        border-color: rgba(100, 100, 255, 0.3);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        transform: translateY(0);
+    }
+}
+
+/* Phase Reset Particle Effect */
+.phase-reset-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #00ffff, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: phaseResetParticle 1.2s ease-out forwards;
+}
+
+@keyframes phaseResetParticle {
+    0% {
+        opacity: 1;
+        transform: scale(0) translateY(0);
+    }
+    25% {
+        opacity: 1;
+        transform: scale(1.5) translateY(-10px);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1) translateY(-20px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5) translateY(-30px);
+    }
+}
+
+/* Timer Reset Highlight Effect */
+.timer-reset-highlight {
+    animation: timerResetHighlight 1s ease-out;
+}
+
+.timer-box.timer-reset-highlight {
+    animation: timerResetGlow 1s ease-out;
+}
+
+@keyframes timerResetHighlight {
+    0% {
+        color: #ffcc00;
+        text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    }
+    25% {
+        color: #ffffff;
+        text-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 0 0 30px rgba(255, 255, 255, 0.6);
+    }
+    50% {
+        color: #ffff00;
+        text-shadow: 0 0 25px rgba(255, 255, 0, 0.9), 0 0 35px rgba(255, 204, 0, 0.7);
+    }
+    75% {
+        color: #ffcc00;
+        text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+    }
+    100% {
+        color: #ffcc00;
+        text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    }
+}
+
+@keyframes timerResetGlow {
+    0% {
+        border-color: rgba(100, 100, 255, 0.3);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    }
+    25% {
+        border-color: rgba(255, 204, 0, 0.6);
+        box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4), 0 0 20px rgba(255, 204, 0, 0.3);
+        transform: translateY(-1px);
+    }
+    50% {
+        border-color: rgba(255, 255, 0, 0.7);
+        box-shadow: 0 5px 18px rgba(255, 255, 0, 0.4), 0 0 25px rgba(255, 204, 0, 0.4);
+        transform: translateY(-2px);
+    }
+    75% {
+        border-color: rgba(255, 204, 0, 0.5);
+        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3), 0 0 15px rgba(255, 204, 0, 0.2);
+        transform: translateY(-1px);
+    }
+    100% {
+        border-color: rgba(100, 100, 255, 0.3);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        transform: translateY(0);
+    }
+}
