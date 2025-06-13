@@ -39,29 +39,34 @@
           "bonus": 25
         }
       ]
-    },
-    {
+    },    {
       "id": "manmohan-singh",
       "name": "Manmohan Singh",
       "party": "INC",
       "homeState": "Punjab",
-      "image": "https://example.com/images/manmohan-singh.jpg",
-      "partyLogo": "https://example.com/images/inc-logo.png",
-      "primaryColor": "#138808",      "policies": [
+      "image": "Manmohan_Singh.png",
+      "partyLogo": "Indian_National_Congress_hand_logo.svg",
+      "primaryColor": "#138808",
+      "policies": [
         {
-          "name": "Education",
+          "name": "Economic Policy",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Education Reform",
           "progress": 85,
           "bonus": 30
         },
         {
-          "name": "Agricultural Reforms",
+          "name": "Agricultural Development",
           "progress": 80,
           "bonus": 25
         },
         {
-          "name": "Economic Liberalization",
-          "progress": 95,
-          "bonus": 40
+          "name": "Financial Inclusion",
+          "progress": 90,
+          "bonus": 35
         },
         {
           "name": "Press Freedom",
@@ -72,11 +77,6 @@
           "name": "Secularism",
           "progress": 90,
           "bonus": 35
-        },
-        {
-          "name": "State's Rights",
-          "progress": 75,
-          "bonus": 25
         }
       ]
     },
@@ -159,44 +159,44 @@
           "bonus": 40
         }
       ]
-    },
-    {
+    },    {
       "id": "arvind-kejriwal",
       "name": "Arvind Kejriwal",
       "party": "AAP",
       "homeState": "Delhi",
-      "image": "https://example.com/images/kejriwal.jpg",
+      "image": "Arvind_Kejriwal.png",
       "partyLogo": "https://example.com/images/aap-logo.png",
-      "primaryColor": "#2196F3",      "policies": [
-        {
-          "name": "Education",
-          "progress": 90,
-          "bonus": 35
-        },
-        {
-          "name": "Land Acquisition",
-          "progress": 70,
-          "bonus": 20
-        },
-        {
-          "name": "Digital Transformation",
-          "progress": 85,
-          "bonus": 30
-        },
+      "primaryColor": "#2196F3",
+      "policies": [
         {
           "name": "Anti-Corruption",
           "progress": 95,
           "bonus": 40
         },
         {
-          "name": "Secularism",
+          "name": "Education Reform",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Healthcare Access",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Digital Governance",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Water & Power",
           "progress": 80,
           "bonus": 25
         },
         {
-          "name": "State's Rights",
-          "progress": 80,
-          "bonus": 25
+          "name": "Women Safety",
+          "progress": 75,
+          "bonus": 20
         }
       ]
     },
@@ -239,44 +239,44 @@
           "bonus": 30
         }
       ]
-    },
-    {
+    },    {
       "id": "nitish-kumar",
       "name": "Nitish Kumar",
       "party": "JD(U)",
       "homeState": "Bihar",
-      "image": "https://example.com/images/nitish-kumar.jpg",
+      "image": "Nitish_Kumar.png",
       "partyLogo": "https://example.com/images/jdu-logo.png",
-      "primaryColor": "#5CB85C",      "policies": [
+      "primaryColor": "#5CB85C",
+      "policies": [
         {
-          "name": "Education",
+          "name": "Development Focus",
           "progress": 80,
           "bonus": 25
         },
         {
-          "name": "Land Reforms",
-          "progress": 75,
-          "bonus": 20
-        },
-        {
-          "name": "Public Sector",
-          "progress": 70,
-          "bonus": 18
-        },
-        {
-          "name": "Judicial Activism",
-          "progress": 65,
-          "bonus": 15
-        },
-        {
-          "name": "Indigenous Rights",
+          "name": "Women Empowerment",
           "progress": 85,
           "bonus": 30
         },
         {
-          "name": "Caste Reservation",
+          "name": "Social Justice",
           "progress": 75,
           "bonus": 20
+        },
+        {
+          "name": "Prohibition Policy",
+          "progress": 90,
+          "bonus": 35
+        },
+        {
+          "name": "Administrative Reform",
+          "progress": 75,
+          "bonus": 20
+        },
+        {
+          "name": "Caste Harmony",
+          "progress": 80,
+          "bonus": 25
         }
       ]
     },

@@ -349,14 +349,22 @@
                 
                 // Process politicians data to use local images where available
                 politicians = politiciansData.politicians.map(politician => {
-                    const processedPolitician = { ...politician };
-                      // Convert image URLs to local paths for politicians we have images for
+                    const processedPolitician = { ...politician };                  // Convert image URLs to local paths for politicians we have images for
                     if (politician.id === 'narendra-modi') {
                         processedPolitician.image = 'Narendra_Modi.png';
                         processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';
                     } else if (politician.id === 'rahul-gandhi') {
                         processedPolitician.image = 'Rahul_Gandhi.png';
                         processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
+                    } else if (politician.id === 'manmohan-singh') {
+                        processedPolitician.image = 'Manmohan_Singh.png';
+                        processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
+                    } else if (politician.id === 'arvind-kejriwal') {
+                        processedPolitician.image = 'Arvind_Kejriwal.png';
+                        // Keep the AAP logo as placeholder for now
+                    } else if (politician.id === 'nitish-kumar') {
+                        processedPolitician.image = 'Nitish_Kumar.png';
+                        // Keep the JD(U) logo as placeholder for now
                     } else if (politician.party === 'BJP') {
                         processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';                        // Use placeholder for politicians we don't have images for
                         processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;                    } else if (politician.party === 'INC') {
