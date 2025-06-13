@@ -3,9 +3,8 @@ class PlayerInfo {          constructor(playerId) {
         this.playerId = playerId;
         this.element = null;
         this.statsElement = null;
-        
-        // Set starting funds - 10000M for Player 1 (debug mode), 250M for Player 2
-        this.funds = playerId === 1 ? 10000 : 250; // Starting funds in millions
+          // Set starting funds - 250M for both players
+        this.funds = 250; // Starting funds in millions
         
         // Rally tokens - each player starts with 2 tokens, reset to 2 every phase
         this.rallyTokens = 2;
@@ -61,7 +60,7 @@ class PlayerInfo {          constructor(playerId) {
             this.politician = config.politician;
             this.primaryColor = config.primaryColor;
             
-            // Add (DEBUG) indicator for Player 1 when funds are set to 10000M            const debugMode = this.playerId === 1 && this.funds === 10000;
+            // Add (DEBUG) indicator for Player 1 when funds are set to debug levels            const debugMode = this.playerId === 1 && this.funds > 5000;
             const partyText = `(${config.party})`;
             
             if (!this.element) {

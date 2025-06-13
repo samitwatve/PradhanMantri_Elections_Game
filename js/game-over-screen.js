@@ -307,12 +307,16 @@ class GameOverScreen {
             seat.style.transition = 'fill 0.3s ease';
             seat.style.animationDelay = `${index * 2}ms`;
         });
-    }
-      show() {
+    }    show() {
         if (this.isVisible) return;
         
         this.isVisible = true;
         this.overlayElement.style.display = 'flex';
+        
+        // Stop background music when game over screen appears
+        if (window.soundManager) {
+            window.soundManager.stopBackgroundMusic();
+        }
         
         // Animate in
         requestAnimationFrame(() => {

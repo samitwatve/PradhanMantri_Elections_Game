@@ -10,6 +10,12 @@ class SoundManager {
             fanfare: new Audio('sounds/fanfare.mp3')
         };
 
+        // Initialize background music
+        this.bgMusic = new Audio('sounds/bg_music.mp3');
+        this.bgMusic.loop = true; // Loop the background music
+        this.bgMusic.volume = 0.3; // Lower volume for background music
+        this.isBgMusicPlaying = false;
+
         // Preload all sounds
         this.preloadSounds();
         
@@ -27,9 +33,7 @@ class SoundManager {
             // Fallback: assume sounds are enabled
             this.gameOptions = { sound: true };
         }
-    }
-
-    preloadSounds() {
+    }    preloadSounds() {
         // Set volume and preload all sounds
         Object.values(this.sounds).forEach(sound => {
             sound.volume = 0.5; // Default volume at 50%
@@ -40,11 +44,20 @@ class SoundManager {
                 console.warn(`Failed to load sound: ${sound.src}`, e);
             });
         });
-    }
 
-    // Check if sounds are enabled in game options
+        // Preload background music
+        this.bgMusic.preload = 'auto';
+        this.bgMusic.addEventListener('error', (e) => {
+            console.warn('Failed to load background music:', e);
+        });
+    }    // Check if sounds are enabled in game options
     isSoundEnabled() {
         return this.gameOptions && this.gameOptions.sound;
+    }
+
+    // Check if music is enabled in game options
+    isMusicEnabled() {
+        return this.gameOptions && this.gameOptions.music;
     }
 
     // Play a sound if sounds are enabled
@@ -82,18 +95,49 @@ class SoundManager {
 
     playPhaseReset() {
         this.playSound('phaseReset');
-    }
-
-    playFanfare() {
+    }    playFanfare() {
         this.playSound('fanfare');
+    }    // Background music controls
+    startBackgroundMusic() {
+        if (!this.isSoundEnabled() || !this.isMusicEnabled() || this.isBgMusicPlaying) {
+            return;
+        }
+
+        this.bgMusic.currentTime = 0;
+        this.bgMusic.play().then(() => {
+            this.isBgMusicPlaying = true;
+            console.log('Background music started');
+        }).catch(error => {
+            console.warn('Failed to start background music:', error);
+        });
     }
 
-    // Set volume for all sounds (0.0 to 1.0)
+    stopBackgroundMusic() {
+        if (!this.isBgMusicPlaying) {
+            return;
+        }
+
+        this.bgMusic.pause();
+        this.bgMusic.currentTime = 0;
+        this.isBgMusicPlaying = false;
+        console.log('Background music stopped');
+    }
+
+    // Toggle background music based on sound settings
+    toggleBackgroundMusic() {
+        if (this.isSoundEnabled()) {
+            this.startBackgroundMusic();
+        } else {
+            this.stopBackgroundMusic();
+        }
+    }    // Set volume for all sounds (0.0 to 1.0)
     setVolume(volume) {
         const clampedVolume = Math.max(0, Math.min(1, volume));
         Object.values(this.sounds).forEach(sound => {
             sound.volume = clampedVolume;
         });
+        // Keep background music at a lower volume
+        this.bgMusic.volume = clampedVolume * 0.6;
     }
 
     // Stop all currently playing sounds
@@ -102,6 +146,7 @@ class SoundManager {
             sound.pause();
             sound.currentTime = 0;
         });
+        this.stopBackgroundMusic();
     }
 }
 

@@ -4,7 +4,7 @@
 const gameOptions = {
     randomEvents: true,
     sound: true,
-    music: false,
+    music: true, // Enable music by default
     gameplay: true, // true = playing, false = paused
     help: false
 };
@@ -102,7 +102,16 @@ function toggleSound() {
 function toggleMusic() {
     gameOptions.music = !gameOptions.music;
     updateButtonStates();
-    // Additional functionality to play/pause background music
+    
+    // Control background music through sound manager
+    if (window.soundManager) {
+        if (gameOptions.music) {
+            window.soundManager.startBackgroundMusic();
+        } else {
+            window.soundManager.stopBackgroundMusic();
+        }
+    }
+    
     console.log(`Music is now ${gameOptions.music ? 'playing' : 'stopped'}`);
 }
 

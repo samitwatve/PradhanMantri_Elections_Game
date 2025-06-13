@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize all game components
     initializeMap();
-    initializePlayerInfo(); // Initialize player info first so event listeners are set up// Configure the game timer with 1 phase of 30 seconds each (temporarily for testing)
-    gameTimer.totalPhases = 1;
+    initializePlayerInfo(); // Initialize player info first so event listeners are set up    // Configure the game timer with 10 phases of 30 seconds each
+    gameTimer.totalPhases = 10;
     gameTimer.phaseDuration = 30;
     gameTimer.totalDuration = gameTimer.totalPhases * gameTimer.phaseDuration;
     gameTimer.remainingTime = gameTimer.totalDuration;
@@ -66,9 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Dispatch game time up event for game over screen
         const event = new CustomEvent('gameTimeUp');
         window.dispatchEvent(event);
-    });
-    // Start the timer
+    });    // Start the timer
     gameTimer.start();
+    
+    // Start background music if enabled
+    if (soundManager) {
+        // Small delay to ensure game options are loaded
+        setTimeout(() => {
+            soundManager.toggleBackgroundMusic();
+        }, 100);
+    }
     initializeStateGroups();
     initializeActionsLog();
     // stateInfo initializes itself
@@ -392,7 +399,7 @@ function setupGameEventListeners() {
 export const gameState = {
     currentPlayer: 1,
     gamePhase: 1,
-    totalPhases: 8,
+    totalPhases: 10,
     phaseDuration: 30,
     // Add more game state properties as needed
       // Update the current phase
