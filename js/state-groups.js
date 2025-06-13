@@ -66,11 +66,13 @@ class StateGroups {
                 setTimeout(() => this.scheduleGroupDominationCheck(), 500);
                 return;
             }
-            
-            try {
+              try {
                 this.checkingDomination = true;
                 console.log('Running scheduled group domination check');
                 await this.checkAllGroupsDomination();
+                
+                // Also refresh any manually selected groups to update shimmer effects
+                await this.refreshManuallySelectedGroups();
             } catch (error) {
                 console.error('Error during scheduled group domination check:', error);
             } finally {
@@ -124,8 +126,7 @@ class StateGroups {
             if (state.NaturalResources === "TRUE") this.groups.get('Natural Resources').push(state.SvgId);
             if (state.MinorityAreas === "TRUE") this.groups.get('Minority Areas').push(state.SvgId);
         });
-    }    
-    handleGroupClick(event) {
+    }      async handleGroupClick(event) {
         const button = event.target;
         const groupName = button.textContent.trim();
         const isActive = button.classList.toggle('active');
@@ -149,15 +150,27 @@ class StateGroups {
                     });
                 }
             });
+            
+            // Show detailed group analysis to help identify missing states
+            await this.showGroupAnalysis(groupName);
         }
         
-        // Toggle highlight for states in this group
-        states.forEach(stateId => {
-            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                detail: { stateId, forceState: isActive }
-            }));
-        });
-    }    
+        // Toggle highlight for states in this group with smart highlighting
+        if (isActive) {
+            await this.highlightGroupWithStatus(groupName);        } else {
+            // Clear all highlights when deselecting
+            states.forEach(stateId => {
+                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                    detail: { stateId, forceOff: true }
+                }));
+            });
+            
+            // After clearing manual highlights, refresh automatic domination highlighting
+            setTimeout(() => {
+                this.checkAllGroupsDomination();
+            }, 100);
+        }
+    }
     handleUTHover(event) {
         const button = event.target;
         const utId = button.dataset.ut;
@@ -418,24 +431,56 @@ class StateGroups {
         } else {
             console.warn(`Button not found for group "${groupName}"`);
         }
+          // Check if this group is currently manually selected (active)
+        const isManuallySelected = button && button.classList.contains('active');
         
-        // Highlight states based on domination
-        if (playerId) {
-            console.log(`Highlighting ${states.length} states for domination by player ${playerId}`);
-            states.forEach(stateId => {
-                console.log(`Highlighting state ${stateId} for domination by player ${playerId}`);
-                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                    detail: { stateId, forceState: true }
-                }));
-            });
+        // Only apply automatic domination highlighting if the group is NOT manually selected
+        if (!isManuallySelected) {
+            // Highlight states based on domination
+            if (playerId) {
+                console.log(`Highlighting ${states.length} states for automatic domination by player ${playerId}`);
+                states.forEach(stateId => {
+                    console.log(`Auto-highlighting state ${stateId} for domination by player ${playerId}`);
+                    window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                        detail: { stateId, forceState: true, highlightType: 'default' }
+                    }));
+                });
+            } else {
+                console.log(`Removing auto-highlights from ${states.length} states in group "${groupName}"`);
+                states.forEach(stateId => {
+                    console.log(`Removing auto-highlight from state ${stateId}`);
+                    window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                        detail: { stateId, forceOff: true }
+                    }));
+                });
+            }
         } else {
-            console.log(`Removing highlights from ${states.length} states in group "${groupName}"`);
-            states.forEach(stateId => {
-                console.log(`Removing highlight from state ${stateId}`);
-                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                    detail: { stateId, forceOff: true }
-                }));
-            });
+            console.log(`Group "${groupName}" is manually selected - skipping automatic highlight to preserve shimmer effects`);
+        }
+    }    
+    // Force refresh the highlighting for a specific group (useful when popularity changes)
+    async refreshGroupHighlighting(groupName) {
+        // Check if this group is currently manually selected
+        const button = document.querySelector(`.button-grid button[data-group="${groupName}"]`) ||
+                      Array.from(document.querySelectorAll('.button-grid button'))
+                           .find(btn => btn.textContent.trim() === groupName);
+        
+        if (button && button.classList.contains('active')) {
+            console.log(`🔄 Refreshing highlighting for manually selected group: ${groupName}`);
+            // Re-apply smart highlighting
+            await this.highlightGroupWithStatus(groupName);
+        }
+    }    
+    // Refresh highlighting for all manually selected groups
+    async refreshManuallySelectedGroups() {
+        const activeButtons = document.querySelectorAll('.button-grid button.active');
+        
+        for (const button of activeButtons) {
+            const groupName = button.textContent.trim();
+            if (this.groups.has(groupName)) {
+                console.log(`🔄 Refreshing manually selected group: ${groupName}`);
+                await this.refreshGroupHighlighting(groupName);
+            }
         }
     }    
     // Debug method to log all groups and their members
@@ -664,6 +709,138 @@ class StateGroups {
                 actionsLog.addAction(`Player ${playerId} received ${bonusAmount}M bonus for dominating ${groupName} (${totalSeats} seats)`);
             });
         });
+    }
+
+    // Show detailed analysis of a group to help players identify missing states
+    async showGroupAnalysis(groupName) {
+        if (!this.groups.has(groupName)) {
+            console.log(`Group "${groupName}" not found in groups map`);
+            return;
+        }
+        
+        const states = this.getStatesInGroup(groupName);
+        if (states.length === 0) {
+            console.log(`Group "${groupName}" has no states`);
+            return;
+        }
+        
+        const { stateInfo } = await import('./state-info.js');
+        const { getCurrentPlayerNumber } = await import('./player-info.js');
+        
+        const currentPlayer = getCurrentPlayerNumber();
+        
+        // Analyze each state in the group
+        const leadingStates = [];
+        const missingStates = [];
+        
+        for (const stateId of states) {
+            const popularity = stateInfo.getStatePopularity(stateId);
+            if (!popularity) continue;
+            
+            const currentPlayerPop = currentPlayer === 1 ? popularity.player1 : popularity.player2;
+            const stateData = stateInfo.statesData.find(s => s.SvgId === stateId);
+            const stateName = stateData ? stateData.State : stateId;
+            
+            if (Math.round(currentPlayerPop) >= 50) {
+                leadingStates.push({
+                    id: stateId,
+                    name: stateName,
+                    popularity: Math.round(currentPlayerPop)
+                });
+            } else {
+                missingStates.push({
+                    id: stateId,
+                    name: stateName,
+                    popularity: Math.round(currentPlayerPop),
+                    needed: 50 - Math.round(currentPlayerPop)
+                });
+            }
+        }
+        
+        // Show analysis in console for now (could be enhanced with UI popup later)
+        console.log(`\n🎯 GROUP ANALYSIS: ${groupName}`);
+        console.log(`📊 Total states: ${states.length}`);
+        console.log(`✅ Leading in: ${leadingStates.length} states`);
+        console.log(`❌ Missing: ${missingStates.length} states`);
+        
+        if (leadingStates.length > 0) {
+            console.log(`\n✅ STATES YOU LEAD (≥50%):`);
+            leadingStates.forEach(state => {
+                console.log(`  • ${state.name}: ${state.popularity}%`);
+            });
+        }
+        
+        if (missingStates.length > 0) {
+            console.log(`\n❌ STATES YOU NEED TO WORK ON (<50%):`);
+            missingStates.forEach(state => {
+                console.log(`  • ${state.name}: ${state.popularity}% (need +${state.needed}%)`);
+            });
+        }
+          if (missingStates.length === 0) {
+            console.log(`\n🎉 GROUP DOMINATED! You lead in all states.`);
+        } else {
+            console.log(`\n🎯 Focus on the ${missingStates.length} missing states to dominate this group.`);
+            console.log(`✨ Missing states will have a shimmer effect on the map.`);
+        }
+          // Import actions log to show the analysis
+        const { actionsLog } = await import('./actions-log.js');
+        if (missingStates.length === 0) {
+            actionsLog.addAction(`${groupName}: DOMINATED! Leading in all ${leadingStates.length} states`);
+        } else {
+            const missingNames = missingStates.map(s => s.name).join(', ');
+            actionsLog.addAction(`${groupName}: Leading in ${leadingStates.length}/${states.length} states. Shimmering: ${missingNames}`);
+        }
+    }
+      // Highlight group with different colors for leading vs missing states
+    async highlightGroupWithStatus(groupName) {
+        if (!this.groups.has(groupName)) {
+            console.log(`Group "${groupName}" not found in groups map`);
+            return;
+        }
+        
+        const states = this.getStatesInGroup(groupName);
+        if (states.length === 0) {
+            console.log(`Group "${groupName}" has no states`);
+            return;
+        }
+        
+        const { stateInfo } = await import('./state-info.js');
+        const { getCurrentPlayerNumber } = await import('./player-info.js');
+        
+        const currentPlayer = getCurrentPlayerNumber();
+        
+        console.log(`\n🎯 Highlighting group "${groupName}" with smart visual indicators:`);
+        
+        // Categorize states based on current player's popularity
+        for (const stateId of states) {
+            const popularity = stateInfo.getStatePopularity(stateId);
+            if (!popularity) continue;
+            
+            const currentPlayerPop = currentPlayer === 1 ? popularity.player1 : popularity.player2;
+            const stateData = stateInfo.statesData.find(s => s.SvgId === stateId);
+            const stateName = stateData ? stateData.State : stateId;
+              if (Math.round(currentPlayerPop) >= 50) {
+                // State where current player is leading (≥50%) - white border + green glow, NO shimmer
+                console.log(`✅ ${stateName}: ${Math.round(currentPlayerPop)}% (leading - white border + green glow)`);
+                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                    detail: { 
+                        stateId, 
+                        forceState: true,
+                        highlightType: 'leading' // White border + green glow, removes shimmer
+                    }
+                }));
+            } else {
+                // State where current player needs to work (<50%) - white border + orange glow + shimmer
+                console.log(`❌ ${stateName}: ${Math.round(currentPlayerPop)}% (missing - white border + orange glow + shimmer)`);
+                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                    detail: { 
+                        stateId, 
+                        forceState: true,
+                        highlightType: 'missing' // White border + orange glow + shimmer
+                    }
+                }));
+            }
+        }
     }
 }
 

@@ -93,8 +93,8 @@ class MapController {
             console.error('Failed to initialize map:', error);
         }        // Add event listener for state highlighting
         window.addEventListener('toggleStateHighlight', (event) => {
-            const { stateId, forceState, forceOff } = event.detail;
-            this.toggleStateHighlight(stateId, forceState, forceOff);
+            const { stateId, forceState, forceOff, highlightType } = event.detail;
+            this.toggleStateHighlight(stateId, forceState, forceOff, highlightType);
         });
     }
 
@@ -113,10 +113,27 @@ class MapController {
                 animation: shake 0.5s;
             }
             
+            /* Shimmer animation for missing states */
+            .shimmer-missing {
+                animation: shimmer 2s infinite;
+            }
+            
             @keyframes shake {
                 0%, 100% { transform: translateX(0); }
                 25% { transform: translateX(-5px); }
                 75% { transform: translateX(5px); }
+            }
+            
+            @keyframes shimmer {
+                0% { 
+                    filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.9)) brightness(1);
+                }
+                50% { 
+                    filter: drop-shadow(0 0 15px rgba(255, 107, 53, 1)) brightness(1.3);
+                }
+                100% { 
+                    filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.9)) brightness(1);
+                }
             }
         `;
 
@@ -575,22 +592,25 @@ class MapController {
                 this.rippleContainer.removeChild(ripple);
             }
         }, 600);
-    }    toggleStateHighlight(stateId, forceState = null, forceOff = false) {
+    }    toggleStateHighlight(stateId, forceState = null, forceOff = false, highlightType = 'default') {
         if (!this.svgDocument) return;
 
         const statePath = this.svgDocument.getElementById(stateId);
         if (!statePath) {
             console.warn(`State path not found for ID: ${stateId}`);
             return;
-        }
-
-        // Force off takes precedence
+        }        // Force off takes precedence
         if (forceOff) {
             console.log(`Force removing highlight from state: ${stateId}`);
             this.highlightedStates.delete(stateId);
             statePath.style.stroke = '';
             statePath.style.strokeWidth = '';
             statePath.style.filter = '';
+            // Always remove shimmer when forcing off
+            if (statePath.classList.contains('shimmer-missing')) {
+                console.log(`🔹 Removing shimmer from ${stateId} (force off)`);
+                statePath.classList.remove('shimmer-missing');
+            }
             return;
         }
 
@@ -598,18 +618,49 @@ class MapController {
         const shouldHighlight = forceState !== null ? forceState : !this.highlightedStates.has(stateId);
 
         if (shouldHighlight) {
-            console.log(`Adding highlight to state: ${stateId}`);
+            console.log(`Adding ${highlightType} highlight to state: ${stateId}`);
             this.highlightedStates.add(stateId);
-            statePath.style.stroke = '#ffffff'; // White color for highlight
-            statePath.style.strokeWidth = '3';
-            statePath.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.7))';
-        } else {
+              // Different highlight styles based on type
+            switch (highlightType) {                case 'leading':
+                    // White border for all group states, green glow for leading states
+                    statePath.style.stroke = '#ffffff'; // White border
+                    statePath.style.strokeWidth = '3';
+                    statePath.style.filter = 'drop-shadow(0 0 5px rgba(76, 175, 80, 0.8))'; // Green glow
+                    // Explicitly remove shimmer for leading states
+                    if (statePath.classList.contains('shimmer-missing')) {
+                        console.log(`🟢 Removing shimmer from ${stateId} - you're now leading!`);
+                        statePath.classList.remove('shimmer-missing');
+                    }
+                    break;                case 'missing':
+                    // White border for all group states, orange glow + shimmer for missing states
+                    statePath.style.stroke = '#ffffff'; // White border
+                    statePath.style.strokeWidth = '3';
+                    statePath.style.filter = 'drop-shadow(0 0 8px rgba(255, 107, 53, 0.9))'; // Orange glow
+                    // Add shimmer only if not already present
+                    if (!statePath.classList.contains('shimmer-missing')) {
+                        console.log(`🔸 Adding shimmer to ${stateId} - need to work on this state!`);
+                        statePath.classList.add('shimmer-missing');
+                    }
+                    break;
+                default:
+                    // Default white highlight
+                    statePath.style.stroke = '#ffffff';
+                    statePath.style.strokeWidth = '3';
+                    statePath.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.7))';
+                    statePath.classList.remove('shimmer-missing');
+                    break;
+            }        } else {
             console.log(`Removing highlight from state: ${stateId}`);
             this.highlightedStates.delete(stateId);
             statePath.style.stroke = '';
             statePath.style.strokeWidth = '';
             statePath.style.filter = '';
-        }    }
+            // Remove shimmer class when removing highlight
+            if (statePath.classList.contains('shimmer-missing')) {
+                console.log(`🔹 Removing shimmer from ${stateId} (toggle off)`);
+                statePath.classList.remove('shimmer-missing');
+            }
+        }}
 
     handleLakshadweepClick(event) {
         // Handle click on Lakshadweep bounding box

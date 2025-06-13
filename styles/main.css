@@ -18,6 +18,10 @@
     --bg-darker: #141525;
     --bg-lighter: #2a2d4a;
     --text-light: #e0e0ff;
+    /* New colors for smart highlighting */
+    --highlight-leading: #4CAF50;      /* Green for states you're leading */
+    --highlight-missing: #FF6B35;      /* Orange-red for states you need */
+    --highlight-default: #ffffff;      /* Default white highlight */
 }
 
 /* Add cursor pointer to all clickable elements */

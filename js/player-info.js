@@ -236,6 +236,13 @@ class PlayerInfo {
     }
 }
 
+// Helper function to get the current player number
+export function getCurrentPlayerNumber() {
+    // Import gameState to get current player
+    // For now, assume Player 1 is the human player (can be enhanced later)
+    return 1; // This could be made dynamic based on turn-based gameplay
+}
+
 // Create and export instances for both players
 export const player1 = new PlayerInfo(1);
 export const player2 = new PlayerInfo(2);
