@@ -3,70 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>India Elections Game - Welcome</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>India Elections Game - Welcome</title>    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: url('PradhanMantriBg.png') repeat-x center center/50% 95vh, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --player1-color: #ff6b00;
+            --player1-color-light: #ff8533;
+            --player1-color-dark: #cc5500;
+            --player2-color: #2e7d32;
+            --player2-color-light: #43a047;
+            --player2-color-dark: #1b5e20;
+            --bg-dark: #1a1c2e;
+            --bg-darker: #141525;
+            --bg-lighter: #2a2d4a;
+            --text-light: #e0e0ff;
+            --accent-gold: #ffd700;
+            --accent-silver: #c0c0c0;
+        }
+          body {
+            font-family: 'Rubik', Arial, sans-serif;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 107, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(46, 125, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
             min-height: 100vh;
             padding: 2rem;
             overflow-x: hidden;
+            color: var(--text-light);
+            position: relative;
         }
 
-        .welcome-container {
-            max-width: 800px;
+        /* Add subtle animated background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            background-size: 50px 50px;
+            opacity: 0.3;
+            animation: backgroundFloat 20s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes backgroundFloat {
+            from {
+                transform: translateY(0px);
+            }
+            to {
+                transform: translateY(-50px);
+            }
+        }.welcome-container {
+            max-width: 900px;
             margin: 0 auto;
             text-align: center;
-        }
-
-        .game-title {
-            color: white;
-            font-size: 3rem;
+        }        .game-title {
+            color: var(--text-light);
+            font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, var(--player1-color) 0%, var(--accent-gold) 50%, var(--player2-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
         }
 
-        .game-subtitle {
-            color: white;
-            font-size: 1.2rem;
-            opacity: 0.9;
+        .game-title::after {
+            content: '🏛️';
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            opacity: 0.7;
+        }        .game-subtitle {
+            color: var(--text-light);
+            font-size: 1.3rem;
+            opacity: 0.85;
             margin-bottom: 3rem;
+            font-weight: 500;
         }
 
-        .step-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 1rem;
-            padding: 2rem;
+        .game-subtitle::before {
+            content: '🇮🇳';
+            margin-right: 0.5rem;
+        }
+
+        .game-subtitle::after {
+            content: '🗳️';
+            margin-left: 0.5rem;
+        }        .step-container {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 2.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s ease;
         }
 
-        .step-title {
-            font-size: 1.5rem;
+        .step-container.hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            pointer-events: none;
+        }.step-title {
+            font-size: 1.8rem;
             font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 1rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .name-input {
             width: 100%;
-            max-width: 300px;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+            max-width: 350px;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .name-input::placeholder {
+            color: rgba(224, 224, 255, 0.6);
         }
 
         .name-input:focus {
             outline: none;
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+            border-color: var(--player1-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .slide-container {
@@ -80,26 +159,25 @@
             position: relative;
             width: 100%;
             height: 650px;
-        }
-
-        .card-container {
+        }        .card-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: #ffffff;
-            border-radius: 1.25rem;
-            border: 3px solid #f97316;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 107, 0, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             overflow: hidden;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             transform-style: preserve-3d;
             cursor: pointer;
+            backdrop-filter: blur(15px);
         }
 
         .card-container.selected {
-            border-color: #16a34a;
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3), 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: var(--player2-color);
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.4), 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .politician-image-container {
@@ -118,19 +196,19 @@
 
         .card-content {
             padding: 1.5rem;
-        }
-
-        .politician-name {
-            font-size: 1.5rem;
+        }        .politician-name {
+            font-size: 1.6rem;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--text-light);
             margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .politician-party {
-            color: #6b7280;
-            font-size: 1rem;
+            color: rgba(224, 224, 255, 0.8);
+            font-size: 1.1rem;
             margin-bottom: 1rem;
+            font-weight: 500;
         }
 
         .policies-grid {
@@ -138,27 +216,26 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 0.375rem;
             margin-top: 1rem;
-        }
-
-        .policy-item-wrapper {
-            background: rgba(249, 115, 22, 0.1);
-            border-radius: 6px;
-            padding: 0.4rem 0.6rem;
+        }        .policy-item-wrapper {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 107, 0, 0.1) 100%);
+            border-radius: 8px;
+            padding: 0.5rem 0.7rem;
             text-align: center;
-            border: 1px solid rgba(249, 115, 22, 0.2);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         .policy-label {
-            color: #ea580c;
-            font-size: 0.8rem;
+            color: var(--player1-color-light);
+            font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
             line-height: 1.2;
         }
 
         .policy-score {
-            color: #ea580c;
-            font-size: 0.75rem;
+            color: var(--player1-color);
+            font-size: 0.8rem;
             font-weight: 700;
             line-height: 1.1;
         }
@@ -169,13 +246,11 @@
             align-items: center;
             gap: 2rem;
             margin-top: 2rem;
-        }
-
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 24px;
+        }        .nav-btn {
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.1) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            padding: 14px 28px;
             border-radius: 50px;
             font-size: 1rem;
             font-weight: 600;
@@ -185,73 +260,83 @@
         }
 
         .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%);
+            border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .select-btn {
-            background: #16a34a;
+            background: linear-gradient(135deg, var(--player1-color) 0%, var(--player1-color-dark) 100%);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 1rem;
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
         }
 
         .select-btn:hover {
-            background: #15803d;
+            background: linear-gradient(135deg, var(--player1-color-light) 0%, var(--player1-color) 100%);
             transform: translateY(-2px);
-        }
-
-        .start-game-btn {
-            background: #f97316;
+            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.4);
+        }        .start-game-btn {
+            background: linear-gradient(135deg, var(--player2-color) 0%, var(--player2-color-dark) 100%);
             color: white;
             border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-size: 1.2rem;
+            padding: 18px 36px;
+            border-radius: 15px;
+            font-size: 1.3rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 2rem;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
         }
 
         .start-game-btn:hover {
-            background: #ea580c;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+            background: linear-gradient(135deg, var(--player2-color-light) 0%, var(--player2-color) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(46, 125, 50, 0.4);
         }
 
         .start-game-btn:disabled {
-            background: #9ca3af;
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
-        }
-
-        .selection-summary {
-            background: rgba(16, 185, 129, 0.1);
-            border: 2px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
-            padding: 1.5rem;
+        }        .selection-summary {
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.15) 0%, rgba(46, 125, 50, 0.1) 100%);
+            border: 2px solid rgba(46, 125, 50, 0.4);
+            border-radius: 15px;
+            padding: 2rem;
             margin-top: 2rem;
+            backdrop-filter: blur(10px);
         }
 
         .ai-opponent {
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: 15px;
+            padding: 2rem;
             margin-top: 1rem;
+            backdrop-filter: blur(10px);
         }
 
-        .hidden {
-            display: none;
+        .selection-summary h3,
+        .ai-opponent h3 {
+            color: var(--text-light);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }        .description-text {
+            color: rgba(224, 224, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         /* Card positioning classes */
@@ -271,12 +356,69 @@
             transform: translateX(100%) scale(0.9);
             z-index: 5;
             opacity: 0.7;
-        }
-
-        .card-container.hidden {
+        }        .card-container.hidden {
             transform: translateX(0) scale(0.8);
             z-index: 1;
             opacity: 0;
+        }
+
+        /* Add glow effects */
+        .game-title {
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(255, 107, 0, 0.3));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(255, 107, 0, 0.6));
+            }
+        }
+
+        /* Floating animation for step containers */
+        .step-container {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Card hover effects */
+        .card-container:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Profile image styling in summary */
+        .profile-image {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-summary-info {
+            text-align: left;
+            color: var(--text-light);
+        }
+
+        .player-summary-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .player-summary-party {
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -299,12 +441,10 @@
             <div class="mt-4">
                 <button class="select-btn" onclick="proceedToSelection()">Continue</button>
             </div>
-        </div>
-
-        <!-- Step 2: Politician Selection -->
+        </div>        <!-- Step 2: Politician Selection -->
         <div class="step-container hidden" id="step-2">
             <h2 class="step-title">Step 2: Choose Your Politician</h2>
-            <p class="text-gray-600 mb-4">Browse through the candidates and select who you want to represent</p>
+            <p class="description-text">Browse through the candidates and select who you want to represent in the election campaign</p>
             
             <div class="slide-container">
                 <div id="card-stack" class="card-stack">
@@ -322,16 +462,15 @@
         <!-- Step 3: Game Summary -->
         <div class="step-container hidden" id="step-3">
             <h2 class="step-title">Step 3: Game Setup Complete!</h2>
-            
-            <div class="selection-summary">
-                <h3 class="text-lg font-semibold text-green-800 mb-2">Your Selection</h3>
+              <div class="selection-summary">
+                <h3>Your Selection</h3>
                 <div id="player-summary" class="flex items-center justify-center gap-4">
                     <!-- Player selection will be shown here -->
                 </div>
             </div>
 
             <div class="ai-opponent">
-                <h3 class="text-lg font-semibold text-red-800 mb-2">AI Opponent</h3>
+                <h3>AI Opponent</h3>
                 <div id="ai-summary" class="flex items-center justify-center gap-4">
                     <!-- AI selection will be shown here -->
                 </div>
@@ -423,9 +562,7 @@
                     card.classList.add('hidden');
                 }
             });
-        }
-
-        function proceedToSelection() {
+        }        function proceedToSelection() {
             const nameInput = document.getElementById('player-name');
             playerName = nameInput.value.trim();
             
@@ -434,8 +571,11 @@
                 return;
             }
 
+            // Smooth transition
             document.getElementById('step-1').classList.add('hidden');
-            document.getElementById('step-2').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('step-2').classList.remove('hidden');
+            }, 250);
         }
 
         function selectCurrentPolitician() {
@@ -454,27 +594,28 @@
             aiPolitician = availableOpponents[Math.floor(Math.random() * availableOpponents.length)];
             
             showGameSummary();
-        }
-
-        function showGameSummary() {
+        }        function showGameSummary() {
+            // Smooth transition
             document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-3').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('step-3').classList.remove('hidden');
+            }, 250);
 
             // Show player selection
             document.getElementById('player-summary').innerHTML = `
-                <img src="${selectedPolitician.image}" alt="${selectedPolitician.name}" class="w-16 h-16 rounded-full object-cover">
-                <div class="text-left">
-                    <div class="font-semibold">${playerName} as ${selectedPolitician.name}</div>
-                    <div class="text-sm text-gray-600">${selectedPolitician.party}</div>
+                <img src="${selectedPolitician.image}" alt="${selectedPolitician.name}" class="profile-image">
+                <div class="player-summary-info">
+                    <div class="player-summary-name">${playerName} as ${selectedPolitician.name}</div>
+                    <div class="player-summary-party">${selectedPolitician.party}</div>
                 </div>
             `;
 
             // Show AI selection
             document.getElementById('ai-summary').innerHTML = `
-                <img src="${aiPolitician.image}" alt="${aiPolitician.name}" class="w-16 h-16 rounded-full object-cover">
-                <div class="text-left">
-                    <div class="font-semibold">AI as ${aiPolitician.name}</div>
-                    <div class="text-sm text-gray-600">${aiPolitician.party}</div>
+                <img src="${aiPolitician.image}" alt="${aiPolitician.name}" class="profile-image">
+                <div class="player-summary-info">
+                    <div class="player-summary-name">AI as ${aiPolitician.name}</div>
+                    <div class="player-summary-party">${aiPolitician.party}</div>
                 </div>
             `;
         }
