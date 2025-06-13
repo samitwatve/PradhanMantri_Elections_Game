@@ -19,11 +19,10 @@
             max-width: 400px;
             margin: 0 auto;
             perspective: 1000px;
-        }
-        .card-stack {
+        }        .card-stack {
             position: relative;
             width: 100%;
-            height: 600px;
+            height: 650px; /* Increased height to accommodate square image */
         }        .card-container {
             position: absolute;
             top: 0;
@@ -37,6 +36,28 @@
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             transform-style: preserve-3d;
             cursor: pointer;
+        }
+        
+        /* Custom aspect ratio for politician image container */
+        .politician-image-container {
+            aspect-ratio: 1 / 1; /* Square aspect ratio */
+            width: 100%;
+        }
+        
+        /* Fallback for older browsers that don't support aspect-ratio */
+        @supports not (aspect-ratio: 1 / 1) {
+            .politician-image-container {
+                height: 0;
+                padding-bottom: 100%; /* Square aspect ratio fallback */
+                position: relative;
+            }
+            .politician-image-container img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
         }
         .card-container.active {
             z-index: 10;
@@ -218,7 +239,7 @@
             border-radius: 50%;
             background: white;
             cursor: pointer;
-        }        .speed-slider::-moz-range-thumb {
+        }.speed-slider::-moz-range-thumb {
             width: 16px;
             height: 16px;
             border-radius: 50%;
@@ -284,13 +305,12 @@
     <div id="card-info" class="card-info">
         <span id="current-card">1</span> of <span id="total-cards">8</span>
     </div>    <!-- Card Template (Hidden) -->
-    <template id="politician-card-template">
-        <div class="card-container w-full p-5 md:p-6">
+    <template id="politician-card-template">        <div class="card-container w-full p-5 md:p-6">
             <!-- Politician Image Section -->
-            <div class="relative w-full h-48 bg-gray-200 rounded-lg overflow-hidden mb-4 border-3 border-gray-300">
+            <div class="politician-image-container relative bg-gray-200 rounded-lg overflow-hidden mb-4 border-3 border-gray-300">
                 <img class="politician-image w-full h-full object-cover rounded-lg"
                      alt="Politician Image"
-                     onerror="this.onerror=null; this.src='https://placehold.co/400x192/E2E8F0/A0AEC0?text=Image+Not+Found';">
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/E2E8F0/A0AEC0?text=Image+Not+Found';">
                 <!-- Party Logo Overlay -->
                 <div class="absolute top-2 right-2 w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center shadow-md border-2 border-gray-200">
                     <img class="party-logo w-full h-full object-contain rounded-full"
@@ -330,24 +350,20 @@
                 // Process politicians data to use local images where available
                 politicians = politiciansData.politicians.map(politician => {
                     const processedPolitician = { ...politician };
-                    
-                    // Convert image URLs to local paths for politicians we have images for
+                      // Convert image URLs to local paths for politicians we have images for
                     if (politician.id === 'narendra-modi') {
-                        processedPolitician.image = 'Narendra Modi.jpg';
+                        processedPolitician.image = 'Narendra_Modi.png';
                         processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';
                     } else if (politician.id === 'rahul-gandhi') {
                         processedPolitician.image = 'Rahul_Gandhi.png';
                         processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
                     } else if (politician.party === 'BJP') {
-                        processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';
-                        // Use placeholder for politicians we don't have images for
-                        processedPolitician.image = `https://placehold.co/400x300/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
-                    } else if (politician.party === 'INC') {
+                        processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';                        // Use placeholder for politicians we don't have images for
+                        processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;                    } else if (politician.party === 'INC') {
                         processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
-                        processedPolitician.image = `https://placehold.co/400x300/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
-                    } else {
+                        processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;                    } else {
                         // Use placeholders for other parties
-                        processedPolitician.image = `https://placehold.co/400x300/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
+                        processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
                         processedPolitician.partyLogo = `https://placehold.co/100x100/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.party)}`;
                     }
                     
