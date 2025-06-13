@@ -9,7 +9,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');        body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: url('PradhanMantriBg.png') repeat-x center center/50% 95vh, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 2rem;
             overflow-x: hidden;
@@ -164,14 +164,76 @@
         .indicator-dot.active {
             background: white;
             transform: scale(1.2);
-        }
-
-        .card-info {
+        }        .card-info {
             text-align: center;
             color: white;
             margin-top: 1rem;
             font-size: 1.1rem;
             font-weight: 500;
+        }
+
+        .auto-play-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .play-pause-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .play-pause-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .speed-control {
+            color: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .speed-slider {
+            width: 100px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+        }
+
+        .speed-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
         }
     </style>
 </head>
@@ -184,9 +246,7 @@
         <div id="card-stack" class="card-stack">
             <!-- Cards will be dynamically inserted here -->
         </div>
-    </div>
-
-    <div class="navigation-controls">
+    </div>    <div class="navigation-controls">
         <button id="prev-btn" class="nav-btn">← Previous</button>
         <button id="next-btn" class="nav-btn">Next →</button>
     </div>
@@ -231,21 +291,19 @@
                 </div>
             </div>
         </div>
-    </template>    <script>
-        let politicians = [];
+    </template>    <script>        let politicians = [];
         let currentIndex = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             // Fetch the politicians data            // Use embedded data instead of fetch to avoid CORS issues
             const politiciansData = {
-                "politicians": [
-                    {
+                "politicians": [                    {
                         "id": "narendra-modi",
                         "name": "Narendra Modi",
                         "party": "BJP",
                         "homeState": "Gujarat",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Modi",
-                        "partyLogo": "https://placehold.co/40x40/FF9933/FFFFFF?text=BJP",
+                        "image": "Narendra Modi.jpg",
+                        "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
                         "primaryColor": "#FF9933",
                         "policies": [
                             { "name": "Hindutva", "progress": 95, "bonus": 40 },
@@ -253,14 +311,13 @@
                             { "name": "Economic Liberalization", "progress": 80, "bonus": 30 },
                             { "name": "National Defense", "progress": 90, "bonus": 25 }
                         ]
-                    },
-                    {
+                    },                    {
                         "id": "manmohan-singh",
                         "name": "Manmohan Singh",
                         "party": "INC",
                         "homeState": "Punjab",
                         "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Manmohan",
-                        "partyLogo": "https://placehold.co/40x40/138808/FFFFFF?text=INC",
+                        "partyLogo": "Indian_National_Congress_hand_logo.svg",
                         "primaryColor": "#138808",
                         "policies": [
                             { "name": "Economic Liberalization", "progress": 95, "bonus": 40 },
@@ -268,14 +325,13 @@
                             { "name": "Secularism", "progress": 90, "bonus": 35 },
                             { "name": "Public Sector", "progress": 75, "bonus": 25 }
                         ]
-                    },
-                    {
+                    },                    {
                         "id": "rahul-gandhi",
                         "name": "Rahul Gandhi",
                         "party": "INC",
                         "homeState": "Uttar Pradesh",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Rahul",
-                        "partyLogo": "https://placehold.co/40x40/138808/FFFFFF?text=INC",
+                        "image": "Rahul_Gandhi.png",
+                        "partyLogo": "Indian_National_Congress_hand_logo.svg",
                         "primaryColor": "#138808",
                         "policies": [
                             { "name": "Social Welfare", "progress": 90, "bonus": 35 },
@@ -283,14 +339,13 @@
                             { "name": "Land Reforms", "progress": 80, "bonus": 25 },
                             { "name": "Anti-Corruption", "progress": 75, "bonus": 20 }
                         ]
-                    },
-                    {
+                    },                    {
                         "id": "atal-bihari-vajpayee",
                         "name": "Atal Bihari Vajpayee",
                         "party": "BJP",
                         "homeState": "Madhya Pradesh",
                         "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Vajpayee",
-                        "partyLogo": "https://placehold.co/40x40/FF9933/FFFFFF?text=BJP",
+                        "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
                         "primaryColor": "#FF9933",
                         "policies": [
                             { "name": "National Defense", "progress": 95, "bonus": 40 },
@@ -343,14 +398,13 @@
                             { "name": "Education", "progress": 80, "bonus": 25 },
                             { "name": "Caste Reservation", "progress": 75, "bonus": 20 }
                         ]
-                    },
-                    {
+                    },                    {
                         "id": "yogi-adityanath",
                         "name": "Yogi Adityanath",
                         "party": "BJP",
                         "homeState": "Uttar Pradesh",
                         "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Yogi",
-                        "partyLogo": "https://placehold.co/40x40/FF9933/FFFFFF?text=BJP",
+                        "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
                         "primaryColor": "#FF9933",
                         "policies": [
                             { "name": "Hindutva", "progress": 95, "bonus": 40 },
@@ -360,9 +414,7 @@
                         ]
                     }
                 ]
-            };
-
-            politicians = politiciansData.politicians;
+            };            politicians = politiciansData.politicians;
             renderPoliticianCards(politicians);
             setupNavigation();
             updateCardPositions();
@@ -469,48 +521,36 @@
                     updateCardInfo();
                 });
                 indicatorContainer.appendChild(dot);
-            });
-
-            // Previous button
+            });            // Previous button
             prevBtn.addEventListener('click', () => {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    updateCardPositions();
-                    updateIndicators();
-                    updateCardInfo();
-                }
+                currentIndex = currentIndex === 0 ? politicians.length - 1 : currentIndex - 1;
+                updateCardPositions();
+                updateIndicators();
+                updateCardInfo();
             });
 
             // Next button
             nextBtn.addEventListener('click', () => {
-                if (currentIndex < politicians.length - 1) {
-                    currentIndex++;
-                    updateCardPositions();
-                    updateIndicators();
-                    updateCardInfo();
-                }
-            });
-
-            // Keyboard navigation
+                currentIndex = (currentIndex + 1) % politicians.length;
+                updateCardPositions();
+                updateIndicators();
+                updateCardInfo();
+            });            // Keyboard navigation
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                    currentIndex--;
+                if (e.key === 'ArrowLeft') {
+                    currentIndex = currentIndex === 0 ? politicians.length - 1 : currentIndex - 1;
                     updateCardPositions();
                     updateIndicators();
                     updateCardInfo();
-                } else if (e.key === 'ArrowRight' && currentIndex < politicians.length - 1) {
-                    currentIndex++;
+                } else if (e.key === 'ArrowRight') {
+                    currentIndex = (currentIndex + 1) % politicians.length;
                     updateCardPositions();
                     updateIndicators();
                     updateCardInfo();
                 }
             });
-        }
-
-        function updateCardPositions() {
+        }        function updateCardPositions() {
             const cards = document.querySelectorAll('.card-container');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
 
             cards.forEach((card, index) => {
                 // Remove all position classes
@@ -526,10 +566,6 @@
                     card.classList.add('hidden');
                 }
             });
-
-            // Update button states
-            prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === politicians.length - 1;
         }
 
         function updateIndicators() {
@@ -537,11 +573,10 @@
             dots.forEach((dot, index) => {
                 dot.classList.toggle('active', index === currentIndex);
             });
-        }
-
-        function updateCardInfo() {
+        }        function updateCardInfo() {
             document.getElementById('current-card').textContent = currentIndex + 1;
         }
+
         // Helper function to lighten a color
         function lightenColor(color, percent) {
             const num = parseInt(color.replace("#", ""), 16);
