@@ -84,7 +84,12 @@ function toggleRandomEvents() {
 function toggleSound() {
     gameOptions.sound = !gameOptions.sound;
     updateButtonStates();
-    // Additional functionality to mute/unmute sound effects
+    
+    // If sound is disabled and any sounds are playing, stop them
+    if (!gameOptions.sound && window.soundManager) {
+        window.soundManager.stopAllSounds();
+    }
+    
     console.log(`Sound effects are now ${gameOptions.sound ? 'enabled' : 'disabled'}`);
 }
 

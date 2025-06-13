@@ -788,11 +788,15 @@ class StateGroups {
         const bonusAmount = Math.round(totalSeats * 0.5);
         
         console.log(`Awarding ${bonusAmount}M bonus to Player ${playerId} for dominating group "${groupName}" (${totalSeats} seats)`);
-        
-        // Import player info to award the bonus
+          // Import player info to award the bonus
         import('./player-info.js').then(({ player1, player2 }) => {
             const player = playerId === 1 ? player1 : player2;
             player.updateFunds(bonusAmount);
+            
+            // Play fanfare sound for Player 1 group domination
+            if (playerId === 1 && window.soundManager) {
+                window.soundManager.playFanfare();
+            }
             
             // Show a special notification for the group domination bonus
             player.showGroupDominationBonusNotification(groupName, bonusAmount);

@@ -67,6 +67,7 @@ function updateAllProgressBars() {
 }
 
 // Function to increment progress for a specific policy
+// Function to increment progress for a specific policy
 function incrementPolicy(category, index, playerId) {
     console.log(`incrementPolicy called: ${category}-${index + 1}, player ${playerId}`);
     
@@ -89,9 +90,13 @@ function incrementPolicy(category, index, playerId) {
         console.log(`Campaign ${category}-${index + 1} is already completed`);
         return false;
     }
-    
-    // Check if player has enough funds
+      // Check if player has enough funds
     if (!player.canSpend(CAMPAIGN_CLICK_COST)) {
+        // Play invalid action sound (only for Player 1)
+        if (window.soundManager && playerId === 1) {
+            window.soundManager.playInvalidAction();
+        }
+        
         player.showInsufficientFundsError();
         return false;
     }
@@ -105,19 +110,25 @@ function incrementPolicy(category, index, playerId) {
     } else {
         policy.player2 = Math.min(100, policy.player2 + 10);
     }
-      // Update the progress bar
+      
+    // Update the progress bar
     updateProgressBar(category, index);
     updateProgressItemUI();
     
     // Check if campaign is now completed
     if (policy.player1 + policy.player2 >= 100 && !policy.completed) {
         policy.completed = true;
-        
-        // Award completion bonus to the player who contributed more
+          // Award completion bonus to the player who contributed more
         const dominantPlayer = policy.player1 > policy.player2 ? 1 : 2;
         const dominantPlayerObj = dominantPlayer === 1 ? player1 : player2;
-          // Award one-time bonus
+          
+        // Award one-time bonus
         dominantPlayerObj.updateFunds(CAMPAIGN_COMPLETION_BONUS);
+        
+        // Play fanfare sound for Player 1 campaign completion
+        if (dominantPlayer === 1 && window.soundManager) {
+            window.soundManager.playFanfare();
+        }
         
         // Show completion notification
         showCampaignCompletionNotification(category, index, dominantPlayer);
@@ -134,9 +145,6 @@ function incrementPolicy(category, index, playerId) {
             index,
             dominantPlayer
         });
-        
-        // Show completion notification
-        showCampaignCompletionNotification(category, index, dominantPlayer);
     }
     
     // Log action

@@ -127,11 +127,9 @@ class RallyController {
         if (!player.canUseRallyToken()) {
             player.showInsufficientRallyTokensError();
             return false;
-        }
-
-        // Check if state can accept more rallies
+        }        // Check if state can accept more rallies
         if (!this.canPlaceRallyInState(stateId)) {
-            this.showMaxRalliesError(stateId);
+            this.showMaxRalliesError(stateId, playerId);
             return false;
         }
 
@@ -231,11 +229,13 @@ class RallyController {
         // Add hover tooltip
         const tooltip = `Rally by ${playerId === 1 ? 'BJP' : 'INC'} (+${this.rallyPopularityBoost}% popularity)`;
         rallyToken.setAttribute('title', tooltip);
-        rallyText.setAttribute('title', tooltip);
-    }
-
-    showMaxRalliesError(stateId) {
+        rallyText.setAttribute('title', tooltip);    }    showMaxRalliesError(stateId, playerId) {
         console.log(`Maximum rallies reached for state ${stateId}`);
+        
+        // Play invalid action sound (only for Player 1)
+        if (window.soundManager && playerId === 1) {
+            window.soundManager.playInvalidAction();
+        }
         
         // Show temporary error message
         const errorMsg = document.createElement('div');

@@ -158,13 +158,21 @@ export class GameTimer {
 
     onPhaseChange(callback) {
         this.callbacks.onPhaseChange.add(callback);
-    }
-
-    notifyTimeUp() {
+    }    notifyTimeUp() {
+        // Play game over sound
+        if (window.soundManager) {
+            window.soundManager.playGameOver();
+        }
+        
         this.callbacks.onTimeUp.forEach(callback => callback());
-    }    notifyPhaseChange() {
+    }notifyPhaseChange() {
         this.callbacks.onPhaseChange.forEach(callback => 
             callback(this.currentPhase, this.totalPhases));
+        
+        // Play phase reset sound
+        if (window.soundManager) {
+            window.soundManager.playPhaseReset();
+        }
         
         // Log phase change in actions log
         import('./actions-log.js').then(({ actionsLog }) => {

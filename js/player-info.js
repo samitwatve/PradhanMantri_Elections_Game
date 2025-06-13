@@ -61,8 +61,7 @@ class PlayerInfo {
             `;
         }
     }    
-    
-    updateFunds(amount) {
+      updateFunds(amount) {
         console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
         this.funds = Math.max(0, this.funds + amount);
         const fundsElement = this.element.querySelector('.funds-amount');
@@ -70,6 +69,14 @@ class PlayerInfo {
             fundsElement.textContent = `₹${this.funds} M`;
         }
         console.log(`New funds balance: ${this.funds}`);
+          // Play sound effects based on fund change (only for Player 1)
+        if (window.soundManager && this.playerId === 1) {
+            if (amount > 0) {
+                window.soundManager.playCashAdded();
+            } else if (amount < 0) {
+                window.soundManager.playMoneySpent();
+            }
+        }
         
         // Show notification for both positive and negative amounts
         this.showFundChangeNotification(amount);
@@ -112,10 +119,14 @@ class PlayerInfo {
     canSpend(amount) {
         console.log(`Checking if player ${this.playerId} can spend ${amount}. Current funds: ${this.funds}`);
         return this.funds >= amount;
-    }
-    
-    showInsufficientFundsError() {
+    }      showInsufficientFundsError() {
         console.log(`Showing insufficient funds error for player ${this.playerId}`);
+        
+        // Play invalid action sound (only for Player 1)
+        if (window.soundManager && this.playerId === 1) {
+            window.soundManager.playInvalidAction();
+        }
+        
         const fundsElement = this.element.querySelector('.funds-amount');
         if (fundsElement) {
             // Add shake animation class
@@ -123,7 +134,7 @@ class PlayerInfo {
             // Remove it after animation completes
             setTimeout(() => fundsElement.classList.remove('shake-error'), 500);
         }
-    }      
+    }
     
     replenishFunds() {
         // Add funds at each phase change - large amount for Player 1 in debug mode
@@ -217,10 +228,14 @@ class PlayerInfo {
         this.rallyTokens = this.maxRallyTokens;
         this.updateRallyTokensDisplay();
         console.log(`Player ${this.playerId} rally tokens replenished to ${this.rallyTokens}`);
-    }
-    
-    showInsufficientRallyTokensError() {
+    }      showInsufficientRallyTokensError() {
         console.log(`Showing insufficient rally tokens error for player ${this.playerId}`);
+        
+        // Play invalid action sound (only for Player 1)
+        if (window.soundManager && this.playerId === 1) {
+            window.soundManager.playInvalidAction();
+        }
+        
         const rallyTokensElement = this.element.querySelector('.rally-tokens-display');
         if (rallyTokensElement) {
             // Add shake animation class

@@ -5,6 +5,7 @@ import { aiPlayerController } from './ai-player-controller.js';
 import { seatProjection } from './seat-projection.js';
 import { player1, player2 } from './player-info.js';
 import { rallyController } from './rally-controller.js';
+import { soundManager } from './sound-manager.js';
 
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stateInfo.forceUpdateAllStates();
         
         // Add a test button to the UI
-        // const debugDiv = document.createElement('div');
+        // const debugDiv = document.createElement('div>');
     
     // Expose gameTimer to window object for other modules
     window.gameTimer = gameTimer;
