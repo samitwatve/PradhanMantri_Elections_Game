@@ -8,11 +8,40 @@ import { rallyController } from './rally-controller.js';
 import { soundManager } from './sound-manager.js';
 import { gameOverScreen } from './game-over-screen.js';
 
+// Check if game configuration exists, if not redirect to welcome screen
+function checkGameConfiguration() {
+    try {
+        const gameConfig = localStorage.getItem('gameConfig');
+        if (!gameConfig) {
+            console.log('No game configuration found, redirecting to welcome screen');
+            window.location.href = 'welcome-screen.html';
+            return false;
+        }
+        const config = JSON.parse(gameConfig);
+        if (!config.playerName || !config.player1Politician || !config.player2Politician) {
+            console.log('Incomplete game configuration, redirecting to welcome screen');
+            window.location.href = 'welcome-screen.html';
+            return false;
+        }
+        console.log('Game configuration found:', config);
+        return true;
+    } catch (error) {
+        console.error('Error reading game configuration:', error);
+        window.location.href = 'welcome-screen.html';
+        return false;
+    }
+}
+
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if game configuration exists, redirect to welcome screen if not
+    if (!checkGameConfiguration()) {
+        return; // Stop initialization if redirecting
+    }
+    
     // Initialize all game components
     initializeMap();
-    initializePlayerInfo(); // Initialize player info first so event listeners are set up    // Configure the game timer with 1 phase of 30 seconds each (temporarily for testing)
+    initializePlayerInfo(); // Initialize player info first so event listeners are set up// Configure the game timer with 1 phase of 30 seconds each (temporarily for testing)
     gameTimer.totalPhases = 1;
     gameTimer.phaseDuration = 30;
     gameTimer.totalDuration = gameTimer.totalPhases * gameTimer.phaseDuration;

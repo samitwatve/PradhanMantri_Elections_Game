@@ -53,6 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (helpButton) {
         helpButton.addEventListener('click', toggleHelp);
     }
+    
+    // Add new game button listener
+    const newGameButton = document.getElementById('new-game-button');
+    if (newGameButton) {
+        newGameButton.addEventListener('click', startNewGame);
+    }
 
     // Initialize states based on stored preferences (future enhancement)
     // For now, just sync the UI with default values
@@ -339,6 +345,17 @@ function addDebugOptions() {
     }
 }
 
+// Start a new game by clearing config and redirecting to welcome screen
+function startNewGame() {
+    if (confirm('Are you sure you want to start a new game? This will reset your current progress.')) {
+        // Clear the stored game configuration
+        localStorage.removeItem('gameConfig');
+        
+        // Redirect to welcome screen
+        window.location.href = 'welcome-screen.html';
+    }
+}
+
 // Export functions and state for use in other modules
 export {
     gameOptions,
@@ -349,5 +366,6 @@ export {
     toggleGameplay,
     toggleHelp,
     showHelpOverlay,
-    hideHelpOverlay
+    hideHelpOverlay,
+    startNewGame
 };

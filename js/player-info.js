@@ -23,22 +23,31 @@ class PlayerInfo {
         console.log(`Player ${this.playerId} received phase change event:`, event.detail);
         this.replenishFunds();
         this.replenishRallyTokens();
-    }
-
-    initialize() {        
+    }    initialize() {        
+        // Get game configuration from localStorage or use defaults
+        const gameConfig = this.getGameConfig();
+        
         const playerConfig = {
             1: {
-                name: 'Sam',
-                party: 'BJP'
+                name: gameConfig.playerName || 'Player 1',
+                party: gameConfig.player1Politician?.party || 'BJP',
+                politician: gameConfig.player1Politician,
+                primaryColor: gameConfig.player1Politician?.primaryColor || '#FF9933'
             },
             2: {
                 name: 'AI',
-                party: 'INC'
+                party: gameConfig.player2Politician?.party || 'INC',
+                politician: gameConfig.player2Politician,
+                primaryColor: gameConfig.player2Politician?.primaryColor || '#138808'
             }
         };
 
         const config = playerConfig[this.playerId];
         if (config) {
+            // Store politician data for later use
+            this.politician = config.politician;
+            this.primaryColor = config.primaryColor;
+            
             // Add (DEBUG) indicator for Player 1 when funds are set to 10000M
             const debugMode = this.playerId === 1 && this.funds === 10000;
             const partyText = `(${config.party})`;
@@ -59,8 +68,35 @@ class PlayerInfo {
                     </div>
                 </div>
             `;
+            
+            // Update CSS custom properties for this player's color
+            this.updatePlayerColors();
         }
-    }    
+    }
+    
+    getGameConfig() {
+        try {
+            const stored = localStorage.getItem('gameConfig');
+            return stored ? JSON.parse(stored) : {};
+        } catch (error) {
+            console.warn('Error loading game config:', error);
+            return {};
+        }
+    }
+    
+    updatePlayerColors() {
+        if (this.primaryColor) {
+            const root = document.documentElement;
+            root.style.setProperty(`--player${this.playerId}-color`, this.primaryColor);
+            
+            // Generate lighter and darker variants
+            const lightColor = this.lightenColor(this.primaryColor, 20);
+            const darkColor = this.darkenColor(this.primaryColor, 20);
+            
+            root.style.setProperty(`--player${this.playerId}-color-light`, lightColor);
+            root.style.setProperty(`--player${this.playerId}-color-dark`, darkColor);
+        }
+    }
       updateFunds(amount) {
         console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
         this.funds = Math.max(0, this.funds + amount);
@@ -248,6 +284,35 @@ class PlayerInfo {
     update(data) {
         // Future updates to player info can be handled here
         if (!this.statsElement) return;
+    }
+    
+    // Color utility functions
+    lightenColor(color, percent) {
+        const num = parseInt(color.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) + amt;
+        const G = (num >> 8 & 0x00FF) + amt;
+        const B = (num & 0x0000FF) + amt;
+        return '#' + (
+            0x1000000 + 
+            (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + 
+            (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + 
+            (B < 255 ? (B < 1 ? 0 : B) : 255)
+        ).toString(16).slice(1);
+    }
+    
+    darkenColor(color, percent) {
+        const num = parseInt(color.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) - amt;
+        const G = (num >> 8 & 0x00FF) - amt;
+        const B = (num & 0x0000FF) - amt;
+        return '#' + (
+            0x1000000 + 
+            (R > 0 ? (R > 255 ? 255 : R) : 0) * 0x10000 + 
+            (G > 0 ? (G > 255 ? 255 : G) : 0) * 0x100 + 
+            (B > 0 ? (B > 255 ? 255 : B) : 0)
+        ).toString(16).slice(1);
     }
 }
 

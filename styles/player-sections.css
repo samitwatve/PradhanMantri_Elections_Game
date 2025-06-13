@@ -14,7 +14,7 @@
 }
 
 #player2-info {
-    border-left: 4px solid #138808; /* INC Green */
+    border-left: 4px solid var(--player2-color);
 }
 
 #player1-info::before,
@@ -47,12 +47,12 @@
 }
 
 .player-name .party {
-    color: #FF9933; /* BJP Orange color */
+    color: var(--player1-color);
     margin-left: 8px;
 }
 
 #player2-info .player-name .party {
-    color: #138808; /* INC Green */
+    color: var(--player2-color);
 }
 
 .player-funds {
