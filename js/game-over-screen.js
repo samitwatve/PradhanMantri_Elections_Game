@@ -186,126 +186,99 @@ class GameOverScreen {
         winnerTextEl.textContent = winnerText;
         winnerDetailsEl.textContent = detailsText;
     }
-    
-    createParliamentChart(results) {
+      createParliamentChart(results) {
         const chartContainer = document.getElementById('parliament-chart');
         
         // Clear previous chart
         chartContainer.innerHTML = '';
         
-        // Create parliament chart using D3.js-like visualization
-        this.createSimpleParliamentChart(chartContainer, results);
+        // Load and modify the Parliament_diagram.svg
+        this.loadParliamentSVG(chartContainer, results);
+    }    loadParliamentSVG(container, results) {
+        // Load the Parliament_diagram.svg file
+        fetch('./Parliament_diagram.svg')
+            .then(response => response.text())
+            .then(svgText => {
+                // Parse the SVG
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+                const svgElement = svgDoc.querySelector('svg');
+                
+                if (svgElement) {
+                    // Recolor the seats based on results
+                    this.recolorParliamentSeats(svgElement, results);
+                    
+                    // Add the SVG to the container
+                    container.appendChild(svgElement);
+                    
+                    console.log(`Parliament chart loaded with ${results.player1Seats} BJP, ${results.player2Seats} INC, ${results.othersSeats} Others seats`);
+                } else {
+                    console.error('Failed to load Parliament SVG');
+                    // Fallback to simple text display
+                    container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">
+                        BJP: ${results.player1Seats} | INC: ${results.player2Seats} | Others: ${results.othersSeats}
+                    </div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading Parliament SVG:', error);
+                // Fallback to simple text display
+                container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">
+                    BJP: ${results.player1Seats} | INC: ${results.player2Seats} | Others: ${results.othersSeats}
+                </div>`;
+            });
     }
-      createSimpleParliamentChart(container, results) {
-        const totalSeats = 543;
+
+    recolorParliamentSeats(svgElement, results) {
+        // Get all circle elements (seats)
+        const seats = svgElement.querySelectorAll('circle');
+        const totalSeats = seats.length;
+        
+        console.log(`Found ${totalSeats} seats in Parliament SVG`);
+        
+        // Define colors for each party
+        const colors = {
+            bjp: '#FF8C00',      // Bright orange for BJP
+            inc: '#32CD32',      // Bright green for INC  
+            others: '#D3D3D3'    // Light gray for Others
+        };
+        
+        // Calculate seat distribution
         const { player1Seats, player2Seats, othersSeats } = results;
         
-        // Create semicircle parliament layout
-        const width = 400;
-        const height = 250;
-        const centerX = width / 2;
-        const centerY = height - 20;
+        // Convert seats array to array for easier manipulation
+        const seatsArray = Array.from(seats);
         
-        // Create SVG
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', width);
-        svg.setAttribute('height', height);
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-          // Calculate seat positions in semicircle
-        const seats = [];
-        const rows = 12; // More rows to accommodate all 543 seats
-        const maxRadius = 180;
-        const minRadius = 40;
-        
-        // Calculate how many seats per row to fit all 543 seats
-        const totalSeatsToPlace = Math.min(totalSeats, 543);
-        const baseSeatsPerRow = Math.ceil(totalSeatsToPlace / rows);
-        
-        let seatIndex = 0;
-        for (let row = 0; row < rows && seatIndex < totalSeatsToPlace; row++) {
-            const radius = minRadius + (maxRadius - minRadius) * (row / (rows - 1));
-            
-            // Calculate seats for this row - outer rows have more seats
-            const seatsInRow = Math.floor(baseSeatsPerRow * (1 + row * 0.3));
-            const actualSeatsInRow = Math.min(seatsInRow, totalSeatsToPlace - seatIndex);
-            
-            const angleStep = Math.PI / (actualSeatsInRow + 1); // +1 for better spacing
-            
-            for (let seat = 0; seat < actualSeatsInRow; seat++) {
-                const angle = Math.PI - ((seat + 1) * angleStep);
-                const x = centerX + radius * Math.cos(angle);
-                const y = centerY + radius * Math.sin(angle);
-                
-                seats.push({ x, y, index: seatIndex });
-                seatIndex++;
-            }
-        }
-          // Assign colors to seats in grouped arrangement (like real parliament)
-        this.arrangeSeatsInGroups(seats, player1Seats, player2Seats, othersSeats);
-        
-        console.log(`Parliament chart created with ${seats.length} seats (should be 543)`);
-        console.log(`Party distribution: BJP=${player1Seats}, INC=${player2Seats}, Others=${othersSeats}`);
-        
-        // Draw seats
-        seats.forEach(seat => {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', seat.x);
-            circle.setAttribute('cy', seat.y);
-            circle.setAttribute('r', '1.8'); // Smaller radius to fit more seats
-            circle.setAttribute('fill', seat.color);
-            circle.setAttribute('stroke', '#000');
-            circle.setAttribute('stroke-width', '0.2');
-            circle.setAttribute('opacity', '0.95');
-            svg.appendChild(circle);
-        });
-        
-        // Add majority line
-        const majorityLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        majorityLine.setAttribute('x1', centerX);
-        majorityLine.setAttribute('y1', centerY);
-        majorityLine.setAttribute('x2', centerX);
-        majorityLine.setAttribute('y2', centerY - maxRadius);
-        majorityLine.setAttribute('stroke', '#fff');
-        majorityLine.setAttribute('stroke-width', '2');
-        majorityLine.setAttribute('stroke-dasharray', '5,5');
-        majorityLine.setAttribute('opacity', '0.5');
-        svg.appendChild(majorityLine);
-        
-        // Add majority text
-        const majorityText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        majorityText.setAttribute('x', centerX + 10);
-        majorityText.setAttribute('y', centerY - maxRadius + 10);
-        majorityText.setAttribute('fill', '#fff');
-        majorityText.setAttribute('font-size', '12');
-        majorityText.setAttribute('font-family', 'Arial, sans-serif');
-        majorityText.textContent = '272 majority';
-        svg.appendChild(majorityText);
-        
-        container.appendChild(svg);
-    }    arrangeSeatsInGroups(seats, p1Count, p2Count, othersCount) {
-        // Sort seats by their angle position (left to right in semicircle)
-        // Calculate angle for each seat for sorting
-        const centerX = 200; // width / 2
-        const centerY = 230; // height - 20
-        
-        seats.forEach(seat => {
-            seat.angle = Math.atan2(seat.y - centerY, seat.x - centerX);
-        });
-        
-        // Sort seats from left to right (negative angle to positive angle)
-        seats.sort((a, b) => a.angle - b.angle);
-        
-        // Assign colors in groups: BJP (left), Others (center), INC (right)
+        // Arrange seats in groups: BJP (left), Others (center), INC (right)
         // This creates a more realistic parliament arrangement
-        for (let i = 0; i < seats.length; i++) {
-            if (i < p1Count) {
-                seats[i].color = '#FF8C00'; // Bright orange for BJP
-            } else if (i < p1Count + othersCount) {
-                seats[i].color = '#D3D3D3'; // Light gray for Others
-            } else {
-                seats[i].color = '#32CD32'; // Bright green for INC
-            }
+        let seatIndex = 0;
+        
+        // Color BJP seats (first player1Seats seats)
+        for (let i = 0; i < player1Seats && seatIndex < totalSeats; i++, seatIndex++) {
+            seatsArray[seatIndex].style.fill = colors.bjp;
         }
+        
+        // Color Others seats (next othersSeats seats)
+        for (let i = 0; i < othersSeats && seatIndex < totalSeats; i++, seatIndex++) {
+            seatsArray[seatIndex].style.fill = colors.others;
+        }
+        
+        // Color INC seats (remaining seats)
+        for (let i = 0; i < player2Seats && seatIndex < totalSeats; i++, seatIndex++) {
+            seatsArray[seatIndex].style.fill = colors.inc;
+        }
+        
+        // Remove the group's fill style to let individual seat colors show
+        const group = svgElement.querySelector('g[id="0-Bharatiya-Janata-Party"]');
+        if (group) {
+            group.style.fill = 'none';
+        }
+        
+        // Add animation to seats
+        seatsArray.forEach((seat, index) => {
+            seat.style.transition = 'fill 0.3s ease';
+            seat.style.animationDelay = `${index * 2}ms`;
+        });
     }
       show() {
         if (this.isVisible) return;
