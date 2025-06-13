@@ -1,8 +1,7 @@
 // Timer functionality
-export class GameTimer {
-    constructor(options = {}) {
+export class GameTimer {    constructor(options = {}) {
         // Default configuration
-        this.totalPhases = options.totalPhases || 8;
+        this.totalPhases = options.totalPhases || 2; // Temporarily reduced to 2 for testing
         this.phaseDuration = options.phaseDuration || 30; // seconds per phase
         this.totalDuration = this.totalPhases * this.phaseDuration;
         

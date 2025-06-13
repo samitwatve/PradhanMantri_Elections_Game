@@ -6,20 +6,18 @@ import { seatProjection } from './seat-projection.js';
 import { player1, player2 } from './player-info.js';
 import { rallyController } from './rally-controller.js';
 import { soundManager } from './sound-manager.js';
+import { gameOverScreen } from './game-over-screen.js';
 
 // Main game initialization and setup
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all game components
     initializeMap();
-    initializePlayerInfo(); // Initialize player info first so event listeners are set up
-    
-    // Configure the game timer with 8 phases of 30 seconds each
-    gameTimer.totalPhases = 8;
+    initializePlayerInfo(); // Initialize player info first so event listeners are set up    // Configure the game timer with 1 phase of 30 seconds each (temporarily for testing)
+    gameTimer.totalPhases = 1;
     gameTimer.phaseDuration = 30;
     gameTimer.totalDuration = gameTimer.totalPhases * gameTimer.phaseDuration;
     gameTimer.remainingTime = gameTimer.totalDuration;
-    gameTimer.phaseTimeRemaining = gameTimer.phaseDuration;
-      // Set up phase change listener
+    gameTimer.phaseTimeRemaining = gameTimer.phaseDuration;// Set up phase change listener
     gameTimer.onPhaseChange((currentPhase, totalPhases) => {
         console.log(`Phase changed: ${currentPhase} of ${totalPhases}`);
         gameState.updatePhase(currentPhase);
@@ -31,7 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.dispatchEvent(event);
         
         console.log(`Dispatched gamePhaseChanged event for phase ${currentPhase}`);
-    });    
+    });
+
+    // Set up game end listener
+    gameTimer.onTimeUp(() => {
+        console.log('Game time is up!');
+        // Dispatch game time up event for game over screen
+        const event = new CustomEvent('gameTimeUp');
+        window.dispatchEvent(event);
+    });
     // Start the timer
     gameTimer.start();
     initializeStateGroups();
