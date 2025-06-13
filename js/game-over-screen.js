@@ -23,11 +23,9 @@ class GameOverScreen {
         this.overlayElement.style.display = 'none';
         
         // Create the game over content
-        this.overlayElement.innerHTML = `
-            <div class="game-over-container">
+        this.overlayElement.innerHTML = `            <div class="game-over-container">
                 <div class="game-over-header">
-                    <h1 class="game-over-title">ELECTION RESULTS</h1>
-                    <div class="game-over-subtitle">Final Parliament Composition</div>
+                    <h1 class="game-over-title">FINAL RESULTS</h1>
                 </div>
                   <div class="game-over-content">
                     <div class="results-summary">
@@ -154,8 +152,7 @@ class GameOverScreen {
         // Show the overlay
         this.show();
     }
-    
-    updateWinnerText(results, reason, victoryDetails) {
+      updateWinnerText(results, reason, victoryDetails) {
         const winnerTextEl = document.getElementById('winner-text');
         const winnerDetailsEl = document.getElementById('winner-details');
         const majorityThreshold = 272;
@@ -173,13 +170,7 @@ class GameOverScreen {
             winnerTextEl.className = 'winner-text player2-victory';
         } else {
             winnerText = '🏛️ HUNG PARLIAMENT';
-            if (results.player1Seats > results.player2Seats) {
-                detailsText = `BJP leads with ${results.player1Seats} seats but needs coalition support`;
-            } else if (results.player2Seats > results.player1Seats) {
-                detailsText = `INC leads with ${results.player2Seats} seats but needs coalition support`;
-            } else {
-                detailsText = `Perfect tie! Both parties have ${results.player1Seats} seats each`;
-            }
+            detailsText = `No party achieved majority (272+ seats)`;
             winnerTextEl.className = 'winner-text hung-parliament';
         }
         

@@ -109,8 +109,8 @@
 }
 
 .winner-text.hung-parliament {
-    color: #ffa726;
-    text-shadow: 0 0 20px rgba(255, 167, 38, 0.5);
+    color: #b0b0b0;
+    text-shadow: 0 0 20px rgba(176, 176, 176, 0.5);
 }
 
 .winner-details {
