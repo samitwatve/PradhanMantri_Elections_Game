@@ -197,8 +197,8 @@
 
 /* Player-specific seat styling */
 .seat-projection-container .status-value.player1 {
-    color: #ff9d4d;
-    text-shadow: 0 0 10px rgba(255, 157, 77, 0.5);
+    color: var(--player1-color-light);
+    text-shadow: 0 0 10px var(--player1-color-light);
     text-align: left;
 }
 
@@ -223,8 +223,8 @@
 }
 
 .seat-projection-container .status-value.player1.majority {
-    color: #ffa500;
-    text-shadow: 0 0 15px rgba(255, 165, 0, 0.8);
+    color: var(--player1-color);
+    text-shadow: 0 0 15px var(--player1-color);
 }
 
 .seat-projection-container .status-value.player2.majority {
@@ -268,7 +268,7 @@
 
 .seats-progress-bar .p1-bar {
     height: 100%;
-    background: linear-gradient(90deg, #ff7b00, #ff9d4d);
+    background: linear-gradient(90deg, var(--player1-color-dark), var(--player1-color));
     transition: width 0.8s ease;
 }
 
@@ -298,8 +298,8 @@
 }
 
 .parliament-status.player1-majority {
-    color: #ffa500;
-    text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+    color: var(--player1-color);
+    text-shadow: 0 0 5px var(--player1-color);
     font-weight: bold;
 }
 
@@ -310,8 +310,8 @@
 }
 
 .parliament-status.player1-coalition {
-    color: #ff9d4d;
-    text-shadow: 0 0 5px rgba(255, 157, 77, 0.5);
+    color: var(--player1-color-light);
+    text-shadow: 0 0 5px var(--player1-color-light);
 }
 
 .parliament-status.player2-coalition {
