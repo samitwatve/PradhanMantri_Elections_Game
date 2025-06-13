@@ -11,6 +11,7 @@ class RallyController {
         this.rallyPopularityBoost = 8; // 8% popularity boost per rally
         this.svgDocument = null;
         this.rallyMode = false;
+        this.gameConfig = null; // Store game configuration
         this.initialize();
     }
 
@@ -140,11 +141,10 @@ class RallyController {
 
         // Place rally
         this.placeRally(stateId, playerId);
-        
-        // Apply popularity boost
+          // Apply popularity boost
         stateInfo.updateStatePopularity(stateId, playerId, this.rallyPopularityBoost);
           // Log the action
-        const playerName = playerId === 1 ? 'BJP' : 'INC';
+        const playerName = this.getPlayerPartyName(playerId);
         try {
             const { actionsLog } = await import('./actions-log.js');
             actionsLog.addAction(`${playerName} held a rally in ${stateId} (+${this.rallyPopularityBoost}% popularity)`);
@@ -224,12 +224,10 @@ class RallyController {
 
         // Add to SVG
         this.svgDocument.documentElement.appendChild(rallyToken);
-        this.svgDocument.documentElement.appendChild(rallyText);
-
-        // Add hover tooltip
-        const tooltip = `Rally by ${playerId === 1 ? 'BJP' : 'INC'} (+${this.rallyPopularityBoost}% popularity)`;
+        this.svgDocument.documentElement.appendChild(rallyText);        // Add hover tooltip
+        const tooltip = `Rally by ${this.getPlayerPartyName(playerId)} (+${this.rallyPopularityBoost}% popularity)`;
         rallyToken.setAttribute('title', tooltip);
-        rallyText.setAttribute('title', tooltip);    }    showMaxRalliesError(stateId, playerId) {
+        rallyText.setAttribute('title', tooltip);}    showMaxRalliesError(stateId, playerId) {
         console.log(`Maximum rallies reached for state ${stateId}`);
         
         // Play invalid action sound (only for Player 1)
@@ -344,12 +342,11 @@ class RallyController {
     // Update state tooltip to include rally information
     updateStateTooltip(stateId, tooltip) {
         const rallyInfo = this.getStateRallyInfo(stateId);
-        
-        if (rallyInfo.count > 0) {
+          if (rallyInfo.count > 0) {
             tooltip += `\nRallies: ${rallyInfo.count}/${rallyInfo.max}`;
             
             // Show which players have rallies
-            const players = rallyInfo.rallies.map(r => r.playerId === 1 ? 'BJP' : 'INC');
+            const players = rallyInfo.rallies.map(r => this.getPlayerPartyName(r.playerId));
             tooltip += ` (${players.join(', ')})`;
         } else if (rallyInfo.canPlace) {
             tooltip += `\nRallies: ${rallyInfo.count}/${rallyInfo.max} (Available)`;
@@ -358,6 +355,38 @@ class RallyController {
         }
         
         return tooltip;
+    }
+
+    // Get game configuration for dynamic party names
+    loadGameConfiguration() {
+        try {
+            const gameConfig = localStorage.getItem('gameConfig');
+            if (gameConfig) {
+                this.gameConfig = JSON.parse(gameConfig);
+            } else {
+                console.warn('No game configuration found, using defaults');
+                this.gameConfig = {
+                    player1Politician: { party: 'Player 1' },
+                    player2Politician: { party: 'Player 2' }
+                };
+            }
+        } catch (error) {
+            console.error('Error loading game configuration:', error);
+            this.gameConfig = {
+                player1Politician: { party: 'Player 1' },
+                player2Politician: { party: 'Player 2' }
+            };
+        }
+    }
+    
+    // Get party name for a player
+    getPlayerPartyName(playerId) {
+        if (!this.gameConfig) {
+            this.loadGameConfiguration();
+        }
+        return playerId === 1 
+            ? (this.gameConfig.player1Politician?.party || 'Player 1')
+            : (this.gameConfig.player2Politician?.party || 'Player 2');
     }
 }
 

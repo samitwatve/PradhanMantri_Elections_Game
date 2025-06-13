@@ -243,12 +243,11 @@ class PlayerInfo {          constructor(playerId) {
             }, 600);
         }
     }    
-    
-    showGroupDominationBonusNotification(groupName, bonusAmount) {
+      showGroupDominationBonusNotification(groupName, bonusAmount) {
         // Add news update to TV display
-        var playerName = this.playerId === 1 ? "BJP" : "INC";
-        window.tvDisplay.addNewsUpdate("BREAKING: " + playerName + " dominates " + groupName + "! +" + bonusAmount + "M bonus");
-    }    // Rally token management methods
+        const playerParty = this.politician?.party || (this.playerId === 1 ? "Player 1" : "Player 2");
+        window.tvDisplay.addNewsUpdate("BREAKING: " + playerParty + " dominates " + groupName + "! +" + bonusAmount + "M bonus");
+    }// Rally token management methods
     getRallyTokensDisplay() {
         let display = '';
         for (let i = 0; i < this.maxRallyTokens; i++) {

@@ -17,6 +17,41 @@ Object.keys(policyProgress).forEach(category => {
 import { player1, player2 } from './player-info.js';
 import { isGamePaused } from './game-options.js';
 
+// Game configuration for dynamic party names
+let gameConfig = null;
+
+// Get game configuration for dynamic party names
+function loadGameConfiguration() {
+    try {
+        const config = localStorage.getItem('gameConfig');
+        if (config) {
+            gameConfig = JSON.parse(config);
+        } else {
+            console.warn('No game configuration found, using defaults');
+            gameConfig = {
+                player1Politician: { party: 'Player 1' },
+                player2Politician: { party: 'Player 2' }
+            };
+        }
+    } catch (error) {
+        console.error('Error loading game configuration:', error);
+        gameConfig = {
+            player1Politician: { party: 'Player 1' },
+            player2Politician: { party: 'Player 2' }
+        };
+    }
+}
+
+// Get party name for a player
+function getPlayerPartyName(playerId) {
+    if (!gameConfig) {
+        loadGameConfiguration();
+    }
+    return playerId === 1 
+        ? (gameConfig.player1Politician?.party || 'Player 1')
+        : (gameConfig.player2Politician?.party || 'Player 2');
+}
+
 // Constants
 const CAMPAIGN_CLICK_COST = 10; // 10M per click
 const CAMPAIGN_MAX_COST = 100; // 100M total cost
@@ -159,14 +194,14 @@ function showCampaignCompletionNotification(category, index, playerId) {
     const policyLabel = progressItem.querySelector('.progress-item-label').textContent;
     
     // Add news update to TV display
-    const playerName = playerId === 1 ? "BJP" : "INC";
+    const playerName = getPlayerPartyName(playerId);
     window.tvDisplay.addNewsUpdate(`🎉 ${playerName} completes ${policyLabel}! +${CAMPAIGN_COMPLETION_BONUS}M`);
 }
 
 // Function to show phase bonus notification
 function showPhaseBonusNotification(playerId, amount, completedCount) {
     // Add news update to TV display
-    const playerName = playerId === 1 ? "BJP" : "INC";
+    const playerName = getPlayerPartyName(playerId);
     const totalBonus = amount * completedCount;
     window.tvDisplay.addNewsUpdate(`💰 Phase Bonus: ${playerName} gains +${totalBonus}M for ${completedCount} campaigns`);
 }

@@ -10,6 +10,7 @@ class StateInfo {
         this.stateGroups = null; // Cache state groups module
         this.currentStateId = null; // Track currently displayed state
         this.stateInfoElements = null; // Cache DOM elements for faster updates
+        this.gameConfig = null; // Store game configuration
         this.initialize();
     }async initialize() {
         try {
@@ -317,13 +318,11 @@ class StateInfo {
         // Base boost of 5% per campaign action, with minimal diminishing returns
         const totalSpent = playerId === 1 ? actions.player1Spent : actions.player2Spent;
         const diminishingFactor = Math.max(0.8, 1 - (totalSpent * 0.005)); // Very mild reduction over time
-        const popularityBoost = 5 * diminishingFactor;
-
-        // Update state popularity
+        const popularityBoost = 5 * diminishingFactor;        // Update state popularity
         this.updateStatePopularityFromCampaign(stateId, playerId, popularityBoost);
 
         // Log the action
-        const playerName = playerId === 1 ? 'BJP' : 'INC';
+        const playerName = this.getPlayerPartyName(playerId);
         const stateData = this.statesData.find(state => state.SvgId === stateId);
         const stateName = stateData ? stateData.State : stateId;
         
@@ -565,6 +564,38 @@ class StateInfo {
                 console.error('Error checking group domination after force update:', error);
             }
         }, 500);
+    }
+
+    // Get game configuration for dynamic party names
+    loadGameConfiguration() {
+        try {
+            const gameConfig = localStorage.getItem('gameConfig');
+            if (gameConfig) {
+                this.gameConfig = JSON.parse(gameConfig);
+            } else {
+                console.warn('No game configuration found, using defaults');
+                this.gameConfig = {
+                    player1Politician: { party: 'Player 1' },
+                    player2Politician: { party: 'Player 2' }
+                };
+            }
+        } catch (error) {
+            console.error('Error loading game configuration:', error);
+            this.gameConfig = {
+                player1Politician: { party: 'Player 1' },
+                player2Politician: { party: 'Player 2' }
+            };
+        }
+    }
+    
+    // Get party name for a player
+    getPlayerPartyName(playerId) {
+        if (!this.gameConfig) {
+            this.loadGameConfiguration();
+        }
+        return playerId === 1 
+            ? (this.gameConfig.player1Politician?.party || 'Player 1')
+            : (this.gameConfig.player2Politician?.party || 'Player 2');
     }
 }
 
