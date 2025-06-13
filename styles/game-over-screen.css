@@ -99,13 +99,13 @@
 }
 
 .winner-text.player1-victory {
-    color: #ff6b00;
-    text-shadow: 0 0 20px rgba(255, 107, 0, 0.5);
+    color: var(--player1-color);
+    text-shadow: 0 0 20px var(--player1-color);
 }
 
 .winner-text.player2-victory {
-    color: #2e7d32;
-    text-shadow: 0 0 20px rgba(46, 125, 50, 0.5);
+    color: var(--player2-color);
+    text-shadow: 0 0 20px var(--player2-color);
 }
 
 .winner-text.hung-parliament {
@@ -210,11 +210,11 @@
 }
 
 .legend-color.player1-color {
-    background: #FF8C00;
+    background: var(--player1-color);
 }
 
 .legend-color.player2-color {
-    background: #32CD32;
+    background: var(--player2-color);
 }
 
 .legend-color.others-color {

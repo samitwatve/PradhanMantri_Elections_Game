@@ -5,22 +5,50 @@ class GameOverScreen {
         this.finalResults = null;
         this.overlayElement = null;
         this.parliamentChart = null;
+        this.gameConfig = null;
         
         this.initialize();
     }
     
     initialize() {
+        // Load game configuration
+        this.loadGameConfiguration();
         this.createOverlayElement();
         this.setupEventListeners();
         console.log('Game Over Screen initialized');
     }
     
-    createOverlayElement() {
+    loadGameConfiguration() {
+        try {
+            const gameConfig = localStorage.getItem('gameConfig');
+            if (gameConfig) {
+                this.gameConfig = JSON.parse(gameConfig);
+                console.log('Game configuration loaded:', this.gameConfig);
+            } else {
+                console.warn('No game configuration found, using defaults');
+                this.gameConfig = {
+                    player1Politician: { party: 'BJP' },
+                    player2Politician: { party: 'INC' }
+                };
+            }
+        } catch (error) {
+            console.error('Error loading game configuration:', error);
+            this.gameConfig = {
+                player1Politician: { party: 'BJP' },
+                player2Politician: { party: 'INC' }
+            };
+        }
+    }
+      createOverlayElement() {
         // Create the game over overlay
         this.overlayElement = document.createElement('div');
         this.overlayElement.id = 'game-over-overlay';
         this.overlayElement.className = 'game-over-overlay';
         this.overlayElement.style.display = 'none';
+        
+        // Get party names from configuration
+        const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
+        const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
         
         // Create the game over content
         this.overlayElement.innerHTML = `            <div class="game-over-container">
@@ -39,7 +67,7 @@ class GameOverScreen {
                         <div class="chart-legend">
                             <div class="legend-item">
                                 <div class="legend-color player1-color"></div>
-                                <span id="legend-bjp-text">BJP: 0 seats</span>
+                                <span id="legend-player1-text">${player1Party}: 0 seats</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color others-color"></div>
@@ -47,7 +75,7 @@ class GameOverScreen {
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color player2-color"></div>
-                                <span id="legend-inc-text">INC: 0 seats</span>
+                                <span id="legend-player2-text">${player2Party}: 0 seats</span>
                             </div>
                         </div>
                     </div>
@@ -125,11 +153,14 @@ class GameOverScreen {
             othersSeats: othersSeats,
             totalSeats: 543
         };
-    }
-      showResults(results, reason, victoryDetails = null) {
+    }    showResults(results, reason, victoryDetails = null) {
+        // Get party names from configuration
+        const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
+        const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
+        
         // Update legend with seat counts
-        document.getElementById('legend-bjp-text').textContent = `BJP: ${results.player1Seats} seats`;
-        document.getElementById('legend-inc-text').textContent = `INC: ${results.player2Seats} seats`;
+        document.getElementById('legend-player1-text').textContent = `${player1Party}: ${results.player1Seats} seats`;
+        document.getElementById('legend-player2-text').textContent = `${player2Party}: ${results.player2Seats} seats`;
         document.getElementById('legend-others-text').textContent = `Others: ${results.othersSeats} seats`;
         
         // Determine winner and update text
@@ -140,22 +171,25 @@ class GameOverScreen {
         
         // Show the overlay
         this.show();
-    }
-      updateWinnerText(results, reason, victoryDetails) {
+    }    updateWinnerText(results, reason, victoryDetails) {
         const winnerTextEl = document.getElementById('winner-text');
         const winnerDetailsEl = document.getElementById('winner-details');
         const majorityThreshold = 272;
+        
+        // Get party names from configuration
+        const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
+        const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
         
         let winnerText = '';
         let detailsText = '';
         
         if (results.player1Seats >= majorityThreshold) {
-            winnerText = '🎉 BJP WINS!';
-            detailsText = `BJP forms majority government with ${results.player1Seats} seats`;
+            winnerText = `🎉 ${player1Party} WINS!`;
+            detailsText = `${player1Party} forms majority government with ${results.player1Seats} seats`;
             winnerTextEl.className = 'winner-text player1-victory';
         } else if (results.player2Seats >= majorityThreshold) {
-            winnerText = '🎉 INC WINS!';
-            detailsText = `INC forms majority government with ${results.player2Seats} seats`;
+            winnerText = `🎉 ${player2Party} WINS!`;
+            detailsText = `${player2Party} forms majority government with ${results.player2Seats} seats`;
             winnerTextEl.className = 'winner-text player2-victory';
         } else {
             winnerText = '🏛️ HUNG PARLIAMENT';
@@ -197,39 +231,44 @@ class GameOverScreen {
                     
                     // Recolor the seats based on results
                     this.recolorParliamentSeats(svgElement, results);
-                    
-                    // Add the SVG to the container
+                      // Add the SVG to the container
                     container.appendChild(svgElement);
                     
-                    console.log(`Parliament chart loaded with ${results.player1Seats} BJP, ${results.player2Seats} INC, ${results.othersSeats} Others seats`);
+                    // Get party names for logging
+                    const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
+                    const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
+                    
+                    console.log(`Parliament chart loaded with ${results.player1Seats} ${player1Party}, ${results.player2Seats} ${player2Party}, ${results.othersSeats} Others seats`);
                 } else {
                     console.error('Failed to load Parliament SVG');
                     // Fallback to simple text display
+                    const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
+                    const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
                     container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">
-                        BJP: ${results.player1Seats} | INC: ${results.player2Seats} | Others: ${results.othersSeats}
+                        ${player1Party}: ${results.player1Seats} | ${player2Party}: ${results.player2Seats} | Others: ${results.othersSeats}
                     </div>`;
                 }
-            })
-            .catch(error => {
+            })            .catch(error => {
                 console.error('Error loading Parliament SVG:', error);
                 // Fallback to simple text display
+                const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
+                const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
                 container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">
-                    BJP: ${results.player1Seats} | INC: ${results.player2Seats} | Others: ${results.othersSeats}
+                    ${player1Party}: ${results.player1Seats} | ${player2Party}: ${results.player2Seats} | Others: ${results.othersSeats}
                 </div>`;
             });
-    }
-
-    recolorParliamentSeats(svgElement, results) {
+    }    recolorParliamentSeats(svgElement, results) {
         // Get all circle elements (seats)
         const seats = svgElement.querySelectorAll('circle');
         const totalSeats = seats.length;
         
         console.log(`Found ${totalSeats} seats in Parliament SVG`);
         
-        // Define colors for each party
+        // Get colors from CSS variables
+        const rootStyles = getComputedStyle(document.documentElement);
         const colors = {
-            bjp: '#FF8C00',      // Bright orange for BJP
-            inc: '#32CD32',      // Bright green for INC  
+            player1: rootStyles.getPropertyValue('--player1-color').trim() || '#FF8C00',
+            player2: rootStyles.getPropertyValue('--player2-color').trim() || '#32CD32',
             others: '#D3D3D3'    // Light gray for Others
         };
         
@@ -237,15 +276,14 @@ class GameOverScreen {
         const { player1Seats, player2Seats, othersSeats } = results;
         
         // Convert seats array to array for easier manipulation
-        const seatsArray = Array.from(seats);
-        
-        // Arrange seats in groups: BJP (left), Others (center), INC (right)
+        const seatsArray = Array.from(seats);        
+        // Arrange seats in groups: Player1 (left), Others (center), Player2 (right)
         // This creates a more realistic parliament arrangement
         let seatIndex = 0;
         
-        // Color BJP seats (first player1Seats seats)
+        // Color Player1 seats (first player1Seats seats)
         for (let i = 0; i < player1Seats && seatIndex < totalSeats; i++, seatIndex++) {
-            seatsArray[seatIndex].style.fill = colors.bjp;
+            seatsArray[seatIndex].style.fill = colors.player1;
         }
         
         // Color Others seats (next othersSeats seats)
@@ -253,9 +291,9 @@ class GameOverScreen {
             seatsArray[seatIndex].style.fill = colors.others;
         }
         
-        // Color INC seats (remaining seats)
+        // Color Player2 seats (remaining seats)
         for (let i = 0; i < player2Seats && seatIndex < totalSeats; i++, seatIndex++) {
-            seatsArray[seatIndex].style.fill = colors.inc;
+            seatsArray[seatIndex].style.fill = colors.player2;
         }
         
         // Remove the group's fill style to let individual seat colors show
