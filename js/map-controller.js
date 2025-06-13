@@ -1,5 +1,5 @@
 // Map interaction and state management
-import { player1 } from './player-info.js';
+import { player1, player2 } from './player-info.js';
 import { stateInfo } from './state-info.js';
 import { gameOptions, isGamePaused } from './game-options.js';
 import { rallyController } from './rally-controller.js';
@@ -11,6 +11,7 @@ class MapController {
         this.statesData = null;
         this.rippleContainer = null;
         this.highlightedStates = new Set();
+        this.playersInitialized = { 1: false, 2: false };
         this.initialize();
     }async initialize() {
         try {
@@ -38,6 +39,21 @@ class MapController {
             
             // Create ripple container
             this.createRippleContainer();
+            
+            // Listen for player initialization events
+            window.addEventListener('playerInitialized', (event) => {
+                const { playerId } = event.detail;
+                this.playersInitialized[playerId] = true;
+                console.log(`Player ${playerId} initialized, status:`, this.playersInitialized);
+                
+                // If both players are initialized, refresh map colors
+                if (this.playersInitialized[1] && this.playersInitialized[2]) {
+                    console.log('Both players initialized, refreshing map colors');
+                    setTimeout(() => {
+                        this.refreshAllStateColors();
+                    }, 100);
+                }
+            });
               // Listen for popularity changes
             window.addEventListener('popularityChanged', async (event) => {
                 const { stateId, popularity } = event.detail;
@@ -420,9 +436,9 @@ class MapController {
         }
 
         // Compare popularities to determine leader
-        const { player1 = 0, player2 = 0, others = 0 } = popularityData;
-        const roundedP1 = Math.round(player1);
-        const roundedP2 = Math.round(player2);
+        const { player1: p1Pop = 0, player2: p2Pop = 0, others = 0 } = popularityData;
+        const roundedP1 = Math.round(p1Pop);
+        const roundedP2 = Math.round(p2Pop);
         const roundedOthers = Math.round(others);
 
         console.log(`State ${stateId} popularity:`, { 
@@ -445,34 +461,33 @@ class MapController {
         stateElement.setAttribute('data-leader', leader);
         
         // Update UT button if this state has one
-        this.updateUTButtonColor(stateId, popularityData);
-
-        // Set fill color based on who's leading with intensity proportional to popularity
+        this.updateUTButtonColor(stateId, popularityData);        // Check if player colors are available, if not retry later
+        if (!player1.primaryColor || !player2.primaryColor) {
+            console.log(`Player colors not yet available (p1: ${player1.primaryColor}, p2: ${player2.primaryColor}), retrying in 200ms for ${stateId}`);
+            setTimeout(() => {
+                this.updateStateColor(stateId, popularityData);
+            }, 200);
+            return;
+        }// Set fill color based on who's leading with intensity proportional to popularity
         if (leader === 'player1') {
-            // Calculate color intensity for Player 1 (orange) based on popularity percentage
+            // Calculate color intensity for Player 1 based on popularity percentage
             const intensity = Math.max(30, Math.min(100, roundedP1)); // Clamp between 30-100%
-            const normalizedIntensity = intensity / 100;
             
-            // Start with light orange (#FFEBCC) and go to deep orange (#FF7700)
-            const r = Math.round(255);
-            const g = Math.round(119 + (235 - 119) * (1 - normalizedIntensity));
-            const b = Math.round(0 + (204 - 0) * (1 - normalizedIntensity));
-            
-            const color = `rgb(${r}, ${g}, ${b})`;
+            // Use player1's dynamic primary color with debugging
+            const primaryColor = player1.primaryColor || '#FF9933'; // Fallback color
+            console.log(`${stateId}: Player 1 primary color: ${primaryColor}`);
+            const color = this.hexToRgbWithIntensity(primaryColor, intensity);
             console.log(`${stateId}: Setting to Player 1 color (${color}) with ${roundedP1}%`);
             
             stateElement.setAttribute('fill', color);
         } else if (leader === 'player2') {
-            // Calculate color intensity for Player 2 (green) based on popularity percentage
+            // Calculate color intensity for Player 2 based on popularity percentage
             const intensity = Math.max(30, Math.min(100, roundedP2)); // Clamp between 30-100%
-            const normalizedIntensity = intensity / 100;
             
-            // Start with light green (#E0F2E0) and go to deep green (#00A000)
-            const r = Math.round(0 + (224 - 0) * (1 - normalizedIntensity));
-            const g = Math.round(160 + (242 - 160) * (1 - normalizedIntensity));
-            const b = Math.round(0 + (224 - 0) * (1 - normalizedIntensity));
-            
-            const color = `rgb(${r}, ${g}, ${b})`;
+            // Use player2's dynamic primary color with debugging
+            const primaryColor = player2.primaryColor || '#138808'; // Fallback color
+            console.log(`${stateId}: Player 2 primary color: ${primaryColor}`);
+            const color = this.hexToRgbWithIntensity(primaryColor, intensity);
             console.log(`${stateId}: Setting to Player 2 color (${color}) with ${roundedP2}%`);
             
             stateElement.setAttribute('fill', color);
@@ -926,8 +941,62 @@ class MapController {
                     });
                     window.dispatchEvent(rallyEvent);
                     console.log(`Dispatched rallyDrop event for UT ${stateId}`);
+                }            });
+        });
+    }    // Helper function to convert hex color to RGB with intensity
+    hexToRgbWithIntensity(hexColor, intensity) {
+        // Remove # if present
+        const hex = hexColor.replace('#', '');
+        
+        // Validate hex color
+        if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
+            console.error(`Invalid hex color: ${hexColor}, using fallback`);
+            return 'rgb(153, 153, 153)'; // Grey fallback
+        }
+        
+        // Parse RGB values using substring instead of deprecated substr
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        
+        console.log(`Converting ${hexColor} to RGB: r=${r}, g=${g}, b=${b}, intensity=${intensity}`);
+        
+        // Normalize intensity (0-1)
+        const normalizedIntensity = Math.max(0.3, Math.min(1, intensity / 100));
+        
+        // Create lighter version by blending with white (255, 255, 255)
+        const lightR = Math.round(r + (255 - r) * (1 - normalizedIntensity));
+        const lightG = Math.round(g + (255 - g) * (1 - normalizedIntensity));
+        const lightB = Math.round(b + (255 - b) * (1 - normalizedIntensity));
+        
+        const result = `rgb(${lightR}, ${lightG}, ${lightB})`;
+        console.log(`Converted to: ${result}`);
+        return result;
+    }
+
+    // Force refresh all state colors (useful when player data becomes available)
+    async refreshAllStateColors() {
+        if (!this.svgDocument) {
+            console.log('SVG document not ready for color refresh');
+            return;
+        }
+
+        console.log('Refreshing all state colors with current player data:', {
+            player1Color: player1.primaryColor,
+            player2Color: player2.primaryColor
+        });
+
+        const { stateInfo } = await import('./state-info.js');
+        
+        // Find all states in the SVG
+        const states = this.svgDocument.querySelectorAll('path');
+        states.forEach(state => {
+            if (state.id) {
+                const popularity = stateInfo.getStatePopularity(state.id);
+                if (popularity) {
+                    this.updateStateColor(state.id, popularity);
                 }
-            });
+            }
         });
     }
 }

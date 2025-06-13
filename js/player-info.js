@@ -1,9 +1,8 @@
 // Player information management
-class PlayerInfo {        
-    constructor(playerId) {
+class PlayerInfo {          constructor(playerId) {
         this.playerId = playerId;
-        this.element = document.getElementById(`player${playerId}-info`);
-        this.statsElement = this.element.querySelector('.player-stats');
+        this.element = null;
+        this.statsElement = null;
         
         // Set starting funds - 10000M for Player 1 (debug mode), 250M for Player 2
         this.funds = playerId === 1 ? 10000 : 250; // Starting funds in millions
@@ -12,12 +11,26 @@ class PlayerInfo {
         this.rallyTokens = 2;
         this.maxRallyTokens = 2;
         
-        this.initialize();
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.initializeDOM());
+        } else {
+            this.initializeDOM();
+        }
         
         // Bind the event handler and listen for phase changes to replenish funds
         this.handlePhaseChange = this.handlePhaseChange.bind(this);
         window.addEventListener('gamePhaseChanged', this.handlePhaseChange);
-    }    
+    }
+    
+    initializeDOM() {
+        this.element = document.getElementById(`player${this.playerId}-info`);
+        if (this.element) {
+            this.statsElement = this.element.querySelector('.player-stats');
+        }
+        
+        this.initialize();
+    }
     
     handlePhaseChange(event) {
         console.log(`Player ${this.playerId} received phase change event:`, event.detail);
@@ -48,9 +61,13 @@ class PlayerInfo {
             this.politician = config.politician;
             this.primaryColor = config.primaryColor;
             
-            // Add (DEBUG) indicator for Player 1 when funds are set to 10000M
-            const debugMode = this.playerId === 1 && this.funds === 10000;
+            // Add (DEBUG) indicator for Player 1 when funds are set to 10000M            const debugMode = this.playerId === 1 && this.funds === 10000;
             const partyText = `(${config.party})`;
+            
+            if (!this.element) {
+                console.warn(`Player ${this.playerId} element not found, skipping render`);
+                return;
+            }
             
             this.element.innerHTML = `
                 <div class="player-name">
@@ -68,9 +85,14 @@ class PlayerInfo {
                     </div>
                 </div>
             `;
-            
-            // Update CSS custom properties for this player's color
+              // Update CSS custom properties for this player's color
             this.updatePlayerColors();
+            
+            // Notify that player is fully initialized
+            console.log(`Player ${this.playerId} fully initialized with color: ${this.primaryColor}`);
+            window.dispatchEvent(new CustomEvent('playerInitialized', {
+                detail: { playerId: this.playerId, primaryColor: this.primaryColor }
+            }));
         }
     }
     
@@ -96,10 +118,15 @@ class PlayerInfo {
             root.style.setProperty(`--player${this.playerId}-color-light`, lightColor);
             root.style.setProperty(`--player${this.playerId}-color-dark`, darkColor);
         }
-    }
-      updateFunds(amount) {
+    }      updateFunds(amount) {
         console.log(`Player ${this.playerId} updating funds by ${amount}. Current funds: ${this.funds}`);
         this.funds = Math.max(0, this.funds + amount);
+        
+        if (!this.element) {
+            console.log(`Player ${this.playerId} element not found, skipping DOM update`);
+            return;
+        }
+        
         const fundsElement = this.element.querySelector('.funds-amount');
         if (fundsElement) {
             fundsElement.textContent = `₹${this.funds} M`;
