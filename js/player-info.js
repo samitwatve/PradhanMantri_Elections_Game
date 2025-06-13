@@ -174,20 +174,21 @@ class PlayerInfo {
         // Add news update to TV display
         var playerName = this.playerId === 1 ? "BJP" : "INC";
         window.tvDisplay.addNewsUpdate("BREAKING: " + playerName + " dominates " + groupName + "! +" + bonusAmount + "M bonus");
-    }
-
-    // Rally token management methods
+    }    // Rally token management methods
     getRallyTokensDisplay() {
         let display = '';
         for (let i = 0; i < this.maxRallyTokens; i++) {
-            display += i < this.rallyTokens ? '📢 ' : '⚪ ';
+            if (i < this.rallyTokens) {
+                display += '<span class="rally-token-icon available">📢</span>';
+            } else {
+                display += '<span class="rally-token-icon used">⚪</span>';
+            }
         }
-        return display.trim();
-    }
-      updateRallyTokensDisplay() {
+        return display;
+    }      updateRallyTokensDisplay() {
         const rallyTokensElement = this.element.querySelector('.rally-tokens-display');
         if (rallyTokensElement) {
-            rallyTokensElement.textContent = this.getRallyTokensDisplay();
+            rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
         }
         
         // Update draggable tokens if rally controller is available

@@ -108,10 +108,10 @@ class RallyController {
                     if (mapContainer) {
                         mapContainer.classList.remove('drag-active');
                     }
-                });
-            } else {
+                });            } else {
                 tokenElement.classList.add('used');
                 tokenElement.draggable = false;
+                tokenElement.textContent = '⚪'; // Grey circle for used tokens
                 tokenElement.title = 'Rally token used - replenishes next phase';
             }
             
