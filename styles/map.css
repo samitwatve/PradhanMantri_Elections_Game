@@ -128,3 +128,20 @@ svg polygon {
     50% { box-shadow: 0 0 20px var(--player2-color); border-color: #a5d6a7; }
     100% { box-shadow: 0 0 5px var(--player2-color); }
 }
+
+/* Shimmer effect for states that need work */
+#india-map path.shimmer-missing {
+    animation: state-shimmer 2.5s infinite;
+}
+
+@keyframes state-shimmer {
+    0% { 
+        filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.6)) brightness(1);
+    }
+    50% { 
+        filter: drop-shadow(0 0 12px rgba(255, 107, 53, 1.0)) brightness(1.1);
+    }
+    100% { 
+        filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.6)) brightness(1);
+    }
+}

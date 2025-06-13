@@ -373,3 +373,36 @@
 .states-details::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+/* UT Button Highlight Effects for Group Selection */
+.small-uts-grid button.ut-leading {
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.8) !important;
+    background: rgba(76, 175, 80, 0.2) !important;
+    position: relative;
+    z-index: 2;
+}
+
+.small-uts-grid button.ut-missing {
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.9) !important;
+    background: rgba(255, 107, 53, 0.2) !important;
+    position: relative;
+    z-index: 2;
+    animation: ut-shimmer 2s infinite;
+}
+
+@keyframes ut-shimmer {
+    0% { 
+        box-shadow: 0 0 8px rgba(255, 107, 53, 0.6);
+        background: rgba(255, 107, 53, 0.15);
+    }
+    50% { 
+        box-shadow: 0 0 15px rgba(255, 107, 53, 1.0);
+        background: rgba(255, 107, 53, 0.3);
+    }
+    100% { 
+        box-shadow: 0 0 8px rgba(255, 107, 53, 0.6);
+        background: rgba(255, 107, 53, 0.15);
+    }
+}

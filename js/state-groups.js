@@ -65,14 +65,16 @@ class StateGroups {
                 // Try again in a moment
                 setTimeout(() => this.scheduleGroupDominationCheck(), 500);
                 return;
-            }
-              try {
+            }            try {
                 this.checkingDomination = true;
                 console.log('Running scheduled group domination check');
                 await this.checkAllGroupsDomination();
                 
                 // Also refresh any manually selected groups to update shimmer effects
                 await this.refreshManuallySelectedGroups();
+                
+                // Also refresh any manually selected UT buttons to update shimmer effects
+                await this.refreshManuallySelectedUTs();
             } catch (error) {
                 console.error('Error during scheduled group domination check:', error);
             } finally {
@@ -133,8 +135,7 @@ class StateGroups {
         
         // Get states for this group
         const states = this.getStatesInGroup(groupName);
-        
-        // Clear other highlights if clicking a new button
+          // Clear other highlights if clicking a new button
         if (isActive) {
             // Clear all other highlights
             const allButtons = document.querySelectorAll('.button-grid button');
@@ -148,14 +149,18 @@ class StateGroups {
                             detail: { stateId, forceOff: true }
                         }));
                     });
+                    
+                    // Clear UT highlights if deselecting Union Territory group
+                    if (otherGroupName === 'Union Territory') {
+                        this.clearAllUTButtonHighlights();
+                    }
                 }
             });
             
             // Show detailed group analysis to help identify missing states
             await this.showGroupAnalysis(groupName);
         }
-        
-        // Toggle highlight for states in this group with smart highlighting
+          // Toggle highlight for states in this group with smart highlighting
         if (isActive) {
             await this.highlightGroupWithStatus(groupName);        } else {
             // Clear all highlights when deselecting
@@ -164,6 +169,11 @@ class StateGroups {
                     detail: { stateId, forceOff: true }
                 }));
             });
+            
+            // Also clear UT button highlights for this group
+            if (groupName === 'Union Territory') {
+                this.clearAllUTButtonHighlights();
+            }
             
             // After clearing manual highlights, refresh automatic domination highlighting
             setTimeout(() => {
@@ -483,6 +493,89 @@ class StateGroups {
             }
         }
     }    
+    // Refresh highlighting for all manually selected UT buttons
+    async refreshManuallySelectedUTs() {
+        const selectedUTButtons = document.querySelectorAll('.small-uts-grid button.selected');
+        
+        for (const button of selectedUTButtons) {
+            const utId = button.dataset.ut;
+            if (utId) {
+                console.log(`🔄 Refreshing manually selected UT: ${utId}`);
+                await this.refreshUTHighlighting(utId);
+            }
+        }
+    }
+
+    // Refresh highlighting for a specific UT button
+    async refreshUTHighlighting(utId) {
+        const { stateInfo } = await import('./state-info.js');
+        const { getCurrentPlayerNumber } = await import('./player-info.js');
+        
+        const currentPlayer = getCurrentPlayerNumber();
+        const popularity = stateInfo.getStatePopularity(utId);
+        
+        if (!popularity) {
+            console.log(`No popularity data found for UT: ${utId}`);
+            return;
+        }
+        
+        const currentPlayerPop = currentPlayer === 1 ? popularity.player1 : popularity.player2;
+        const stateData = stateInfo.statesData.find(s => s.SvgId === utId);
+        const stateName = stateData ? stateData.State : utId;
+        
+        console.log(`🔄 Refreshing UT "${stateName}" with smart visual indicators:`);
+        
+        if (Math.round(currentPlayerPop) >= 50) {
+            // UT where current player is leading (≥50%) - white border + green glow, NO shimmer
+            console.log(`✅ ${stateName}: ${Math.round(currentPlayerPop)}% (leading - white border + green glow)`);
+            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                detail: { 
+                    stateId: utId, 
+                    forceState: true,
+                    highlightType: 'leading' // White border + green glow, removes shimmer
+                }
+            }));
+        } else {
+            // UT where current player needs to work (<50%) - white border + orange glow + shimmer
+            console.log(`❌ ${stateName}: ${Math.round(currentPlayerPop)}% (missing - white border + orange glow + shimmer)`);
+            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                detail: { 
+                    stateId: utId, 
+                    forceState: true,
+                    highlightType: 'missing' // White border + orange glow + shimmer
+                }
+            }));
+        }
+    }
+
+    // Update the visual appearance of a Small UT button based on highlight type
+    updateUTButtonHighlight(stateId, highlightType) {
+        const utButton = document.querySelector(`.small-uts-grid button[data-ut="${stateId}"]`);
+        if (!utButton) {
+            return; // Not a UT or button not found
+        }
+        
+        // Remove any existing highlight classes
+        utButton.classList.remove('ut-leading', 'ut-missing');
+        
+        // Add the appropriate class based on highlight type
+        if (highlightType === 'leading') {
+            console.log(`🔘 Adding leading highlight to UT button: ${stateId}`);
+            utButton.classList.add('ut-leading');
+        } else if (highlightType === 'missing') {
+            console.log(`🔸 Adding missing highlight (shimmer) to UT button: ${stateId}`);
+            utButton.classList.add('ut-missing');
+        }
+    }
+
+    // Clear highlight from all UT buttons
+    clearAllUTButtonHighlights() {
+        const utButtons = document.querySelectorAll('.small-uts-grid button');
+        utButtons.forEach(button => {
+            button.classList.remove('ut-leading', 'ut-missing');
+        });
+    }
+
     // Debug method to log all groups and their members
     debugGroupMembership() {
         console.log('===== DEBUG: GROUP MEMBERSHIP =====');
@@ -790,8 +883,7 @@ class StateGroups {
             const missingNames = missingStates.map(s => s.name).join(', ');
             actionsLog.addAction(`${groupName}: Leading in ${leadingStates.length}/${states.length} states. Shimmering: ${missingNames}`);
         }
-    }
-      // Highlight group with different colors for leading vs missing states
+    }    // Highlight group with different colors for leading vs missing states
     async highlightGroupWithStatus(groupName) {
         if (!this.groups.has(groupName)) {
             console.log(`Group "${groupName}" not found in groups map`);
@@ -829,6 +921,9 @@ class StateGroups {
                         highlightType: 'leading' // White border + green glow, removes shimmer
                     }
                 }));
+                
+                // Also update UT button if this is a UT
+                this.updateUTButtonHighlight(stateId, 'leading');
             } else {
                 // State where current player needs to work (<50%) - white border + orange glow + shimmer
                 console.log(`❌ ${stateName}: ${Math.round(currentPlayerPop)}% (missing - white border + orange glow + shimmer)`);
@@ -839,6 +934,9 @@ class StateGroups {
                         highlightType: 'missing' // White border + orange glow + shimmer
                     }
                 }));
+                
+                // Also update UT button if this is a UT
+                this.updateUTButtonHighlight(stateId, 'missing');
             }
         }
     }
