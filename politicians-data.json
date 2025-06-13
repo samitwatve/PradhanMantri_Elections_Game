@@ -1,13 +1,12 @@
 {
-  "politicians": [
-    {
+  "politicians": [    {
       "id": "narendra-modi",
       "name": "Narendra Modi",
       "party": "BJP",
       "homeState": "Gujarat",
-      "image": "https://example.com/images/modi.jpg",
-      "partyLogo": "https://example.com/images/bjp-logo.png",
-      "primaryColor": "#FF9933",      "policies": [
+      "image": "Narendra_Modi.png",
+      "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
+      "primaryColor": "#FF9933","policies": [
         {
           "name": "Healthcare",
           "progress": 75,
@@ -79,15 +78,14 @@
           "bonus": 35
         }
       ]
-    },
-    {
+    },    {
       "id": "rahul-gandhi",
       "name": "Rahul Gandhi",
       "party": "INC",
       "homeState": "Uttar Pradesh",
-      "image": "https://example.com/images/rahul-gandhi.jpg",
-      "partyLogo": "https://example.com/images/inc-logo.png",
-      "primaryColor": "#138808",      "policies": [
+      "image": "Rahul_Gandhi.png",
+      "partyLogo": "Indian_National_Congress_hand_logo.svg",
+      "primaryColor": "#138808","policies": [
         {
           "name": "Social Welfare",
           "progress": 90,
@@ -118,16 +116,15 @@
           "progress": 80,
           "bonus": 25
         }
-      ]
-    },
-    {
+      ]    },    {
       "id": "atal-bihari-vajpayee",
       "name": "Atal Bihari Vajpayee",
       "party": "BJP",
-      "homeState": "Madhya Pradesh",
-      "image": "https://example.com/images/vajpayee.jpg",
-      "partyLogo": "https://example.com/images/bjp-logo.png",
-      "primaryColor": "#FF9933",      "policies": [
+      "homeState": "Uttar Pradesh",
+      "image": "Atal_Bihari_Vajpayee.png",
+      "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
+      "primaryColor": "#FF9933",
+      "policies": [
         {
           "name": "Education",
           "progress": 80,
@@ -163,9 +160,8 @@
       "id": "arvind-kejriwal",
       "name": "Arvind Kejriwal",
       "party": "AAP",
-      "homeState": "Delhi",
-      "image": "Arvind_Kejriwal.png",
-      "partyLogo": "https://example.com/images/aap-logo.png",
+      "homeState": "Delhi",      "image": "Arvind_Kejriwal.png",
+      "partyLogo": "Aam_Aadmi_Party_logo_(English).svg",
       "primaryColor": "#2196F3",
       "policies": [
         {
@@ -198,16 +194,16 @@
           "progress": 75,
           "bonus": 20
         }
-      ]
-    },
+      ]    },
     {
       "id": "mamata-banerjee",
       "name": "Mamata Banerjee",
       "party": "AITC",
       "homeState": "West Bengal",
-      "image": "https://example.com/images/mamata-banerjee.jpg",
-      "partyLogo": "https://example.com/images/aitc-logo.png",
-      "primaryColor": "#00AAFF",      "policies": [
+      "image": "Mamata_Banerjee.png",
+      "partyLogo": "All_India_Trinamool_Congress_logo_(3).svg",
+      "primaryColor": "#00AAFF",
+      "policies": [
         {
           "name": "Women's Empowerment",
           "progress": 95,
@@ -243,9 +239,8 @@
       "id": "nitish-kumar",
       "name": "Nitish Kumar",
       "party": "JD(U)",
-      "homeState": "Bihar",
-      "image": "Nitish_Kumar.png",
-      "partyLogo": "https://example.com/images/jdu-logo.png",
+      "homeState": "Bihar",      "image": "Nitish_Kumar.png",
+      "partyLogo": "Janata_Dal_(United)_Flag.svg",
       "primaryColor": "#5CB85C",
       "policies": [
         {
@@ -278,16 +273,16 @@
           "progress": 80,
           "bonus": 25
         }
-      ]
-    },
+      ]    },
     {
       "id": "yogi-adityanath",
       "name": "Yogi Adityanath",
       "party": "BJP",
       "homeState": "Uttar Pradesh",
-      "image": "https://example.com/images/yogi-adityanath.jpg",
-      "partyLogo": "https://example.com/images/bjp-logo.png",
-      "primaryColor": "#FF9933",      "policies": [
+      "image": "Yogi_Adityanath.png",
+      "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
+      "primaryColor": "#FF9933",
+      "policies": [
         {
           "name": "Healthcare",
           "progress": 80,

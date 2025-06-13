@@ -346,34 +346,12 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const politiciansData = await response.json();
-                
-                // Process politicians data to use local images where available
+                  // Process politicians data - use the image paths directly from JSON
                 politicians = politiciansData.politicians.map(politician => {
-                    const processedPolitician = { ...politician };                  // Convert image URLs to local paths for politicians we have images for
-                    if (politician.id === 'narendra-modi') {
-                        processedPolitician.image = 'Narendra_Modi.png';
-                        processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';
-                    } else if (politician.id === 'rahul-gandhi') {
-                        processedPolitician.image = 'Rahul_Gandhi.png';
-                        processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
-                    } else if (politician.id === 'manmohan-singh') {
-                        processedPolitician.image = 'Manmohan_Singh.png';
-                        processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
-                    } else if (politician.id === 'arvind-kejriwal') {
-                        processedPolitician.image = 'Arvind_Kejriwal.png';
-                        // Keep the AAP logo as placeholder for now
-                    } else if (politician.id === 'nitish-kumar') {
-                        processedPolitician.image = 'Nitish_Kumar.png';
-                        // Keep the JD(U) logo as placeholder for now
-                    } else if (politician.party === 'BJP') {
-                        processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';                        // Use placeholder for politicians we don't have images for
-                        processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;                    } else if (politician.party === 'INC') {
-                        processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
-                        processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;                    } else {
-                        // Use placeholders for other parties
-                        processedPolitician.image = `https://placehold.co/400x400/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
-                        processedPolitician.partyLogo = `https://placehold.co/100x100/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.party)}`;
-                    }
+                    const processedPolitician = { ...politician };
+                    
+                    // Use the image and logo paths directly from the JSON file
+                    // No need to override them here since they're already correct in the JSON
                     
                     return processedPolitician;
                 });
