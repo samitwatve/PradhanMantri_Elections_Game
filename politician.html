@@ -56,15 +56,17 @@
             z-index: 1;
             transform: translateZ(-200px) scale(0.8);
             opacity: 0.3;
-        }/* New styling for the policy items, separating label from bar */
+        }        /* Policy item styling for simple text display */
         .policy-item-wrapper {
             background-color: #fff7ed; /* Default very light orange background */
             border-radius: 0.375rem; /* Rounded corners for the block */
-            padding: 0.6rem 0.8rem; /* Padding around the label and bar */
+            padding: 0.6rem 0.8rem; /* Padding around the content */
             border: 1px solid #fed7aa; /* Default subtle orange border */
             overflow: hidden;
             transition: all 0.2s ease; /* Smooth transition for hover effects */
+            text-align: center;
         }
+        
         .policy-item-wrapper:hover {
             transform: translateY(-1px); /* Slight lift on hover */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -72,26 +74,17 @@
 
         .policy-label {
             color: #c2410c; /* Default darker orange text for policy title */
-            font-size: 0.95rem; /* Slightly smaller font */
-            font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.25rem; /* Small gap between label and bar */
+            font-size: 0.85rem; /* Policy name font size */
+            font-weight: 600;
+            margin-bottom: 0.25rem; /* Small gap between label and score */
+            line-height: 1.2;
         }
 
-        .progress-bar-container {
-            height: 6px; /* The new, skinnier height for the progress bar */
-            background-color: #ffedd5; /* Default lighter orange for the empty track */
-            border-radius: 0.25rem; /* Rounded corners for the bar track */
-            overflow: hidden; /* Ensure the fill stays within bounds */
-        }
-
-        .policy-progress-fill {
-            height: 100%; /* Fill takes full height of its container (6px) */
-            background-color: #f97316; /* Default vibrant orange for the 'filled' part of the bar */
-            border-radius: 0.25rem; /* Match parent's border radius */
-            transition: width 0.5s ease-out; /* Smooth transition for width changes */
+        .policy-score {
+            color: #ea580c; /* Slightly different orange for the score */
+            font-size: 0.75rem; /* Score font size */
+            font-weight: 700;
+            line-height: 1.1;
         }
           .page-header {
             text-align: center;
@@ -225,15 +218,48 @@
             border-radius: 50%;
             background: white;
             cursor: pointer;
-        }
-
-        .speed-slider::-moz-range-thumb {
+        }        .speed-slider::-moz-range-thumb {
             width: 16px;
             height: 16px;
             border-radius: 50%;
             background: white;
             cursor: pointer;
             border: none;
+        }
+
+        /* Responsive styles for policy grid */
+        .policies-grid {
+            gap: 0.375rem; /* Slightly smaller gap for 3 columns */
+        }
+
+        @media (max-width: 480px) {
+            .policies-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.5rem;
+            }
+            
+            .policy-item-wrapper {
+                padding: 0.3rem 0.5rem;
+            }
+            
+            .policy-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 768px) {
+            .policies-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 0.375rem;
+            }
+            
+            .policy-item-wrapper {
+                padding: 0.35rem 0.55rem;
+            }
+            
+            .policy-label {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -286,139 +312,75 @@
             <!-- Policy Section -->
             <div>
                 <h3 class="text-base font-bold text-gray-800 mb-2 text-center border-b-2 border-orange-200 pb-1">Key Policies</h3>
-                <div class="policies-grid grid grid-cols-2 gap-2">
+                <div class="policies-grid grid grid-cols-3 gap-2">
                     <!-- Policy items will be dynamically inserted here -->
                 </div>
             </div>
         </div>
     </template>    <script>        let politicians = [];
-        let currentIndex = 0;
+        let currentIndex = 0;        document.addEventListener('DOMContentLoaded', async function() {
+            // Fetch the politicians data from JSON file
+            try {
+                const response = await fetch('politicians-data.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const politiciansData = await response.json();
+                politicians = politiciansData.politicians;
+                console.log('Loaded politicians data:', politicians);
+                renderPoliticianCards(politicians);
+                setupNavigation();
+                updateCardPositions();
+            } catch (error) {
+                console.error('Error loading politicians data:', error);
+                // Fallback to embedded data
+                loadFallbackData();
+            }
+        });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fetch the politicians data            // Use embedded data instead of fetch to avoid CORS issues
-            const politiciansData = {
-                "politicians": [                    {
-                        "id": "narendra-modi",
-                        "name": "Narendra Modi",
-                        "party": "BJP",
-                        "homeState": "Gujarat",
-                        "image": "Narendra Modi.jpg",
-                        "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
-                        "primaryColor": "#FF9933",
-                        "policies": [
-                            { "name": "Hindutva", "progress": 95, "bonus": 40 },
-                            { "name": "Infrastructure", "progress": 85, "bonus": 35 },
-                            { "name": "Economic Liberalization", "progress": 80, "bonus": 30 },
-                            { "name": "National Defense", "progress": 90, "bonus": 25 }
-                        ]
-                    },                    {
-                        "id": "manmohan-singh",
-                        "name": "Manmohan Singh",
-                        "party": "INC",
-                        "homeState": "Punjab",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Manmohan",
-                        "partyLogo": "Indian_National_Congress_hand_logo.svg",
-                        "primaryColor": "#138808",
-                        "policies": [
-                            { "name": "Economic Liberalization", "progress": 95, "bonus": 40 },
-                            { "name": "Education", "progress": 85, "bonus": 30 },
-                            { "name": "Secularism", "progress": 90, "bonus": 35 },
-                            { "name": "Public Sector", "progress": 75, "bonus": 25 }
-                        ]
-                    },                    {
-                        "id": "rahul-gandhi",
-                        "name": "Rahul Gandhi",
-                        "party": "INC",
-                        "homeState": "Uttar Pradesh",
-                        "image": "Rahul_Gandhi.png",
-                        "partyLogo": "Indian_National_Congress_hand_logo.svg",
-                        "primaryColor": "#138808",
-                        "policies": [
-                            { "name": "Social Welfare", "progress": 90, "bonus": 35 },
-                            { "name": "Women's Empowerment", "progress": 85, "bonus": 30 },
-                            { "name": "Land Reforms", "progress": 80, "bonus": 25 },
-                            { "name": "Anti-Corruption", "progress": 75, "bonus": 20 }
-                        ]
-                    },                    {
-                        "id": "atal-bihari-vajpayee",
-                        "name": "Atal Bihari Vajpayee",
-                        "party": "BJP",
-                        "homeState": "Madhya Pradesh",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Vajpayee",
-                        "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
-                        "primaryColor": "#FF9933",
-                        "policies": [
-                            { "name": "National Defense", "progress": 95, "bonus": 40 },
-                            { "name": "Infrastructure", "progress": 90, "bonus": 35 },
-                            { "name": "Hindi Language", "progress": 80, "bonus": 25 },
-                            { "name": "Economic Liberalization", "progress": 85, "bonus": 30 }
-                        ]
-                    },
-                    {
-                        "id": "arvind-kejriwal",
-                        "name": "Arvind Kejriwal",
-                        "party": "AAP",
-                        "homeState": "Delhi",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Kejriwal",
-                        "partyLogo": "https://placehold.co/40x40/2196F3/FFFFFF?text=AAP",
-                        "primaryColor": "#2196F3",
-                        "policies": [
-                            { "name": "Anti-Corruption", "progress": 95, "bonus": 40 },
-                            { "name": "Education", "progress": 90, "bonus": 35 },
-                            { "name": "Social Welfare", "progress": 85, "bonus": 30 },
-                            { "name": "State's Rights", "progress": 80, "bonus": 25 }
-                        ]
-                    },
-                    {
-                        "id": "mamata-banerjee",
-                        "name": "Mamata Banerjee",
-                        "party": "AITC",
-                        "homeState": "West Bengal",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Mamata",
-                        "partyLogo": "https://placehold.co/40x40/00AAFF/FFFFFF?text=AITC",
-                        "primaryColor": "#00AAFF",
-                        "policies": [
-                            { "name": "Women's Empowerment", "progress": 95, "bonus": 40 },
-                            { "name": "Social Welfare", "progress": 90, "bonus": 35 },
-                            { "name": "State's Rights", "progress": 85, "bonus": 30 },
-                            { "name": "Secularism", "progress": 80, "bonus": 25 }
-                        ]
-                    },
-                    {
-                        "id": "nitish-kumar",
-                        "name": "Nitish Kumar",
-                        "party": "JD(U)",
-                        "homeState": "Bihar",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Nitish",
-                        "partyLogo": "https://placehold.co/40x40/5CB85C/FFFFFF?text=JDU",
-                        "primaryColor": "#5CB85C",
-                        "policies": [
-                            { "name": "Women's Empowerment", "progress": 90, "bonus": 35 },
-                            { "name": "Social Welfare", "progress": 85, "bonus": 30 },
-                            { "name": "Education", "progress": 80, "bonus": 25 },
-                            { "name": "Caste Reservation", "progress": 75, "bonus": 20 }
-                        ]
-                    },                    {
-                        "id": "yogi-adityanath",
-                        "name": "Yogi Adityanath",
-                        "party": "BJP",
-                        "homeState": "Uttar Pradesh",
-                        "image": "https://placehold.co/400x192/E2E8F0/A0AEC0?text=Yogi",
-                        "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
-                        "primaryColor": "#FF9933",
-                        "policies": [
-                            { "name": "Hindutva", "progress": 95, "bonus": 40 },
-                            { "name": "National Defense", "progress": 85, "bonus": 30 },
-                            { "name": "Anti-Corruption", "progress": 80, "bonus": 25 },
-                            { "name": "Hindi Language", "progress": 90, "bonus": 35 }
-                        ]
-                    }
-                ]
-            };            politicians = politiciansData.politicians;
+        function loadFallbackData() {
+            // Fallback embedded data
+            politicians = [
+                {
+                    "id": "narendra-modi",
+                    "name": "Narendra Modi",
+                    "party": "BJP",
+                    "homeState": "Gujarat",
+                    "image": "Narendra Modi.jpg",
+                    "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
+                    "primaryColor": "#FF9933",
+                    "policies": [
+                        { "name": "Healthcare", "progress": 75, "bonus": 25 },
+                        { "name": "Infrastructure", "progress": 85, "bonus": 35 },
+                        { "name": "Economic Liberalization", "progress": 80, "bonus": 30 },
+                        { "name": "Anti-Corruption", "progress": 70, "bonus": 20 },
+                        { "name": "Hindutva", "progress": 95, "bonus": 40 },
+                        { "name": "National Defense", "progress": 90, "bonus": 25 }
+                    ]
+                },
+                {
+                    "id": "rahul-gandhi",
+                    "name": "Rahul Gandhi",
+                    "party": "INC",
+                    "homeState": "Uttar Pradesh",
+                    "image": "Rahul_Gandhi.png",
+                    "partyLogo": "Indian_National_Congress_hand_logo.svg",
+                    "primaryColor": "#138808",
+                    "policies": [
+                        { "name": "Social Welfare", "progress": 90, "bonus": 35 },
+                        { "name": "Land Reforms", "progress": 80, "bonus": 25 },
+                        { "name": "Privatization", "progress": 65, "bonus": 15 },
+                        { "name": "Anti-Corruption", "progress": 75, "bonus": 20 },
+                        { "name": "Secularism", "progress": 85, "bonus": 30 },
+                        { "name": "Caste Reservation", "progress": 80, "bonus": 25 }
+                    ]
+                }
+            ];
+            console.log('Using fallback data:', politicians);
             renderPoliticianCards(politicians);
             setupNavigation();
             updateCardPositions();
-        });
+        }
 
         function renderPoliticianCards(politicians) {
             const container = document.getElementById('card-stack');
@@ -459,16 +421,13 @@
                 // Apply color to party affiliation text
                 const partyText = card.querySelector('.politician-party');
                 partyText.style.color = primaryColor;
-                
-                // Render policy items
+                  // Render policy items
                 const policiesGrid = card.querySelector('.policies-grid');
                 politician.policies.forEach(policy => {                    const policyItem = document.createElement('div');
                     policyItem.className = 'policy-item-wrapper';
                     policyItem.innerHTML = `
-                        <p class="policy-label" style="font-size: 0.8rem;">${policy.name} <span class="font-bold text-xs">+${policy.bonus}%</span></p>
-                        <div class="progress-bar-container">
-                            <div class="policy-progress-fill" style="width: ${policy.progress}%"></div>
-                        </div>
+                        <p class="policy-label" style="font-size: 0.8rem;">${policy.name}</p>
+                        <p class="policy-score" style="font-size: 0.75rem; font-weight: bold;">Score: ${policy.progress}% (+${policy.bonus}%)</p>
                     `;
                     
                     // Apply styling to the newly created policy item
@@ -479,11 +438,8 @@
                     const label = policyItem.querySelector('.policy-label');
                     label.style.color = darkerShade;
                     
-                    const progressContainer = policyItem.querySelector('.progress-bar-container');
-                    progressContainer.style.backgroundColor = lightenColor(primaryColor, 35);
-                    
-                    const progressFill = policyItem.querySelector('.policy-progress-fill');
-                    progressFill.style.backgroundColor = primaryColor;
+                    const scoreText = policyItem.querySelector('.policy-score');
+                    scoreText.style.color = primaryColor;
                     
                     policiesGrid.appendChild(policyItem);
                 });

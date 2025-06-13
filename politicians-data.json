@@ -7,12 +7,11 @@
       "homeState": "Gujarat",
       "image": "https://example.com/images/modi.jpg",
       "partyLogo": "https://example.com/images/bjp-logo.png",
-      "primaryColor": "#FF9933",
-      "policies": [
+      "primaryColor": "#FF9933",      "policies": [
         {
-          "name": "Hindutva",
-          "progress": 95,
-          "bonus": 40
+          "name": "Healthcare",
+          "progress": 75,
+          "bonus": 25
         },
         {
           "name": "Infrastructure",
@@ -23,6 +22,16 @@
           "name": "Economic Liberalization",
           "progress": 80,
           "bonus": 30
+        },
+        {
+          "name": "Anti-Corruption",
+          "progress": 70,
+          "bonus": 20
+        },
+        {
+          "name": "Hindutva",
+          "progress": 95,
+          "bonus": 40
         },
         {
           "name": "National Defense",
@@ -38,15 +47,24 @@
       "homeState": "Punjab",
       "image": "https://example.com/images/manmohan-singh.jpg",
       "partyLogo": "https://example.com/images/inc-logo.png",
-      "primaryColor": "#138808",
-      "policies": [
+      "primaryColor": "#138808",      "policies": [
+        {
+          "name": "Education",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Agricultural Reforms",
+          "progress": 80,
+          "bonus": 25
+        },
         {
           "name": "Economic Liberalization",
           "progress": 95,
           "bonus": 40
         },
         {
-          "name": "Education",
+          "name": "Press Freedom",
           "progress": 85,
           "bonus": 30
         },
@@ -56,7 +74,7 @@
           "bonus": 35
         },
         {
-          "name": "Public Sector",
+          "name": "State's Rights",
           "progress": 75,
           "bonus": 25
         }
@@ -69,17 +87,11 @@
       "homeState": "Uttar Pradesh",
       "image": "https://example.com/images/rahul-gandhi.jpg",
       "partyLogo": "https://example.com/images/inc-logo.png",
-      "primaryColor": "#138808",
-      "policies": [
+      "primaryColor": "#138808",      "policies": [
         {
           "name": "Social Welfare",
           "progress": 90,
           "bonus": 35
-        },
-        {
-          "name": "Women's Empowerment",
-          "progress": 85,
-          "bonus": 30
         },
         {
           "name": "Land Reforms",
@@ -87,9 +99,24 @@
           "bonus": 25
         },
         {
+          "name": "Privatization",
+          "progress": 65,
+          "bonus": 15
+        },
+        {
           "name": "Anti-Corruption",
           "progress": 75,
           "bonus": 20
+        },
+        {
+          "name": "Secularism",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Caste Reservation",
+          "progress": 80,
+          "bonus": 25
         }
       ]
     },
@@ -100,12 +127,11 @@
       "homeState": "Madhya Pradesh",
       "image": "https://example.com/images/vajpayee.jpg",
       "partyLogo": "https://example.com/images/bjp-logo.png",
-      "primaryColor": "#FF9933",
-      "policies": [
+      "primaryColor": "#FF9933",      "policies": [
         {
-          "name": "National Defense",
-          "progress": 95,
-          "bonus": 40
+          "name": "Education",
+          "progress": 80,
+          "bonus": 25
         },
         {
           "name": "Infrastructure",
@@ -113,14 +139,24 @@
           "bonus": 35
         },
         {
+          "name": "Economic Liberalization",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Judicial Activism",
+          "progress": 75,
+          "bonus": 20
+        },
+        {
           "name": "Hindi Language",
           "progress": 80,
           "bonus": 25
         },
         {
-          "name": "Economic Liberalization",
-          "progress": 85,
-          "bonus": 30
+          "name": "National Defense",
+          "progress": 95,
+          "bonus": 40
         }
       ]
     },
@@ -131,22 +167,31 @@
       "homeState": "Delhi",
       "image": "https://example.com/images/kejriwal.jpg",
       "partyLogo": "https://example.com/images/aap-logo.png",
-      "primaryColor": "#2196F3",
-      "policies": [
-        {
-          "name": "Anti-Corruption",
-          "progress": 95,
-          "bonus": 40
-        },
+      "primaryColor": "#2196F3",      "policies": [
         {
           "name": "Education",
           "progress": 90,
           "bonus": 35
         },
         {
-          "name": "Social Welfare",
+          "name": "Land Acquisition",
+          "progress": 70,
+          "bonus": 20
+        },
+        {
+          "name": "Digital Transformation",
           "progress": 85,
           "bonus": 30
+        },
+        {
+          "name": "Anti-Corruption",
+          "progress": 95,
+          "bonus": 40
+        },
+        {
+          "name": "Secularism",
+          "progress": 80,
+          "bonus": 25
         },
         {
           "name": "State's Rights",
@@ -162,27 +207,36 @@
       "homeState": "West Bengal",
       "image": "https://example.com/images/mamata-banerjee.jpg",
       "partyLogo": "https://example.com/images/aitc-logo.png",
-      "primaryColor": "#00AAFF",
-      "policies": [
+      "primaryColor": "#00AAFF",      "policies": [
         {
           "name": "Women's Empowerment",
           "progress": 95,
           "bonus": 40
         },
         {
-          "name": "Social Welfare",
-          "progress": 90,
-          "bonus": 35
-        },
-        {
-          "name": "State's Rights",
+          "name": "Agricultural Reforms",
           "progress": 85,
           "bonus": 30
+        },
+        {
+          "name": "Public Sector",
+          "progress": 80,
+          "bonus": 25
+        },
+        {
+          "name": "Press Freedom",
+          "progress": 75,
+          "bonus": 20
         },
         {
           "name": "Secularism",
           "progress": 80,
           "bonus": 25
+        },
+        {
+          "name": "State's Rights",
+          "progress": 85,
+          "bonus": 30
         }
       ]
     },
@@ -193,22 +247,31 @@
       "homeState": "Bihar",
       "image": "https://example.com/images/nitish-kumar.jpg",
       "partyLogo": "https://example.com/images/jdu-logo.png",
-      "primaryColor": "#5CB85C",
-      "policies": [
-        {
-          "name": "Women's Empowerment",
-          "progress": 90,
-          "bonus": 35
-        },
-        {
-          "name": "Social Welfare",
-          "progress": 85,
-          "bonus": 30
-        },
+      "primaryColor": "#5CB85C",      "policies": [
         {
           "name": "Education",
           "progress": 80,
           "bonus": 25
+        },
+        {
+          "name": "Land Reforms",
+          "progress": 75,
+          "bonus": 20
+        },
+        {
+          "name": "Public Sector",
+          "progress": 70,
+          "bonus": 18
+        },
+        {
+          "name": "Judicial Activism",
+          "progress": 65,
+          "bonus": 15
+        },
+        {
+          "name": "Indigenous Rights",
+          "progress": 85,
+          "bonus": 30
         },
         {
           "name": "Caste Reservation",
@@ -224,27 +287,36 @@
       "homeState": "Uttar Pradesh",
       "image": "https://example.com/images/yogi-adityanath.jpg",
       "partyLogo": "https://example.com/images/bjp-logo.png",
-      "primaryColor": "#FF9933",
-      "policies": [
+      "primaryColor": "#FF9933",      "policies": [
+        {
+          "name": "Healthcare",
+          "progress": 80,
+          "bonus": 25
+        },
+        {
+          "name": "Infrastructure",
+          "progress": 85,
+          "bonus": 30
+        },
+        {
+          "name": "Privatization",
+          "progress": 75,
+          "bonus": 20
+        },
+        {
+          "name": "Law and Order",
+          "progress": 90,
+          "bonus": 35
+        },
         {
           "name": "Hindutva",
           "progress": 95,
           "bonus": 40
         },
         {
-          "name": "National Defense",
+          "name": "Uniform Civil Code",
           "progress": 85,
           "bonus": 30
-        },
-        {
-          "name": "Anti-Corruption",
-          "progress": 80,
-          "bonus": 25
-        },
-        {
-          "name": "Hindi Language",
-          "progress": 90,
-          "bonus": 35
         }
       ]
     }
