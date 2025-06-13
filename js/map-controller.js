@@ -261,9 +261,7 @@ class MapController {
         // Regular campaign logic
         // Check if state is already selected
         const isSelected = this.selectedStates.has(stateId);
-        console.log(`${stateId} is currently selected:`, isSelected);
-
-        // Check if player 1 has enough funds
+        console.log(`${stateId} is currently selected:`, isSelected);        // Check if player 1 has enough funds
         if (player1.canSpend(cost)) {
             // Create ripple effect
             this.createRippleEffect(point.x, point.y, 1);
@@ -280,6 +278,11 @@ class MapController {
                 console.log(`Deselecting state: ${stateId}`);
                 this.deselectState(stateId);
             }
+            
+            // Immediately update state info panel to show changes
+            window.dispatchEvent(new CustomEvent('stateHover', {
+                detail: { stateId: stateId }
+            }));
         } else {
             // Visual feedback for insufficient funds
             stateElement.classList.add('error');

@@ -187,8 +187,7 @@ class StateGroups {
             detail: { stateId: utId }
         });
         window.dispatchEvent(unhoverEvent);
-    }    
-    handleUTClick(event) {
+    }      handleUTClick(event) {
         const button = event.target;
         const utId = button.dataset.ut;
         
@@ -208,6 +207,12 @@ class StateGroups {
         });
         console.log('Dispatching stateClick event:', clickEvent);
         window.dispatchEvent(clickEvent);
+        
+        // Also dispatch a hover event to immediately update the state info
+        const hoverEvent = new CustomEvent('stateHover', {
+            detail: { stateId: utId }
+        });
+        window.dispatchEvent(hoverEvent);
     }    
     getStatesInGroup(groupName) {
         return this.groups.get(groupName) || [];

@@ -7,11 +7,19 @@ class StateInfo {
         this.statesDetails = document.querySelector('.states-details');
         this.statePopularity = new Map(); // Store popularity for each state
         this.stateActions = new Map(); // Store actions taken in each state
+        this.stateGroups = null; // Cache state groups module
+        this.currentStateId = null; // Track currently displayed state
+        this.stateInfoElements = null; // Cache DOM elements for faster updates
         this.initialize();
-    }    async initialize() {
+    }async initialize() {
         try {
             const response = await fetch('states_data.json');
             this.statesData = await response.json();
+            
+            // Pre-load state groups module for better performance
+            const { stateGroups } = await import('./state-groups.js');
+            this.stateGroups = stateGroups;
+            
             this.setupEventListeners();
             
             // Initialize states with balanced popularity values
@@ -60,6 +68,12 @@ class StateInfo {
         window.addEventListener('stateHover', (event) => {
             console.log('Hover event received for state:', event.detail.stateId);
             const stateId = event.detail.stateId;
+            this.updateStateInfo(stateId);
+        });        // Listen for state clicks to update info immediately
+        window.addEventListener('stateClick', (event) => {
+            console.log('Click event received for state:', event.detail.stateId);
+            const stateId = event.detail.stateId;
+            // Update state info immediately after click (no delay needed now)
             this.updateStateInfo(stateId);
         });
 
@@ -440,7 +454,7 @@ class StateInfo {
                 this.updateStateInfo(stateId);
             }
         }
-    }    async updateStateInfo(stateId) {
+    }    updateStateInfo(stateId) {
         if (!this.statesData || !this.statesDetails) {
             console.log('Missing statesData or statesDetails');
             return;
@@ -454,51 +468,69 @@ class StateInfo {
 
         console.log('Updating state info for:', stateData.State);
 
-        // Get the state groups
-        const groups = Object.entries(stateData)
-            .filter(([key, value]) => value === "TRUE" && key !== "UnionTerritory")
-            .map(([key]) => this.formatGroupName(key));
-
         // Initialize or get state data
         const state = this.initializeState(stateId);
         const popularity = state.popularity;
         
-        // Import state groups to get current domination status
-        const { stateGroups } = await import('./state-groups.js');
-        const stateGroupsList = stateGroups.getGroupsForState(stateId);
-        
-        // Format the groups list with domination status
-        const groupsWithStatus = stateGroupsList.map(groupName => {
-            const dominationStatus = stateGroups.groupDominationStatus.get(groupName);
-            let marker = '';
-            if (dominationStatus === 1) {
-                marker = ' 🟠'; // Orange circle for Player 1
-            } else if (dominationStatus === 2) {
-                marker = ' 🟢'; // Green circle for Player 2
-            }
-            return `${groupName}${marker}`;
-        });
+        // Get state groups list and domination status (synchronously now)
+        let groupsWithStatus = [];
+        if (this.stateGroups) {
+            const stateGroupsList = this.stateGroups.getGroupsForState(stateId);
+            
+            // Format the groups list with domination status
+            groupsWithStatus = stateGroupsList.map(groupName => {
+                const dominationStatus = this.stateGroups.groupDominationStatus.get(groupName);
+                let marker = '';
+                if (dominationStatus === 1) {
+                    marker = ' 🟠'; // Orange circle for Player 1
+                } else if (dominationStatus === 2) {
+                    marker = ' 🟢'; // Green circle for Player 2
+                }
+                return `${groupName}${marker}`;
+            });
+        }
 
+        // If this is the same state as currently displayed, just update the values
+        if (this.currentStateId === stateId && this.stateInfoElements) {
+            this.stateInfoElements.p1Value.textContent = `P1: ${Math.round(popularity.player1)}%`;
+            this.stateInfoElements.p2Value.textContent = `P2: ${Math.round(popularity.player2)}%`;
+            this.stateInfoElements.othersValue.textContent = `Others: ${Math.round(popularity.others)}%`;
+            this.stateInfoElements.groupsList.textContent = groupsWithStatus.join(' • ');
+            this.stateInfoElements.groupsCount.textContent = `Groups (${groupsWithStatus.length})`;
+            return;
+        }
+
+        // Full rebuild for new state
+        this.currentStateId = stateId;
         this.statesDetails.innerHTML = `
             <div class="state-info">
                 <h4>${stateData.State} (${stateData.LokSabhaSeats} seats)</h4>
                   <div class="popularity-section">
                     <h5>Current Popularity</h5>
                     <div class="info-row">
-                        <span>P1: ${Math.round(popularity.player1)}%</span>
-                        <span>P2: ${Math.round(popularity.player2)}%</span>
-                        <span>Others: ${Math.round(popularity.others)}%</span>
+                        <span class="p1-value">P1: ${Math.round(popularity.player1)}%</span>
+                        <span class="p2-value">P2: ${Math.round(popularity.player2)}%</span>
+                        <span class="others-value">Others: ${Math.round(popularity.others)}%</span>
                     </div>
                 </div>
 
                 <div class="groups-section">
-                    <h5>Groups (${groupsWithStatus.length})</h5>
+                    <h5 class="groups-count">Groups (${groupsWithStatus.length})</h5>
                     <div class="groups-list">
                         ${groupsWithStatus.join(' • ')}
                     </div>
                 </div>
             </div>
         `;
+        
+        // Cache DOM elements for faster future updates
+        this.stateInfoElements = {
+            p1Value: this.statesDetails.querySelector('.p1-value'),
+            p2Value: this.statesDetails.querySelector('.p2-value'),
+            othersValue: this.statesDetails.querySelector('.others-value'),
+            groupsList: this.statesDetails.querySelector('.groups-list'),
+            groupsCount: this.statesDetails.querySelector('.groups-count')
+        };
     }
 
     formatGroupName(key) {
