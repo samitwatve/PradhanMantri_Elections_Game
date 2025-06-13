@@ -279,6 +279,157 @@ class StateInfo {
         console.log(`Recorded rally action for player ${playerId} in ${stateId}. Total rallies: P1=${actions.player1Rallies}, P2=${actions.player2Rallies}`);
     }
 
+    recordStateAction(stateId, playerId, cost) {
+        console.log(`Recording state action for player ${playerId} in state ${stateId} with cost ${cost}`);
+        
+        if (!this.stateActions.has(stateId)) {
+            this.stateActions.set(stateId, {
+                player1Spent: 0,
+                player2Spent: 0,
+                player1Rallies: 0,
+                player2Rallies: 0
+            });
+        }
+
+        const actions = this.stateActions.get(stateId);
+        if (playerId === 1) {
+            actions.player1Spent += cost;
+        } else if (playerId === 2) {
+            actions.player2Spent += cost;
+        }
+
+        this.stateActions.set(stateId, actions);
+        console.log(`Updated state actions for ${stateId}. P1 spent: ${actions.player1Spent}M, P2 spent: ${actions.player2Spent}M`);        // Calculate popularity boost based on spending
+        // Base boost of 5% per campaign action, with minimal diminishing returns
+        const totalSpent = playerId === 1 ? actions.player1Spent : actions.player2Spent;
+        const diminishingFactor = Math.max(0.8, 1 - (totalSpent * 0.005)); // Very mild reduction over time
+        const popularityBoost = 5 * diminishingFactor;
+
+        // Update state popularity
+        this.updateStatePopularityFromCampaign(stateId, playerId, popularityBoost);
+
+        // Log the action
+        const playerName = playerId === 1 ? 'BJP' : 'INC';
+        const stateData = this.statesData.find(state => state.SvgId === stateId);
+        const stateName = stateData ? stateData.State : stateId;
+        
+        try {
+            import('./actions-log.js').then(({ actionsLog }) => {
+                actionsLog.addAction(`${playerName} campaigned in ${stateName} (${cost}M spent, +${popularityBoost.toFixed(1)}% popularity)`);
+            });
+        } catch (error) {
+            console.log(`${playerName} campaigned in ${stateName} (${cost}M spent, +${popularityBoost.toFixed(1)}% popularity)`);
+        }
+    }
+
+    updateStatePopularityFromCampaign(stateId, playerId, popularityBoost) {
+        if (!this.statePopularity.has(stateId)) {
+            this.initializeState(stateId);
+        }
+
+        const popularity = this.statePopularity.get(stateId);
+        
+        // Create a new object to ensure reactivity
+        const newPopularity = { ...popularity };
+
+        // Campaign gives a fixed percentage boost with diminishing returns
+        if (playerId === 1) {
+            // Player 1 gets the campaign boost
+            newPopularity.player1 = Math.min(100, Math.round(popularity.player1 + popularityBoost));
+            
+            // The boost comes proportionally from player2 and others
+            const totalOthers = popularity.player2 + popularity.others;
+            
+            if (totalOthers > 0) {
+                const p2Share = popularity.player2 / totalOthers;
+                const othersShare = popularity.others / totalOthers;
+                
+                const p2Decrease = Math.round(popularityBoost * p2Share * 10) / 10;
+                const othersDecrease = Math.round(popularityBoost * othersShare * 10) / 10;
+                
+                newPopularity.player2 = Math.max(0, Math.round((popularity.player2 - p2Decrease) * 10) / 10);
+                newPopularity.others = Math.max(0, Math.round((popularity.others - othersDecrease) * 10) / 10);
+            } else {
+                newPopularity.player2 = 0;
+                newPopularity.others = 0;
+            }
+            
+        } else if (playerId === 2) {
+            // Player 2 gets the campaign boost
+            newPopularity.player2 = Math.min(100, Math.round(popularity.player2 + popularityBoost));
+            
+            // The boost comes proportionally from player1 and others
+            const totalOthers = popularity.player1 + popularity.others;
+            
+            if (totalOthers > 0) {
+                const p1Share = popularity.player1 / totalOthers;
+                const othersShare = popularity.others / totalOthers;
+                
+                const p1Decrease = Math.round(popularityBoost * p1Share * 10) / 10;
+                const othersDecrease = Math.round(popularityBoost * othersShare * 10) / 10;
+                
+                newPopularity.player1 = Math.max(0, Math.round((popularity.player1 - p1Decrease) * 10) / 10);
+                newPopularity.others = Math.max(0, Math.round((popularity.others - othersDecrease) * 10) / 10);
+            } else {
+                newPopularity.player1 = 0;
+                newPopularity.others = 0;
+            }
+        }
+
+        // Ensure total equals exactly 100%
+        let total = newPopularity.player1 + newPopularity.player2 + newPopularity.others;
+        
+        if (Math.abs(total - 100) > 0.01) {
+            // Adjust the "others" value to make total exactly 100
+            newPopularity.others = Math.max(0, Math.round((100 - newPopularity.player1 - newPopularity.player2) * 10) / 10);
+            
+            // If others is 0 and we still need adjustment, distribute between players
+            if (newPopularity.others === 0) {
+                total = newPopularity.player1 + newPopularity.player2;
+                if (total < 100) {
+                    // Add the difference to the active player
+                    if (playerId === 1) {
+                        newPopularity.player1 += (100 - total);
+                    } else {
+                        newPopularity.player2 += (100 - total);
+                    }
+                } else if (total > 100) {
+                    // Reduce the inactive player proportionally
+                    if (playerId === 1 && newPopularity.player2 > 0) {
+                        newPopularity.player2 = Math.max(0, newPopularity.player2 - (total - 100));
+                    } else if (playerId === 2 && newPopularity.player1 > 0) {
+                        newPopularity.player1 = Math.max(0, newPopularity.player1 - (total - 100));
+                    }
+                }
+            }
+        }
+
+        console.log(`Campaign popularity update for ${stateId}: Player ${playerId} +${popularityBoost.toFixed(1)}%`);
+        console.log('Old popularity:', popularity);
+        console.log('New popularity:', newPopularity);
+
+        // Update the popularity
+        this.statePopularity.set(stateId, newPopularity);
+        
+        // Emit an event to notify the map controller
+        window.dispatchEvent(new CustomEvent('popularityChanged', {
+            detail: {
+                stateId,
+                popularity: newPopularity
+            }
+        }));
+        
+        // Check for group domination after campaign
+        setTimeout(async () => {
+            try {
+                const { stateGroups } = await import('./state-groups.js');
+                stateGroups.scheduleGroupDominationCheck();
+            } catch (error) {
+                console.error('Error scheduling group domination check after campaign:', error);
+            }
+        }, 100);
+    }
+    
     refreshStateDisplay(stateId) {
         const currentStateElement = this.statesDetails.querySelector('.state-info h4');
         if (currentStateElement) {
