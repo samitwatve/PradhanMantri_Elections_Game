@@ -326,8 +326,35 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const politiciansData = await response.json();
-                politicians = politiciansData.politicians;
-                console.log('Loaded politicians data:', politicians);
+                
+                // Process politicians data to use local images where available
+                politicians = politiciansData.politicians.map(politician => {
+                    const processedPolitician = { ...politician };
+                    
+                    // Convert image URLs to local paths for politicians we have images for
+                    if (politician.id === 'narendra-modi') {
+                        processedPolitician.image = 'Narendra Modi.jpg';
+                        processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';
+                    } else if (politician.id === 'rahul-gandhi') {
+                        processedPolitician.image = 'Rahul_Gandhi.png';
+                        processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
+                    } else if (politician.party === 'BJP') {
+                        processedPolitician.partyLogo = 'Bharatiya_Janata_Party_(icon).svg';
+                        // Use placeholder for politicians we don't have images for
+                        processedPolitician.image = `https://placehold.co/400x300/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
+                    } else if (politician.party === 'INC') {
+                        processedPolitician.partyLogo = 'Indian_National_Congress_hand_logo.svg';
+                        processedPolitician.image = `https://placehold.co/400x300/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
+                    } else {
+                        // Use placeholders for other parties
+                        processedPolitician.image = `https://placehold.co/400x300/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.name)}`;
+                        processedPolitician.partyLogo = `https://placehold.co/100x100/${politician.primaryColor.substring(1)}/FFFFFF?text=${encodeURIComponent(politician.party)}`;
+                    }
+                    
+                    return processedPolitician;
+                });
+                
+                console.log('Loaded and processed politicians data:', politicians);
                 renderPoliticianCards(politicians);
                 setupNavigation();
                 updateCardPositions();
@@ -336,50 +363,16 @@
                 // Fallback to embedded data
                 loadFallbackData();
             }
-        });
-
-        function loadFallbackData() {
-            // Fallback embedded data
-            politicians = [
-                {
-                    "id": "narendra-modi",
-                    "name": "Narendra Modi",
-                    "party": "BJP",
-                    "homeState": "Gujarat",
-                    "image": "Narendra Modi.jpg",
-                    "partyLogo": "Bharatiya_Janata_Party_(icon).svg",
-                    "primaryColor": "#FF9933",
-                    "policies": [
-                        { "name": "Healthcare", "progress": 75, "bonus": 25 },
-                        { "name": "Infrastructure", "progress": 85, "bonus": 35 },
-                        { "name": "Economic Liberalization", "progress": 80, "bonus": 30 },
-                        { "name": "Anti-Corruption", "progress": 70, "bonus": 20 },
-                        { "name": "Hindutva", "progress": 95, "bonus": 40 },
-                        { "name": "National Defense", "progress": 90, "bonus": 25 }
-                    ]
-                },
-                {
-                    "id": "rahul-gandhi",
-                    "name": "Rahul Gandhi",
-                    "party": "INC",
-                    "homeState": "Uttar Pradesh",
-                    "image": "Rahul_Gandhi.png",
-                    "partyLogo": "Indian_National_Congress_hand_logo.svg",
-                    "primaryColor": "#138808",
-                    "policies": [
-                        { "name": "Social Welfare", "progress": 90, "bonus": 35 },
-                        { "name": "Land Reforms", "progress": 80, "bonus": 25 },
-                        { "name": "Privatization", "progress": 65, "bonus": 15 },
-                        { "name": "Anti-Corruption", "progress": 75, "bonus": 20 },
-                        { "name": "Secularism", "progress": 85, "bonus": 30 },
-                        { "name": "Caste Reservation", "progress": 80, "bonus": 25 }
-                    ]
-                }
-            ];
-            console.log('Using fallback data:', politicians);
-            renderPoliticianCards(politicians);
-            setupNavigation();
-            updateCardPositions();
+        });        function loadFallbackData() {
+            console.error('Could not load politicians data from JSON file');
+            // Display error message to user
+            const container = document.getElementById('card-stack');
+            container.innerHTML = `
+                <div style="text-align: center; color: white; padding: 2rem;">
+                    <h3>Error loading politicians data</h3>
+                    <p>Please ensure politicians-data.json file is available</p>
+                </div>
+            `;
         }
 
         function renderPoliticianCards(politicians) {
@@ -427,7 +420,7 @@
                     policyItem.className = 'policy-item-wrapper';
                     policyItem.innerHTML = `
                         <p class="policy-label" style="font-size: 0.8rem;">${policy.name}</p>
-                        <p class="policy-score" style="font-size: 0.75rem; font-weight: bold;">Score: ${policy.progress}% (+${policy.bonus}%)</p>
+                        <p class="policy-score" style="font-size: 0.75rem; font-weight: bold;">+${policy.bonus}%</p>
                     `;
                     
                     // Apply styling to the newly created policy item
