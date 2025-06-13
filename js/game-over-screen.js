@@ -34,9 +34,7 @@ class GameOverScreen {
                             <div class="winner-details" id="winner-details"></div>
                         </div>
                     </div>
-                    
-                    <div class="parliament-chart-container">
-                        <h3>Parliament Composition</h3>
+                      <div class="parliament-chart-container">
                         <div id="parliament-chart" class="parliament-chart"></div>
                         <div class="chart-legend">
                             <div class="legend-item">
@@ -53,11 +51,8 @@ class GameOverScreen {
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="game-over-actions">
+                </div>                <div class="game-over-actions">
                     <button id="play-again-btn" class="game-over-btn primary">Play Again</button>
-                    <button id="close-results-btn" class="game-over-btn secondary">Close</button>
                 </div>
             </div>
         `;
@@ -82,17 +77,11 @@ class GameOverScreen {
             this.finalResults = event.detail;
         });
     }
-    
-    setupButtonListeners() {
+      setupButtonListeners() {
         const playAgainBtn = document.getElementById('play-again-btn');
-        const closeBtn = document.getElementById('close-results-btn');
         
         if (playAgainBtn) {
             playAgainBtn.addEventListener('click', () => this.restartGame());
-        }
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.hide());
         }
         
         // Allow clicking overlay background to close
@@ -303,9 +292,7 @@ class GameOverScreen {
         setTimeout(() => {
             this.overlayElement.style.display = 'none';
         }, 300);
-    }
-    
-    restartGame() {
+    }    restartGame() {
         // Reload the page to restart the game
         window.location.reload();
     }
