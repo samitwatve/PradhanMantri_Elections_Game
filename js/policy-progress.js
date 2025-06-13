@@ -1,11 +1,11 @@
 // Object to store progress for each policy and player
 const policyProgress = {
     social: Array(4).fill({ player1: 0, player2: 0, completed: false }),
+    land: Array(4).fill({ player1: 0, player2: 0, completed: false }),
+    economy: Array(4).fill({ player1: 0, player2: 0, completed: false }),
     justice: Array(4).fill({ player1: 0, player2: 0, completed: false }),
-    infra: Array(4).fill({ player1: 0, player2: 0, completed: false }),
-    economic: Array(4).fill({ player1: 0, player2: 0, completed: false }),
-    agri: Array(4).fill({ player1: 0, player2: 0, completed: false }),
-    health: Array(4).fill({ player1: 0, player2: 0, completed: false })
+    culture: Array(4).fill({ player1: 0, player2: 0, completed: false }),
+    governance: Array(4).fill({ player1: 0, player2: 0, completed: false })
 };
 
 // Fix the initialization issue - Arrays are filled with references to the same object
@@ -68,6 +68,8 @@ function updateAllProgressBars() {
 
 // Function to increment progress for a specific policy
 function incrementPolicy(category, index, playerId) {
+    console.log(`incrementPolicy called: ${category}-${index + 1}, player ${playerId}`);
+    
     // Check if game is paused - prevent policy contributions while paused
     if (isGamePaused()) {
         console.log('Game is paused - policy contribution ignored');
@@ -75,6 +77,11 @@ function incrementPolicy(category, index, playerId) {
     }
     
     const policy = policyProgress[category][index];
+    if (!policy) {
+        console.error(`Policy not found: ${category}-${index}`);
+        return false;
+    }
+    
     const player = playerId === 1 ? player1 : player2;
     
     // Check if campaign is already completed
@@ -211,17 +218,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add click handlers to all progress items
     document.querySelectorAll('.progress-item').forEach((item, idx) => {
         // Get category and index
-        const categoryMatch = item.querySelector('.progress-fill').id.match(/^([a-z]+)-(\d+)$/);
-        if (categoryMatch) {
-            const category = categoryMatch[1];
-            const index = parseInt(categoryMatch[2]) - 1;
-              // Add click handler
-            item.addEventListener('click', (e) => {
-                // Determine which player clicked based on keyboard modifiers
-                // Shift key = Player 2, otherwise Player 1
-                const playerId = e.shiftKey ? 2 : 1;
-                incrementPolicy(category, index, playerId);
-            });
+        const progressFill = item.querySelector('.progress-fill');
+        if (progressFill && progressFill.id) {
+            const categoryMatch = progressFill.id.match(/^([a-z]+)-(\d+)$/);
+            if (categoryMatch) {
+                const category = categoryMatch[1];
+                const index = parseInt(categoryMatch[2]) - 1;
+                
+                console.log(`Setting up click handler for ${category}-${index + 1}`);
+                
+                // Add click handler
+                item.addEventListener('click', (e) => {
+                    console.log(`Clicked on ${category}-${index + 1}`);
+                    // Determine which player clicked based on keyboard modifiers
+                    // Shift key = Player 2, otherwise Player 1
+                    const playerId = e.shiftKey ? 2 : 1;
+                    incrementPolicy(category, index, playerId);
+                });
+            } else {
+                console.log(`No category match for progress fill ID: ${progressFill.id}`);
+            }
+        } else {
+            console.log(`No progress fill found for item at index ${idx}`);
         }
     });
     
