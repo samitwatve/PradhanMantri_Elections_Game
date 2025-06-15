@@ -107,24 +107,13 @@ class GameOverScreen {    constructor() {
     }
       setupButtonListeners() {
         const playAgainBtn = document.getElementById('play-again-btn');
-        
-        if (playAgainBtn) {
+          if (playAgainBtn) {
             playAgainBtn.addEventListener('click', () => this.restartGame());
         }
         
-        // Allow clicking overlay background to close
-        this.overlayElement.addEventListener('click', (event) => {
-            if (event.target === this.overlayElement) {
-                this.hide();
-            }
-        });
-        
-        // ESC key to close
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && this.isVisible) {
-                this.hide();
-            }
-        });
+        // Note: Removed overlay background click and ESC key close functionality
+        // Game over screen should only be closed via "Play Again" button
+        // to prevent accidental dismissal of final results
     }
       handleGameEnd(reason, victoryDetails = null) {
         console.log('Game ended:', reason, victoryDetails);
