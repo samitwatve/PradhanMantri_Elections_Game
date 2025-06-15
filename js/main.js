@@ -7,6 +7,7 @@ import { player1, player2 } from './player-info.js';
 import { rallyController } from './rally-controller.js';
 import { soundManager } from './sound-manager.js';
 import { gameOverScreen } from './game-over-screen.js';
+import { gameConfig } from './game-config.js';
 
 // Check if game configuration exists, if not redirect to welcome screen
 function checkGameConfiguration() {
@@ -38,12 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!checkGameConfiguration()) {
         return; // Stop initialization if redirecting
     }
-    
-    // Initialize all game components
+      // Initialize all game components
     initializeMap();
-    initializePlayerInfo(); // Initialize player info first so event listeners are set up    // Configure the game timer with 10 phases of 30 seconds each
-    gameTimer.totalPhases = 10;
-    gameTimer.phaseDuration = 30;
+    initializePlayerInfo(); // Initialize player info first so event listeners are set up
+    
+    // Configure the game timer using gameConfig settings
+    gameTimer.totalPhases = gameConfig.getTotalPhases();
+    gameTimer.phaseDuration = gameConfig.getPhaseDuration();
     gameTimer.totalDuration = gameTimer.totalPhases * gameTimer.phaseDuration;
     gameTimer.remainingTime = gameTimer.totalDuration;
     gameTimer.phaseTimeRemaining = gameTimer.phaseDuration;// Set up phase change listener
@@ -94,6 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Expose gameTimer to window object for other modules
     window.gameTimer = gameTimer;
+    
+    // Expose other key objects for debug mode access
+    window.player1 = player1;
+    window.player2 = player2;
+    window.mapController = mapController;
+    window.aiPlayerController = aiPlayerController;
+    window.stateInfo = stateInfo;
+    
         // debugDiv.style.position = 'fixed';
         // debugDiv.style.bottom = '10px';
         // debugDiv.style.right = '10px';

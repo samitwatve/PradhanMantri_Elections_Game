@@ -6,14 +6,15 @@ import { stateInfo } from './state-info.js';
 import { mapController } from './map-controller.js';
 import { gameOptions } from './game-options.js';
 import { rallyController } from './rally-controller.js';
+import { gameConfig } from './game-config.js';
 
 class AIPlayerController {    
     constructor() {
         this.aiPlayerId = 2;
-        this.turnInterval = 2000; // 2 seconds between AI turns
-        this.aiActive = true;
+        this.turnInterval = gameConfig.getAITurnInterval();
+        this.aiActive = gameConfig.isAIEnabled();
         this.initialize();
-    }    
+    }
     
     initialize() {
         console.log('AI Player Controller initialized');
@@ -66,11 +67,10 @@ class AIPlayerController {
             this.startAITurnLoop();
         }
     }    
-    
-    async takeAITurn() {
-        // Skip turn if game is paused
-        if (!gameOptions.gameplay) {
-            console.log('AI turn skipped - game is paused');
+      async takeAITurn() {
+        // Skip turn if game is paused or AI is disabled in debug mode
+        if (!gameOptions.gameplay || !gameConfig.isAIEnabled()) {
+            console.log('AI turn skipped - game is paused or AI disabled in debug mode');
             return;
         }
         

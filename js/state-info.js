@@ -142,14 +142,41 @@ class StateInfo {
 
     getStatePopularity(stateId) {
         return this.statePopularity.get(stateId);
-    }    updateStatePopularity(stateId, popularity) {
-        this.statePopularity.set(stateId, popularity);
+    }
+
+    setStatePopularity(stateId, newPopularity) {
+        // Ensure the state is initialized
+        if (!this.statePopularity.has(stateId)) {
+            this.initializeState(stateId);
+        }
+        
+        // Validate and normalize the popularity values
+        const normalizedPopularity = {
+            player1: Math.max(0, Math.min(100, newPopularity.player1 || 0)),
+            player2: Math.max(0, Math.min(100, newPopularity.player2 || 0)),
+            others: Math.max(0, Math.min(100, newPopularity.others || 0))
+        };
+        
+        // Ensure total equals 100%
+        const total = normalizedPopularity.player1 + normalizedPopularity.player2 + normalizedPopularity.others;
+        if (total !== 100) {
+            // Adjust proportionally
+            const scale = 100 / total;
+            normalizedPopularity.player1 = Math.round(normalizedPopularity.player1 * scale * 10) / 10;
+            normalizedPopularity.player2 = Math.round(normalizedPopularity.player2 * scale * 10) / 10;
+            normalizedPopularity.others = Math.round((100 - normalizedPopularity.player1 - normalizedPopularity.player2) * 10) / 10;
+        }
+        
+        // Set the popularity
+        this.statePopularity.set(stateId, normalizedPopularity);
+        
+        console.log(`State ${stateId} popularity set to:`, normalizedPopularity);
         
         // Emit an event to notify the map controller
         window.dispatchEvent(new CustomEvent('popularityChanged', {
             detail: {
                 stateId,
-                popularity
+                popularity: normalizedPopularity
             }
         }));
         

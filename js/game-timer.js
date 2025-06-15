@@ -1,8 +1,11 @@
 // Timer functionality
-export class GameTimer {    constructor(options = {}) {
-        // Default configuration
-        this.totalPhases = options.totalPhases || 8; // Full 8 phases for complete campaign
-        this.phaseDuration = options.phaseDuration || 30; // seconds per phase
+import { gameConfig } from './game-config.js';
+
+export class GameTimer {
+    constructor(options = {}) {
+        // Use game config for default configuration
+        this.totalPhases = options.totalPhases || gameConfig.getTotalPhases();
+        this.phaseDuration = options.phaseDuration || gameConfig.getPhaseDuration();
         this.totalDuration = this.totalPhases * this.phaseDuration;
         
         // Timer state

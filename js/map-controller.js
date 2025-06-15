@@ -3,6 +3,7 @@ import { player1, player2 } from './player-info.js';
 import { stateInfo } from './state-info.js';
 import { gameOptions, isGamePaused } from './game-options.js';
 import { rallyController } from './rally-controller.js';
+import { gameConfig } from './game-config.js';
 
 class MapController {
     constructor() {
@@ -280,7 +281,34 @@ class MapController {
         const stateId = stateElement.id;
         const stateData = this.statesData.find(state => state.SvgId === stateId);
         
-        if (!stateData) return;
+        if (!stateData) return;        // Debug mode: One-click max popularity for Player 1
+        console.log(`Map click debug check: isDebugMode=${gameConfig.isDebugMode()}, isOneClickMax=${gameConfig.isOneClickMaxPopularity()}`);
+        
+        if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
+            console.log(`Debug mode: Setting ${stateId} to 100% popularity for Player 1`);
+            
+            // Set player 1 to 100%, others to 0%
+            const newPopularity = {
+                player1: 100,
+                player2: 0,
+                others: 0
+            };
+            stateInfo.setStatePopularity(stateId, newPopularity);
+            
+            // Create ripple effect for visual feedback
+            const svgPoint = this.svgDocument.querySelector('svg').createSVGPoint();
+            svgPoint.x = event.clientX;
+            svgPoint.y = event.clientY;
+            const point = svgPoint.matrixTransform(stateElement.getScreenCTM().inverse());
+            this.createRippleEffect(point.x, point.y, 1);
+            
+            // Update state info panel
+            window.dispatchEvent(new CustomEvent('stateHover', {
+                detail: { stateId: stateId }
+            }));
+            
+            return;
+        }
 
         const seats = parseInt(stateData.LokSabhaSeats);
         const cost = seats; // Cost in millions = number of seats
@@ -294,7 +322,7 @@ class MapController {
         // Regular campaign logic
         // Check if state is already selected
         const isSelected = this.selectedStates.has(stateId);
-        console.log(`${stateId} is currently selected:`, isSelected);        // Check if player 1 has enough funds
+        console.log(`${stateId} is currently selected:`, isSelected);// Check if player 1 has enough funds
         if (player1.canSpend(cost)) {
             // Create ripple effect
             this.createRippleEffect(point.x, point.y, 1);

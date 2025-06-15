@@ -1,10 +1,18 @@
 // Player information management
-class PlayerInfo {          constructor(playerId) {
+import { gameConfig } from './game-config.js';
+
+class PlayerInfo {
+    constructor(playerId) {
         this.playerId = playerId;
         this.element = null;
         this.statsElement = null;
-          // Set starting funds - 250M for both players
-        this.funds = 250; // Starting funds in millions
+        
+        // Set starting funds based on game config and player
+        if (playerId === 1) {
+            this.funds = gameConfig.getPlayer1StartingFunds();
+        } else {
+            this.funds = gameConfig.getPlayer2StartingFunds();
+        }
         
         // Rally tokens - each player starts with 2 tokens, reset to 2 every phase
         this.rallyTokens = 2;
@@ -197,11 +205,14 @@ class PlayerInfo {          constructor(playerId) {
             setTimeout(() => fundsElement.classList.remove('shake-error'), 500);
         }
     }
-    
-    replenishFunds() {
-        // Add funds at each phase change - large amount for Player 1 in debug mode
-        const isDebugMode = this.playerId === 1 && this.funds >= 5000;
-        const replenishAmount = isDebugMode ? 5000 : 250;
+      replenishFunds() {
+        // Add funds at each phase change based on game config
+        let replenishAmount;
+        if (this.playerId === 1) {
+            replenishAmount = gameConfig.getPlayer1RefreshFunds();
+        } else {
+            replenishAmount = gameConfig.getPlayer2RefreshFunds();
+        }
         
         this.updateFunds(replenishAmount);
         console.log(`Player ${this.playerId} funds replenished by ${replenishAmount}M (current total: ${this.funds}M)`);
@@ -311,6 +322,26 @@ class PlayerInfo {          constructor(playerId) {
         if (!this.statsElement) return;
     }
     
+    updateDisplay() {
+        // Update the display to reflect current funds
+        if (!this.element) {
+            console.log(`Player ${this.playerId} element not found, skipping DOM update`);
+            return;
+        }
+        
+        const fundsElement = this.element.querySelector('.funds-amount');
+        if (fundsElement) {
+            fundsElement.textContent = `₹${this.funds} M`;
+        }
+        
+        const rallyTokensElement = this.element.querySelector('.rally-tokens-display');
+        if (rallyTokensElement) {
+            rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
+        }
+        
+        console.log(`Player ${this.playerId} display updated - Funds: ${this.funds}M, Rally Tokens: ${this.rallyTokens}`);
+    }
+
     // Color utility functions
     lightenColor(color, percent) {
         const num = parseInt(color.replace("#", ""), 16);
