@@ -138,29 +138,8 @@
     "MinorityAreas": "FALSE",
     "LokSabhaSeats": "11",
     "SvgId": "INCT"
-  },
-  {
-    "State": "Dadra And Nagar Haveli",
-    "UnionTerritory": "TRUE",
-    "CoastalIndia": "FALSE",
-    "NortheastIndia": "FALSE",
-    "SouthIndia": "FALSE",
-    "HindiHeartland": "FALSE",
-    "AgriculturalRegion": "FALSE",
-    "BorderLands": "FALSE",
-    "Pilgrimage": "FALSE",
-    "IndustrialCorridor": "FALSE",
-    "Manufacturing": "FALSE",
-    "Education": "FALSE",
-    "TribalLands": "FALSE",
-    "TravelAndTourism": "FALSE",
-    "NaturalResources": "FALSE",
-    "MinorityAreas": "FALSE",
-    "LokSabhaSeats": "1",
-    "SvgId": "INDH"
-  },
-  {
-    "State": "Daman And Diu",
+  },  {
+    "State": "Dadra And Nagar Haveli And Daman And Diu",
     "UnionTerritory": "TRUE",
     "CoastalIndia": "TRUE",
     "NortheastIndia": "FALSE",
@@ -176,8 +155,8 @@
     "TravelAndTourism": "TRUE",
     "NaturalResources": "FALSE",
     "MinorityAreas": "FALSE",
-    "LokSabhaSeats": "1",
-    "SvgId": "INDD"
+    "LokSabhaSeats": "2",
+    "SvgId": "INDH"
   },
   {
     "State": "Delhi",
