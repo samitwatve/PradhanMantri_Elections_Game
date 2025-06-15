@@ -1,11 +1,11 @@
 // Game Over Screen Component
-class GameOverScreen {
-    constructor() {
+class GameOverScreen {    constructor() {
         this.isVisible = false;
         this.finalResults = null;
         this.overlayElement = null;
         this.parliamentChart = null;
         this.gameConfig = null;
+        this.isLoadingChart = false;
         
         this.initialize();
     }
@@ -126,9 +126,9 @@ class GameOverScreen {
             }
         });
     }
-    
-    handleGameEnd(reason, victoryDetails = null) {
+      handleGameEnd(reason, victoryDetails = null) {
         console.log('Game ended:', reason, victoryDetails);
+        console.log('Current isVisible state:', this.isVisible);
         
         // Get final seat counts from seat projection
         const finalResults = this.getFinalResults();
@@ -152,8 +152,13 @@ class GameOverScreen {
             player2Seats: p2Seats,
             othersSeats: othersSeats,
             totalSeats: 543
-        };
-    }    showResults(results, reason, victoryDetails = null) {
+        };    }    showResults(results, reason, victoryDetails = null) {
+        // Prevent multiple simultaneous result displays
+        if (this.isVisible) {
+            console.log('Game over screen already visible, skipping...');
+            return;
+        }
+        
         // Get party names from configuration
         const player1Party = this.gameConfig?.player1Politician?.party || 'Player 1';
         const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
@@ -198,26 +203,44 @@ class GameOverScreen {
         }
         
         winnerTextEl.textContent = winnerText;
-        winnerDetailsEl.textContent = detailsText;
-    }
-      createParliamentChart(results) {
+        winnerDetailsEl.textContent = detailsText;    }      createParliamentChart(results) {
+        console.log('createParliamentChart called with results:', results);
+        console.log('isLoadingChart state:', this.isLoadingChart);
+        
+        // Prevent multiple simultaneous chart loads
+        if (this.isLoadingChart) {
+            console.log('Parliament chart already loading, skipping...');
+            return;
+        }
+        
+        this.isLoadingChart = true;
         const chartContainer = document.getElementById('parliament-chart');
+        console.log('Chart container found:', !!chartContainer);
         
         // Clear previous chart
         chartContainer.innerHTML = '';
+        console.log('Chart container cleared');
         
-        // Load and modify the Parliament_diagram.svg
+          // Load and modify the Parliament_diagram.svg
         this.loadParliamentSVG(chartContainer, results);
     }    loadParliamentSVG(container, results) {
+        console.log('loadParliamentSVG called');
         // Load the Parliament_diagram.svg file
         fetch('./Parliament_diagram.svg')
             .then(response => response.text())
             .then(svgText => {
                 // Parse the SVG
                 const parser = new DOMParser();
-                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-                const svgElement = svgDoc.querySelector('svg');
-                  if (svgElement) {
+                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');                const svgElement = svgDoc.querySelector('svg');                  if (svgElement) {
+                    // Clear container again to ensure no duplicates
+                    container.innerHTML = '';
+                    
+                    // Check if there's already an SVG in the container (safety check)
+                    if (container.querySelector('svg')) {
+                        console.log('SVG already exists in container, removing...');
+                        container.innerHTML = '';
+                    }
+                    
                     // Fix SVG scaling by adding viewBox if it doesn't exist
                     if (!svgElement.getAttribute('viewBox')) {
                         const width = svgElement.getAttribute('width') || '360';
@@ -246,8 +269,10 @@ class GameOverScreen {
                     const player2Party = this.gameConfig?.player2Politician?.party || 'Player 2';
                     container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">
                         ${player1Party}: ${results.player1Seats} | ${player2Party}: ${results.player2Seats} | Others: ${results.othersSeats}
-                    </div>`;
-                }
+                    </div>`;                }
+                
+                // Reset loading flag
+                this.isLoadingChart = false;
             })            .catch(error => {
                 console.error('Error loading Parliament SVG:', error);
                 // Fallback to simple text display
@@ -256,6 +281,9 @@ class GameOverScreen {
                 container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">
                     ${player1Party}: ${results.player1Seats} | ${player2Party}: ${results.player2Seats} | Others: ${results.othersSeats}
                 </div>`;
+                
+                // Reset loading flag
+                this.isLoadingChart = false;
             });
     }    recolorParliamentSeats(svgElement, results) {
         // Get all circle elements (seats)

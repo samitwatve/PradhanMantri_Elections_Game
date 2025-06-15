@@ -34,7 +34,7 @@ class GameConfig {
                 totalPhases: 4,
                 player1StartingFunds: 50000,
                 player2StartingFunds: 0,
-                player1RefreshFunds: 50000,
+                player1RefreshFunds: 0,
                 player2RefreshFunds: 0,
                 aiEnabled: false,
                 oneClickMaxPopularity: true
