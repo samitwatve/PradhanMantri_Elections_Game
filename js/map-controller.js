@@ -220,11 +220,6 @@ class MapController {
 
                 console.log('Found state data:', stateData);
 
-                const seats = parseInt(stateData.LokSabhaSeats);
-                const cost = seats; // Cost in millions = number of seats
-
-                console.log('State cost:', cost);
-
                 // Import required modules
                 const [playerModule, stateModule] = await Promise.all([
                     import('./player-info.js'),
@@ -232,7 +227,36 @@ class MapController {
                 ]);
 
                 const player1 = playerModule.player1;
-                const stateInfo = stateModule.stateInfo;                // Check if player 1 has enough funds
+                const stateInfo = stateModule.stateInfo;
+
+                // Debug mode: One-click max popularity for Player 1
+                console.log(`UT button click debug check: isDebugMode=${gameConfig.isDebugMode()}, isOneClickMax=${gameConfig.isOneClickMaxPopularity()}`);
+                
+                if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
+                    console.log(`Debug mode: Setting ${stateId} to 100% popularity for Player 1`);
+                    
+                    // Set player 1 to 100%, others to 0%
+                    const newPopularity = {
+                        player1: 100,
+                        player2: 0,
+                        others: 0
+                    };
+                    stateInfo.setStatePopularity(stateId, newPopularity);
+                    
+                    // Update state info panel
+                    window.dispatchEvent(new CustomEvent('stateHover', {
+                        detail: { stateId: stateId }
+                    }));
+                    
+                    return;
+                }
+
+                const seats = parseInt(stateData.LokSabhaSeats);
+                const cost = seats; // Cost in millions = number of seats
+
+                console.log('State cost:', cost);
+
+                // Check if player 1 has enough funds
                 if (player1.canSpend(cost)) {
                     console.log('Player has enough funds, processing action...');
                     
@@ -703,14 +727,46 @@ class MapController {
                 console.log(`🔹 Removing shimmer from ${stateId} (toggle off)`);
                 statePath.classList.remove('shimmer-missing');
             }
-        }}
+        }}    handleLakshadweepClick(event) {
+        // Check if game is paused - prevent state interaction while paused
+        if (isGamePaused()) {
+            console.log('Game is paused - Lakshadweep click ignored');
+            return;
+        }
 
-    handleLakshadweepClick(event) {
         // Handle click on Lakshadweep bounding box
         const stateId = 'INLD'; // Lakshadweep's SVG ID
         const stateData = this.statesData.find(state => state.SvgId === stateId);
         
         if (!stateData) return;
+
+        // Debug mode: One-click max popularity for Player 1
+        console.log(`Lakshadweep click debug check: isDebugMode=${gameConfig.isDebugMode()}, isOneClickMax=${gameConfig.isOneClickMaxPopularity()}`);
+        
+        if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
+            console.log(`Debug mode: Setting ${stateId} to 100% popularity for Player 1`);
+            
+            // Set player 1 to 100%, others to 0%
+            const newPopularity = {
+                player1: 100,
+                player2: 0,
+                others: 0
+            };
+            stateInfo.setStatePopularity(stateId, newPopularity);
+            
+            // For ripple effect, use the center of the bounding box
+            const bbox = event.target.getBBox();
+            const centerX = bbox.x + bbox.width / 2;
+            const centerY = bbox.y + bbox.height / 2;
+            this.createRippleEffect(centerX, centerY, 1);
+            
+            // Update state info panel
+            window.dispatchEvent(new CustomEvent('stateHover', {
+                detail: { stateId: stateId }
+            }));
+            
+            return;
+        }
 
         const seats = parseInt(stateData.LokSabhaSeats);
         const cost = seats; // Cost in millions = number of seats

@@ -29,6 +29,9 @@ A comprehensive debug mode has been implemented for the India Elections Game V2 
 
 ### 5. State Interaction
 - **One-Click Max Popularity**: Single click on any state/UT instantly sets Player 1 popularity to 100%
+- **Map States**: Direct clicks on regular states on the SVG map
+- **Lakshadweep Bounding Box**: Clicking the bounding box for Lakshadweep also triggers debug mode
+- **UT Buttons**: Clicking small UT (Union Territory) buttons also triggers debug mode
 - **Visual Feedback**: Ripple effect shows when state is clicked
 - **Instant Results**: No cost deduction, immediate effect
 
@@ -86,6 +89,9 @@ A comprehensive debug mode has been implemented for the India Elections Game V2 
 
 ### Debug Playtesting
 1. **Instant State Control**: Click any state to give Player 1 100% popularity
+   - **Regular states**: Click directly on the SVG map paths
+   - **Lakshadweep**: Click the bounding box area to control this state
+   - **Small UTs**: Use the button interface for Puducherry, Chandigarh, and Dadra & Nagar Haveli & Daman & Diu
 2. **Unlimited Funds**: Player 1 has 50,000M and gets 50,000M per phase
 3. **No AI Interference**: AI player has no funds and takes no actions
 4. **Faster Rounds**: Only 4 phases to complete testing
