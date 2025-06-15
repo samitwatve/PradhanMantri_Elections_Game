@@ -140,12 +140,26 @@ class SeatProjection {
             p2Bar.style.width = `${p2Percent}%`;
             othersBar.style.width = `${othersPercent}%`;
         }
+    }      checkVictoryConditions(p1Seats, p2Seats, othersSeats) {
+        // Analyze the parliament composition for display purposes only
+        const analysis = this.analyzeParliamentComposition(p1Seats, p2Seats, othersSeats);
+        
+        // Update status description if enabled
+        const statusElement = document.querySelector('.parliament-status');
+        if (statusElement) {
+            statusElement.textContent = analysis.description;
+            statusElement.className = 'parliament-status ' + analysis.status;
+        }
+        
+        // Victory conditions are now only checked at the end of all phases
+        // This method now only updates the display
     }
-      checkVictoryConditions(p1Seats, p2Seats, othersSeats) {
+
+    // New method to check victory only at game end
+    checkFinalVictoryConditions(p1Seats, p2Seats, othersSeats) {
         const majorityThreshold = 272;
         
-        // Analyze the parliament composition
-        const analysis = this.analyzeParliamentComposition(p1Seats, p2Seats, othersSeats);
+        console.log(`Final victory check - P1: ${p1Seats}, P2: ${p2Seats}, Others: ${othersSeats}`);
         
         // Check for outright victory
         if (p1Seats >= majorityThreshold) {
@@ -158,13 +172,11 @@ class SeatProjection {
             window.dispatchEvent(new CustomEvent('gameVictory', {
                 detail: { winner: 2, seats: p2Seats, type: 'majority' }
             }));
-        }
-        
-        // Update status description if enabled
-        const statusElement = document.querySelector('.parliament-status');
-        if (statusElement) {
-            statusElement.textContent = analysis.description;
-            statusElement.className = 'parliament-status ' + analysis.status;
+        } else {
+            // Hung parliament - no clear winner
+            window.dispatchEvent(new CustomEvent('gameVictory', {
+                detail: { winner: null, seats: { p1: p1Seats, p2: p2Seats }, type: 'hung-parliament' }
+            }));
         }
     }
       analyzeParliamentComposition(p1Seats, p2Seats, othersSeats) {

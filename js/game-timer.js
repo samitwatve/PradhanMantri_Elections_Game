@@ -1,7 +1,7 @@
 // Timer functionality
 export class GameTimer {    constructor(options = {}) {
         // Default configuration
-        this.totalPhases = options.totalPhases || 2; // Temporarily reduced to 2 for testing
+        this.totalPhases = options.totalPhases || 8; // Full 8 phases for complete campaign
         this.phaseDuration = options.phaseDuration || 30; // seconds per phase
         this.totalDuration = this.totalPhases * this.phaseDuration;
         
@@ -163,8 +163,34 @@ export class GameTimer {    constructor(options = {}) {
             window.soundManager.playGameOver();
         }
         
+        // Trigger final victory check now that all phases are complete
+        this.triggerFinalVictoryCheck();
+        
         this.callbacks.onTimeUp.forEach(callback => callback());
-    }    notifyPhaseChange() {
+    }
+
+    // New method to trigger final victory evaluation
+    async triggerFinalVictoryCheck() {
+        try {
+            // Import seat projection and trigger final victory check
+            const { seatProjection } = await import('./seat-projection.js');
+            
+            // Get current seat counts
+            const p1SeatsElement = document.getElementById('player1-seats');
+            const p2SeatsElement = document.getElementById('player2-seats');
+            const othersSeatsElement = document.getElementById('others-seats');
+            
+            const p1Seats = parseInt(p1SeatsElement?.textContent || '0');
+            const p2Seats = parseInt(p2SeatsElement?.textContent || '0');
+            const othersSeats = parseInt(othersSeatsElement?.textContent || '543');
+            
+            console.log('All phases complete - triggering final victory check');
+            seatProjection.checkFinalVictoryConditions(p1Seats, p2Seats, othersSeats);
+            
+        } catch (error) {
+            console.error('Error during final victory check:', error);
+        }
+    }notifyPhaseChange() {
         this.callbacks.onPhaseChange.forEach(callback => 
             callback(this.currentPhase, this.totalPhases));
         

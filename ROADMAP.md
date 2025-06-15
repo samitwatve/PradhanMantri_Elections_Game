@@ -68,9 +68,9 @@ see `states_data.json` for info on LokSabhaSeats and State Groupings
 - Prioritizes high-value states and efficient fund allocation
 
 ## Victory and End Game
-- Primary victory: First to 272 seats
-- Hung Parliament: Neither reaches 272
-- Tiebreaker: Higher total popularity across all states
+- Primary victory: First to 272 seats (evaluated only at the end of all 8 phases)
+- Hung Parliament: Neither reaches 272 at game end
+- Victory conditions are no longer checked during gameplay - only at completion
 - Coalition possibilities with "Others" based on final numbers
 
 ## Campaign Promises
