@@ -9,11 +9,11 @@
       "primaryColor": "#FF9933","policies": [
         {
           "name": "Healthcare",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Infrastructure",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Economic Liberalization",
@@ -29,10 +29,9 @@
         },
         {
           "name": "National Defense",
-          "bonus": 25
+          "bonus": 30
         }
-      ]
-    },    {
+      ]    },    {
       "id": "manmohan-singh",
       "name": "Manmohan Singh",
       "party": "INC",
@@ -51,11 +50,11 @@
         },
         {
           "name": "Agricultural Reforms",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Public Sector",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Press Freedom",
@@ -63,10 +62,9 @@
         },
         {
           "name": "Secularism",
-          "bonus": 35
+          "bonus": 40
         }
-      ]
-    },    {
+      ]    },    {
       "id": "rahul-gandhi",
       "name": "Rahul Gandhi",
       "party": "INC",
@@ -76,15 +74,15 @@
       "primaryColor": "#138808","policies": [
         {
           "name": "Rural Development",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Land Reforms",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Privatization",
-          "bonus": 15
+          "bonus": 20
         },
         {
           "name": "Anti-Corruption",
@@ -96,9 +94,8 @@
         },
         {
           "name": "Caste Reservation",
-          "bonus": 25
-        }
-      ]    },    {
+          "bonus": 30
+        }      ]    },    {
       "id": "atal-bihari-vajpayee",
       "name": "Atal Bihari Vajpayee",
       "party": "BJP",
@@ -109,11 +106,11 @@
       "policies": [
         {
           "name": "Education",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Infrastructure",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Economic Liberalization",
@@ -125,13 +122,12 @@
         },
         {
           "name": "Hindi Language",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "National Defense",
           "bonus": 40
-        }
-      ]
+        }      ]
     },    {
       "id": "arvind-kejriwal",
       "name": "Arvind Kejriwal",
@@ -146,7 +142,7 @@
         },
         {
           "name": "Education",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Healthcare",
@@ -158,13 +154,12 @@
         },
         {
           "name": "Water and Mineral Rights",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Women's Empowerment",
           "bonus": 20
-        }
-      ]    },
+        }      ]    },
     {
       "id": "mamata-banerjee",
       "name": "Mamata Banerjee",
@@ -184,7 +179,7 @@
         },
         {
           "name": "Public Sector",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Press Freedom",
@@ -192,13 +187,12 @@
         },
         {
           "name": "Secularism",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "State's Rights",
           "bonus": 30
-        }
-      ]
+        }      ]
     },    {
       "id": "nitish-kumar",
       "name": "Nitish Kumar",
@@ -209,7 +203,7 @@
       "policies": [
         {
           "name": "Rural Development",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Women's Empowerment",
@@ -221,7 +215,7 @@
         },
         {
           "name": "Caste Reservation",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Anti-Corruption",
@@ -229,9 +223,8 @@
         },
         {
           "name": "State's Rights",
-          "bonus": 25
-        }
-      ]    },
+          "bonus": 30
+        }      ]    },
     {
       "id": "yogi-adityanath",
       "name": "Yogi Adityanath",
@@ -243,7 +236,7 @@
       "policies": [
         {
           "name": "Healthcare",
-          "bonus": 25
+          "bonus": 30
         },
         {
           "name": "Infrastructure",
@@ -255,7 +248,7 @@
         },
         {
           "name": "Law and Order",
-          "bonus": 35
+          "bonus": 40
         },
         {
           "name": "Hindutva",

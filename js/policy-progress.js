@@ -288,9 +288,164 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Listen for phase changes to award bonuses
     window.addEventListener('gamePhaseChanged', awardPhaseCompletionBonuses);
+    
+    // Initialize campaign progress from politician bonuses after a short delay
+    setTimeout(initializeCampaignProgressFromPoliticianBonuses, 500);
 });
 
 // Export functions for use in other modules
 window.policyProgress = policyProgress;
 window.incrementPolicy = incrementPolicy;
 window.updateAllProgressBars = updateAllProgressBars;
+window.initializeCampaignProgressFromPoliticianBonuses = initializeCampaignProgressFromPoliticianBonuses;
+
+// Function to initialize campaign progress based on politician bonuses
+function initializeCampaignProgressFromPoliticianBonuses() {
+    console.log('Initializing campaign progress from politician bonuses');
+    
+    try {
+        // Get game configuration with selected politicians
+        const config = localStorage.getItem('gameConfig');
+        if (!config) {
+            console.warn('No game configuration found, skipping bonus initialization');
+            return;
+        }
+        
+        const gameConfig = JSON.parse(config);
+        const player1Politician = gameConfig.player1Politician;
+        const player2Politician = gameConfig.player2Politician;
+        
+        if (!player1Politician || !player2Politician) {
+            console.warn('Missing politician data in game configuration');
+            return;
+        }
+        
+        console.log('Player 1 politician:', player1Politician.name);
+        console.log('Player 2 politician:', player2Politician.name);
+        
+        // Debug: Log all policies for both politicians
+        console.log('Player 1 policies:', player1Politician.policies);
+        console.log('Player 2 policies:', player2Politician.policies);
+        
+        // Reset all progress to ensure we start fresh
+        Object.keys(policyProgress).forEach(category => {
+            policyProgress[category].forEach(policy => {
+                policy.player1 = 0;
+                policy.player2 = 0;
+                policy.completed = false;
+            });
+        });
+        
+        // Define mapping from politician policy names to UI campaign categories and indices
+        const policyToCampaignMap = {
+            'Education': { category: 'social', index: 0 },
+            'Rural Development': { category: 'social', index: 1 },
+            'Women\'s Empowerment': { category: 'social', index: 2 },
+            'Healthcare': { category: 'social', index: 3 },
+            
+            'Land Reforms': { category: 'land', index: 0 },
+            'Agricultural Reforms': { category: 'land', index: 1 },
+            'Water and Mineral Rights': { category: 'land', index: 2 },
+            'Infrastructure': { category: 'land', index: 3 },
+            
+            'Economic Liberalization': { category: 'economy', index: 0 },
+            'Privatization': { category: 'economy', index: 1 },
+            'Public Sector': { category: 'economy', index: 2 },
+            'Digital Transformation': { category: 'economy', index: 3 },
+            
+            'Anti-Corruption': { category: 'justice', index: 0 },
+            'Judicial Activism': { category: 'justice', index: 1 },
+            'Press Freedom': { category: 'justice', index: 2 },
+            'Law and Order': { category: 'justice', index: 3 },
+            
+            'Hindi Language': { category: 'culture', index: 0 },
+            'Hindutva': { category: 'culture', index: 1 },
+            'Secularism': { category: 'culture', index: 2 },
+            'Indigenous Rights': { category: 'culture', index: 3 },
+            
+            'Caste Reservation': { category: 'governance', index: 0 },
+            'Uniform Civil Code': { category: 'governance', index: 1 },
+            'State\'s Rights': { category: 'governance', index: 2 },
+            'National Defense': { category: 'governance', index: 3 }
+        };
+        
+        // Process player 1 politician bonuses
+        if (player1Politician.policies) {
+            player1Politician.policies.forEach(policy => {
+                const mapping = policyToCampaignMap[policy.name];
+                if (mapping) {
+                    const { category, index } = mapping;
+                    // Set initial progress for player 1
+                    if (policyProgress[category] && policyProgress[category][index]) {
+                        policyProgress[category][index].player1 = policy.bonus;
+                        console.log(`Player 1: Set ${policy.name} (${category}-${index + 1}) to ${policy.bonus}%`);
+                    }
+                }
+            });
+        }
+        
+        // Process player 2 politician bonuses
+        if (player2Politician.policies) {
+            player2Politician.policies.forEach(policy => {
+                const mapping = policyToCampaignMap[policy.name];
+                if (mapping) {
+                    const { category, index } = mapping;
+                    // Set initial progress for player 2
+                    if (policyProgress[category] && policyProgress[category][index]) {
+                        policyProgress[category][index].player2 = policy.bonus;
+                        console.log(`Player 2: Set ${policy.name} (${category}-${index + 1}) to ${policy.bonus}%`);
+                    }
+                }
+            });
+        }
+        
+        // Update all progress bars to reflect the initial bonuses
+        updateAllProgressBars();
+        
+        // Check for any campaigns that are now complete due to initial bonuses
+        Object.entries(policyProgress).forEach(([category, policies]) => {
+            policies.forEach((policy, index) => {
+                // Check if campaign is now completed
+                if (policy.player1 + policy.player2 >= 100 && !policy.completed) {
+                    policy.completed = true;
+                    
+                    // Award completion bonus to the player who contributed more
+                    const dominantPlayer = policy.player1 > policy.player2 ? 1 : 2;
+                    const dominantPlayerObj = dominantPlayer === 1 ? player1 : player2;
+                    
+                    // Award one-time bonus
+                    dominantPlayerObj.updateFunds(CAMPAIGN_COMPLETION_BONUS);
+                    
+                    // Show completion notification
+                    showCampaignCompletionNotification(category, index, dominantPlayer);
+                    
+                    // Log completion
+                    console.log(`Campaign ${category}-${index + 1} completed from initial politician bonuses! Player ${dominantPlayer} awarded ${CAMPAIGN_COMPLETION_BONUS}M bonus.`);
+                    
+                    // Record that this policy is now eligible for phase bonuses
+                    if (!window.completedPolicies) {
+                        window.completedPolicies = [];
+                    }
+                    window.completedPolicies.push({
+                        category,
+                        index,
+                        dominantPlayer
+                    });
+                }
+            });
+        });
+        
+        console.log('Campaign progress initialization complete');
+    } catch (error) {
+        console.error('Error initializing campaign progress from politician bonuses:', error);
+    }
+}
+
+// Initialize campaign progress from politician bonuses when game loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a short moment to ensure other initialization is complete
+    setTimeout(initializeCampaignProgressFromPoliticianBonuses, 500);
+});
+
+// Export the initialization function
+window.initializeCampaignProgressFromPoliticianBonuses = initializeCampaignProgressFromPoliticianBonuses;
