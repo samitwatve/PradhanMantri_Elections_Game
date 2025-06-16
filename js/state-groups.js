@@ -7,8 +7,11 @@ class StateGroups {
         this.previousDominationStatus = new Map(); // Track previous domination status to identify changes
         this.dominationCheckTimeout = null; // For debouncing
         this.checkingDomination = false; // Prevent concurrent checks
+        this.uiController = null; // Reference to the UI controller
         this.initialize();
-    }      async initialize() {
+    }
+
+    async initialize() {
         try {
             // Load states data
             const response = await fetch('states_data.json');
@@ -26,27 +29,21 @@ class StateGroups {
                 }
             });
             
-            // Initialize event listeners for group buttons
-            buttons.forEach(button => {
-                button.addEventListener('click', (e) => this.handleGroupClick(e));
-            });
-
-            // Initialize small UTs panel with both click and hover handlers
-            const utButtons = document.querySelectorAll('.small-uts-grid button');
-            utButtons.forEach(button => {
-                button.addEventListener('click', (e) => this.handleUTClick(e));
-                button.addEventListener('mouseover', (e) => this.handleUTHover(e));
-                button.addEventListener('mouseout', (e) => this.handleUTUnhover(e));
-            });
+            // Import and initialize UI controller
+            const { groupUIController } = await import('./group-ui-controller.js');
+            this.uiController = groupUIController;
+            this.uiController.initialize(this);
             
             // Listen for popularity changes to check group domination (with debouncing)
-            window.addEventListener('popularityChanged', (event) => {
+            window.addEventListener('popularityChanged', () => {
                 this.scheduleGroupDominationCheck();
             });
         } catch (error) {
             console.error('Failed to load states data:', error);
         }
-    }// Schedule a check with debouncing to prevent too many checks
+    }
+
+    // Schedule a check with debouncing to prevent too many checks
     scheduleGroupDominationCheck() {
         // Clear any existing timeout
         if (this.dominationCheckTimeout) {
@@ -67,10 +64,10 @@ class StateGroups {
                 await this.checkAllGroupsDomination();
                 
                 // Also refresh any manually selected groups to update shimmer effects
-                await this.refreshManuallySelectedGroups();
-                
-                // Also refresh any manually selected UT buttons to update shimmer effects
-                await this.refreshManuallySelectedUTs();
+                if (this.uiController) {
+                    await this.uiController.refreshManuallySelectedGroups();
+                    await this.uiController.refreshManuallySelectedUTs();
+                }
             } catch (error) {
                 console.error('Error during scheduled group domination check:', error);
             } finally {
@@ -78,6 +75,7 @@ class StateGroups {
             }
         }, 500); // Wait for 500ms after the last change before checking
     }
+
     initializeGroups() {
         // Clear existing groups
         this.groups.clear();
@@ -124,128 +122,26 @@ class StateGroups {
             if (state.NaturalResources === "TRUE") this.groups.get('Natural Resources').push(state.SvgId);
             if (state.MinorityAreas === "TRUE") this.groups.get('Minority Areas').push(state.SvgId);
         });
-    }      async handleGroupClick(event) {
-        const button = event.target;
-        const groupName = button.textContent.trim();
-        const isActive = button.classList.toggle('active');
-        
-        // Get states for this group
-        const states = this.getStatesInGroup(groupName);
-          // Clear other highlights if clicking a new button
-        if (isActive) {
-            // Clear all other highlights
-            const allButtons = document.querySelectorAll('.button-grid button');
-            allButtons.forEach(otherButton => {                
-                if (otherButton !== button && otherButton.classList.contains('active')) {
-                    otherButton.classList.remove('active');
-                    const otherGroupName = otherButton.textContent.trim();
-                    const otherStates = this.getStatesInGroup(otherGroupName);
-                    otherStates.forEach(stateId => {
-                        window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                            detail: { stateId, forceOff: true }
-                        }));
-                    });
-                    
-                    // Clear UT highlights if deselecting Union Territory group
-                    if (otherGroupName === 'Union Territory') {
-                        this.clearAllUTButtonHighlights();
-                    }
-                }
-            });
-            
-            // Show detailed group analysis to help identify missing states
-            await this.showGroupAnalysis(groupName);
-        }
-          // Toggle highlight for states in this group with smart highlighting
-        if (isActive) {
-            await this.highlightGroupWithStatus(groupName);        } else {
-            // Clear all highlights when deselecting
-            states.forEach(stateId => {
-                window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                    detail: { stateId, forceOff: true }
-                }));
-            });
-            
-            // Also clear UT button highlights for this group
-            if (groupName === 'Union Territory') {
-                this.clearAllUTButtonHighlights();
-            }
-            
-            // After clearing manual highlights, refresh automatic domination highlighting
-            setTimeout(() => {
-                this.checkAllGroupsDomination();
-            }, 100);
-        }
     }
-    handleUTHover(event) {
-        const button = event.target;
-        const utId = button.dataset.ut;
-        
-        if (!utId) {
-            console.error('No UT ID found on button for hover');
-            return;
-        }
-        
-        // Dispatch hover event
-        const hoverEvent = new CustomEvent('stateHover', {
-            detail: { stateId: utId }
-        });
-        window.dispatchEvent(hoverEvent);
-    }    
-    handleUTUnhover(event) {
-        const button = event.target;
-        const utId = button.dataset.ut;
-        
-        if (!utId) {
-            console.error('No UT ID found on button for unhover');
-            return;
-        }
-        
-        // Dispatch unhover event
-        const unhoverEvent = new CustomEvent('stateUnhover', {
-            detail: { stateId: utId }
-        });
-        window.dispatchEvent(unhoverEvent);
-    }    handleUTClick(event) {
-        const button = event.target;
-        const utId = button.dataset.ut;
-        
-        if (!utId) {
-            console.error('No UT ID found on button');
-            return;
-        }
-        
-        // Toggle the selection state for the button
-        button.classList.toggle('selected');
-        
-        // Dispatch an event that will be handled like a regular state click
-        const clickEvent = new CustomEvent('stateClick', {
-            detail: { stateId: utId }
-        });
-        window.dispatchEvent(clickEvent);
-        
-        // Also dispatch a hover event to immediately update the state info
-        const hoverEvent = new CustomEvent('stateHover', {
-            detail: { stateId: utId }
-        });
-        window.dispatchEvent(hoverEvent);
-    }
+
     getStatesInGroup(groupName) {
         return this.groups.get(groupName) || [];
-    }    
-    toggleGroupHighlight(groupName) {
-        const states = this.getStatesInGroup(groupName);
-        states.forEach(stateId => {
-            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                detail: { stateId }
-            }));
+    }
+    
+    // Find all groups that a state belongs to
+    getGroupsForState(stateId) {
+        const groups = [];
+        
+        this.groups.forEach((states, groupName) => {
+            if (states.includes(stateId)) {
+                groups.push(groupName);
+            }
         });
-    }    
-    selectUT(utId) {
-        window.dispatchEvent(new CustomEvent('selectUT', {
-            detail: { utId }
-        }));
-    }      // Check if all states in a group have >50% popularity for a player
+        
+        return groups;
+    }
+    
+    // Simplified method to check if a group is dominated by a player
     async checkGroupDomination(groupName) {
         if (!this.groups.has(groupName)) {
             return null;
@@ -259,22 +155,14 @@ class StateGroups {
         // Import stateInfo to get popularity data
         const { stateInfo } = await import('./state-info.js');
         
-        let player1Domination = true;
-        let player2Domination = true;
-        
         // Count states with >50% for each player
         let p1DominatingStates = 0;
         let p2DominatingStates = 0;
-        let totalStates = states.length;
         
         // Check each state in the group
         for (const stateId of states) {
             const popularity = stateInfo.getStatePopularity(stateId);
-            if (!popularity) {
-                player1Domination = false;
-                player2Domination = false;
-                continue;
-            }
+            if (!popularity) continue;
             
             // Round the values to ensure consistent comparisons
             const p1 = Math.round(popularity.player1);
@@ -283,42 +171,31 @@ class StateGroups {
             // Check if player1 has >50% popularity
             if (p1 >= 50) {
                 p1DominatingStates++;
-            } else {
-                player1Domination = false;
             }
             
             // Check if player2 has >50% popularity
             if (p2 >= 50) {
                 p2DominatingStates++;
-            } else {
-                player2Domination = false;
-            }
-            
-            // If neither player can dominate, we can stop checking
-            if (!player1Domination && !player2Domination) {
-                break;
             }
         }
         
         // Return the dominating player (1, 2) or null if none
-        if (player1Domination) {
+        if (p1DominatingStates === states.length) {
             return 1;
         }
-        if (player2Domination) {
+        if (p2DominatingStates === states.length) {
             return 2;
         }
         return null;
-    }    // Check domination for all groups
+    }
+    
+    // Check domination for all groups
     async checkAllGroupsDomination() {
         // Get all group names
         const groupNames = Array.from(this.groups.keys());
         
         // Copy current domination status to previous status before updating
         this.previousDominationStatus = new Map(this.groupDominationStatus);
-        
-        // Count of dominated groups by each player
-        let player1DominatedGroups = 0;
-        let player2DominatedGroups = 0;
         
         for (const groupName of groupNames) {
             try {
@@ -330,10 +207,8 @@ class StateGroups {
                     this.groupDominationStatus.set(groupName, dominatingPlayer);
                     
                     // Apply highlight
-                    try {
-                        this.highlightGroupDomination(groupName, dominatingPlayer);
-                    } catch (highlightError) {
-                        console.error(`Error highlighting group ${groupName}:`, highlightError);
+                    if (this.uiController) {
+                        this.uiController.highlightGroupDomination(groupName, dominatingPlayer);
                     }
                     
                     // If a player gained domination, award initial bonus
@@ -350,89 +225,13 @@ class StateGroups {
                         }
                     }
                 }
-                
-                // Count dominated groups
-                if (dominatingPlayer === 1) player1DominatedGroups++;
-                if (dominatingPlayer === 2) player2DominatedGroups++;
-                
             } catch (error) {
                 console.error(`Error checking domination for group ${groupName}:`, error);
             }
         }
     }
-    // Highlight all states in a group if dominated by a player
-    highlightGroupDomination(groupName, playerId) {
-        if (!this.groups.has(groupName)) {
-            console.log(`Group "${groupName}" not found in groups map`);
-            return;
-        }
-        
-        const states = this.getStatesInGroup(groupName);
-        console.log(`Highlighting ${states.length} states for group "${groupName}", player ${playerId}`);
-        
-        // Try getting button both ways - by data-group attribute or by text content
-        let button = document.querySelector(`.button-grid button[data-group="${groupName}"]`);
-        if (!button) {
-            // Fallback to finding by text content
-            console.log(`Button with data-group="${groupName}" not found, trying text content match`);
-            const buttons = document.querySelectorAll('.button-grid button');
-            for (const btn of buttons) {
-                if (btn.textContent.trim() === groupName) {
-                    button = btn;
-                    // Add the data-group attribute for future use
-                    btn.setAttribute('data-group', groupName);
-                    console.log(`Found button by text content and set data-group attribute`);
-                    break;
-                }
-            }
-        }
-        
-        console.log(`Highlighting group ${groupName} for player ${playerId}, found button: ${!!button}`);
-        
-        // If there's a button for this group, update its appearance
-        if (button) {
-            // Remove previous domination classes
-            button.classList.remove('player1-dominated', 'player2-dominated');
-            
-            // Add appropriate class if dominated
-            if (playerId === 1) {
-                console.log(`Adding player1-dominated class to ${groupName} button`);
-                button.classList.add('player1-dominated');
-            } else if (playerId === 2) {
-                console.log(`Adding player2-dominated class to ${groupName} button`);
-                button.classList.add('player2-dominated');
-            }
-        } else {
-            console.warn(`Button not found for group "${groupName}"`);
-        }
-          // Check if this group is currently manually selected (active)
-        const isManuallySelected = button && button.classList.contains('active');
-        
-        // Only apply automatic domination highlighting if the group is NOT manually selected
-        if (!isManuallySelected) {
-            // Highlight states based on domination
-            if (playerId) {
-                console.log(`Highlighting ${states.length} states for automatic domination by player ${playerId}`);
-                states.forEach(stateId => {
-                    console.log(`Auto-highlighting state ${stateId} for domination by player ${playerId}`);
-                    window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                        detail: { stateId, forceState: true, highlightType: 'default' }
-                    }));
-                });
-            } else {
-                console.log(`Removing auto-highlights from ${states.length} states in group "${groupName}"`);
-                states.forEach(stateId => {
-                    console.log(`Removing auto-highlight from state ${stateId}`);
-                    window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                        detail: { stateId, forceOff: true }
-                    }));
-                });
-            }
-        } else {
-            console.log(`Group "${groupName}" is manually selected - skipping automatic highlight to preserve shimmer effects`);
-        }
-    }    
-    // Force refresh the highlighting for a specific group (useful when popularity changes)
+    
+    // Force refresh the highlighting for a specific group
     async refreshGroupHighlighting(groupName) {
         // Check if this group is currently manually selected
         const button = document.querySelector(`.button-grid button[data-group="${groupName}"]`) ||
@@ -444,141 +243,9 @@ class StateGroups {
             // Re-apply smart highlighting
             await this.highlightGroupWithStatus(groupName);
         }
-    }    
-    // Refresh highlighting for all manually selected groups
-    async refreshManuallySelectedGroups() {
-        const activeButtons = document.querySelectorAll('.button-grid button.active');
-        
-        for (const button of activeButtons) {
-            const groupName = button.textContent.trim();
-            if (this.groups.has(groupName)) {
-                console.log(`🔄 Refreshing manually selected group: ${groupName}`);
-                await this.refreshGroupHighlighting(groupName);
-            }
-        }
-    }    
-    // Refresh highlighting for all manually selected UT buttons
-    async refreshManuallySelectedUTs() {
-        const selectedUTButtons = document.querySelectorAll('.small-uts-grid button.selected');
-        
-        for (const button of selectedUTButtons) {
-            const utId = button.dataset.ut;
-            if (utId) {
-                console.log(`🔄 Refreshing manually selected UT: ${utId}`);
-                await this.refreshUTHighlighting(utId);
-            }
-        }
     }
-
-    // Refresh highlighting for a specific UT button
-    async refreshUTHighlighting(utId) {
-        const { stateInfo } = await import('./state-info.js');
-        const { getCurrentPlayerNumber } = await import('./player-info.js');
-        
-        const currentPlayer = getCurrentPlayerNumber();
-        const popularity = stateInfo.getStatePopularity(utId);
-        
-        if (!popularity) {
-            console.log(`No popularity data found for UT: ${utId}`);
-            return;
-        }
-        
-        const currentPlayerPop = currentPlayer === 1 ? popularity.player1 : popularity.player2;
-        const stateData = stateInfo.statesData.find(s => s.SvgId === utId);
-        const stateName = stateData ? stateData.State : utId;
-        
-        console.log(`🔄 Refreshing UT "${stateName}" with smart visual indicators:`);
-        
-        if (Math.round(currentPlayerPop) >= 50) {
-            // UT where current player is leading (≥50%) - white border + green glow, NO shimmer
-            console.log(`✅ ${stateName}: ${Math.round(currentPlayerPop)}% (leading - white border + green glow)`);
-            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                detail: { 
-                    stateId: utId, 
-                    forceState: true,
-                    highlightType: 'leading' // White border + green glow, removes shimmer
-                }
-            }));
-        } else {
-            // UT where current player needs to work (<50%) - white border + orange glow + shimmer
-            console.log(`❌ ${stateName}: ${Math.round(currentPlayerPop)}% (missing - white border + orange glow + shimmer)`);
-            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
-                detail: { 
-                    stateId: utId, 
-                    forceState: true,
-                    highlightType: 'missing' // White border + orange glow + shimmer
-                }
-            }));
-        }
-    }
-
-    // Update the visual appearance of a Small UT button based on highlight type
-    updateUTButtonHighlight(stateId, highlightType) {
-        const utButton = document.querySelector(`.small-uts-grid button[data-ut="${stateId}"]`);
-        if (!utButton) {
-            return; // Not a UT or button not found
-        }
-        
-        // Remove any existing highlight classes
-        utButton.classList.remove('ut-leading', 'ut-missing');
-        
-        // Add the appropriate class based on highlight type
-        if (highlightType === 'leading') {
-            console.log(`🔘 Adding leading highlight to UT button: ${stateId}`);
-            utButton.classList.add('ut-leading');
-        } else if (highlightType === 'missing') {
-            console.log(`🔸 Adding missing highlight (shimmer) to UT button: ${stateId}`);
-            utButton.classList.add('ut-missing');
-        }
-    }
-
-    // Clear highlight from all UT buttons
-    clearAllUTButtonHighlights() {
-        const utButtons = document.querySelectorAll('.small-uts-grid button');
-        utButtons.forEach(button => {
-            button.classList.remove('ut-leading', 'ut-missing');
-        });
-    }
-    // Find all groups that a state belongs to
-    getGroupsForState(stateId) {
-        const groups = [];
-        
-        this.groups.forEach((states, groupName) => {
-            if (states.includes(stateId)) {
-                groups.push(groupName);
-            }
-        });
-        
-        return groups;
-    }    
-    // Calculate total seats in a state group
-    calculateTotalSeatsInGroup(groupName) {
-        const states = this.getStatesInGroup(groupName);
-        let totalSeats = 0;
-        
-        states.forEach(stateId => {
-            const stateData = this.statesData.find(state => state.SvgId === stateId);
-            if (stateData) {
-                totalSeats += stateData.Seats;
-            }
-        });
-        
-        return totalSeats;
-    }    // Method moved to group-rewards.js
-    getTotalSeatsInGroup(groupName) {
-        // Import groupRewards to get the total seats
-        return import('./group-rewards.js').then(({ groupRewards }) => {
-            return groupRewards.getTotalSeatsInGroup(groupName);
-        });
-    }
-
-    // Award bonus to player for dominating a state group
-    // Delegating to group-rewards.js
-    awardGroupDominationBonus(groupName, playerId) {
-        import('./group-rewards.js').then(({ groupRewards }) => {
-            groupRewards.awardGroupDominationBonus(groupName, playerId);
-        });
-    }    // Show detailed analysis of a group to help players identify missing states
+    
+    // Show detailed analysis of a group to help players identify missing states
     async showGroupAnalysis(groupName) {
         if (!this.groups.has(groupName)) {
             return;
@@ -660,7 +327,9 @@ class StateGroups {
             const missingNames = missingStates.map(s => s.name).join(', ');
             actionsLog.addAction(`${groupName}: Leading in ${leadingStates.length}/${states.length} states. Shimmering: ${missingNames}`);
         }
-    }// Highlight group with different colors for leading vs missing states
+    }
+    
+    // Highlight group with different colors for leading vs missing states
     async highlightGroupWithStatus(groupName) {
         if (!this.groups.has(groupName)) {
             return;
@@ -682,9 +351,8 @@ class StateGroups {
             if (!popularity) continue;
             
             const currentPlayerPop = currentPlayer === 1 ? popularity.player1 : popularity.player2;
-            const stateData = stateInfo.statesData.find(s => s.SvgId === stateId);
-            const stateName = stateData ? stateData.State : stateId;
-              if (Math.round(currentPlayerPop) >= 50) {
+            
+            if (Math.round(currentPlayerPop) >= 50) {
                 // State where current player is leading (≥50%) - white border + green glow, NO shimmer
                 window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
                     detail: { 
@@ -695,7 +363,9 @@ class StateGroups {
                 }));
                 
                 // Also update UT button if this is a UT
-                this.updateUTButtonHighlight(stateId, 'leading');
+                if (this.uiController) {
+                    this.uiController.updateUTButtonHighlight(stateId, 'leading');
+                }
             } else {
                 // State where current player needs to work (<50%) - white border + orange glow + shimmer
                 window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
@@ -707,9 +377,69 @@ class StateGroups {
                 }));
                 
                 // Also update UT button if this is a UT
-                this.updateUTButtonHighlight(stateId, 'missing');
+                if (this.uiController) {
+                    this.uiController.updateUTButtonHighlight(stateId, 'missing');
+                }
             }
         }
+    }
+    
+    // Refresh highlighting for a specific UT button
+    async refreshUTHighlighting(utId) {
+        const { stateInfo } = await import('./state-info.js');
+        const { getCurrentPlayerNumber } = await import('./player-info.js');
+        
+        const currentPlayer = getCurrentPlayerNumber();
+        const popularity = stateInfo.getStatePopularity(utId);
+        
+        if (!popularity) {
+            console.log(`No popularity data found for UT: ${utId}`);
+            return;
+        }
+        
+        const currentPlayerPop = currentPlayer === 1 ? popularity.player1 : popularity.player2;
+        const stateData = stateInfo.statesData.find(s => s.SvgId === utId);
+        const stateName = stateData ? stateData.State : utId;
+        
+        console.log(`🔄 Refreshing UT "${stateName}" with smart visual indicators:`);
+        
+        if (Math.round(currentPlayerPop) >= 50) {
+            // UT where current player is leading (≥50%) - white border + green glow, NO shimmer
+            console.log(`✅ ${stateName}: ${Math.round(currentPlayerPop)}% (leading - white border + green glow)`);
+            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                detail: { 
+                    stateId: utId, 
+                    forceState: true,
+                    highlightType: 'leading' // White border + green glow, removes shimmer
+                }
+            }));
+        } else {
+            // UT where current player needs to work (<50%) - white border + orange glow + shimmer
+            console.log(`❌ ${stateName}: ${Math.round(currentPlayerPop)}% (missing - white border + orange glow + shimmer)`);
+            window.dispatchEvent(new CustomEvent('toggleStateHighlight', {
+                detail: { 
+                    stateId: utId, 
+                    forceState: true,
+                    highlightType: 'missing' // White border + orange glow + shimmer
+                }
+            }));
+        }
+    }
+    
+    // Method moved to group-rewards.js
+    getTotalSeatsInGroup(groupName) {
+        // Import groupRewards to get the total seats
+        return import('./group-rewards.js').then(({ groupRewards }) => {
+            return groupRewards.getTotalSeatsInGroup(groupName);
+        });
+    }
+
+    // Award bonus to player for dominating a state group
+    // Delegating to group-rewards.js
+    awardGroupDominationBonus(groupName, playerId) {
+        import('./group-rewards.js').then(({ groupRewards }) => {
+            groupRewards.awardGroupDominationBonus(groupName, playerId);
+        });
     }
 }
 

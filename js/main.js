@@ -384,6 +384,8 @@ function initializeStateGroups() {
     setTimeout(async () => {
         try {
             const { stateGroups } = await import('./state-groups.js');
+            const { groupUIController } = await import('./group-ui-controller.js');
+            
             console.log('Initial check for group domination');
             await stateGroups.checkAllGroupsDomination();
         } catch (error) {
