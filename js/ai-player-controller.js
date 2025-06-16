@@ -7,6 +7,7 @@ import { mapController } from './map-controller.js';
 import { gameOptions } from './game-options.js';
 import { rallyController } from './rally-controller.js';
 import { gameConfig } from './game-config.js';
+import { homeStateBonus } from './home-state-bonus.js';
 
 class AIPlayerController {    
     constructor() {
@@ -103,8 +104,7 @@ class AIPlayerController {
             console.error('Error during AI turn:', error);
         }
     }
-    
-    async targetRandomState() {
+      async targetRandomState() {
         // Choose a random state for the AI to target
         const targetState = this.chooseTargetState();
         
@@ -115,8 +115,11 @@ class AIPlayerController {
         
         console.log(`AI randomly targeting state: ${targetState.SvgId}`);
         
-        // Calculate cost (equal to number of seats)
-        const cost = parseInt(targetState.LokSabhaSeats);
+        // Calculate base cost (equal to number of seats)
+        const baseCost = parseInt(targetState.LokSabhaSeats);
+        
+        // Apply home state discount if applicable
+        const cost = homeStateBonus.getCampaignCost(this.aiPlayerId, targetState.State, baseCost);
         
         // Check if AI has enough funds
         if (player2.canSpend(cost)) {
@@ -135,6 +138,11 @@ class AIPlayerController {
                 const centerY = bbox.y + bbox.height / 2;
                 // Create a ripple effect at the center of the state
                 mapController.createRippleEffect(centerX, centerY, this.aiPlayerId);
+                
+                // Show home state indicator if this is the AI's home state
+                if (homeStateBonus.isHomeState(this.aiPlayerId, targetState.State)) {
+                    mapController.visualEffects.showHomeStateIndicator(stateElement);
+                }
             }
             
             console.log(`AI player spent ${cost}M on ${targetState.State}`);
@@ -179,20 +187,32 @@ class AIPlayerController {
             console.log('AI player failed to contribute to campaign');
         }
     }    
-    
-    chooseTargetState() {
+      chooseTargetState() {
         if (!this.statesData) return null;
         
         // Get states where AI can afford to campaign
         const affordableStates = this.statesData.filter(state => {
             if (!state.SvgId) return false;
             
-            const cost = parseInt(state.LokSabhaSeats);
+            // Apply home state discount if applicable
+            const baseCost = parseInt(state.LokSabhaSeats);
+            const cost = homeStateBonus.getCampaignCost(this.aiPlayerId, state.State, baseCost);
+            
             return player2.canSpend(cost);
         });
         
         if (affordableStates.length === 0) {
             return null;
+        }
+        
+        // Check if the AI's home state is in the affordable states
+        const aiHomeState = homeStateBonus.getPlayerHomeState(this.aiPlayerId);
+        const homeStateTarget = affordableStates.find(state => state.State === aiHomeState);
+        
+        // 40% chance to prioritize home state if available
+        if (homeStateTarget && Math.random() < 0.4) {
+            console.log(`AI prioritizing home state: ${homeStateTarget.State}`);
+            return homeStateTarget;
         }
         
         // Simply choose a random state from all affordable states

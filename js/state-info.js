@@ -1,5 +1,6 @@
 // State information display controller
 import { popularityInitializer } from './popularity-initializer.js';
+import { homeStateBonus } from './home-state-bonus.js';
 
 class StateInfo {
     constructor() {
@@ -12,7 +13,7 @@ class StateInfo {
         this.stateInfoElements = null; // Cache DOM elements for faster updates
         this.gameConfig = null; // Store game configuration
         this.initialize();
-    }async initialize() {
+    }    async initialize() {
         try {
             const response = await fetch('states_data.json');
             this.statesData = await response.json();
@@ -20,6 +21,12 @@ class StateInfo {
             // Pre-load state groups module for better performance
             const { stateGroups } = await import('./state-groups.js');
             this.stateGroups = stateGroups;
+            
+            // Initialize home state bonus module
+            await homeStateBonus.initialize();
+            
+            // Debug: Check all states against home states
+            homeStateBonus.debugCheckAllStates(this.statesData);
             
             this.setupEventListeners();
             
@@ -94,8 +101,7 @@ class StateInfo {
         
         // Make stateInfo available globally for seat projection
         window.stateInfo = this;
-    }
-      initializeState(stateId) {
+    }    initializeState(stateId) {
         if (!this.statePopularity.has(stateId)) {
             // Default initialization with balanced values
             this.statePopularity.set(stateId, {
@@ -110,6 +116,20 @@ class StateInfo {
             if (total !== 100) {
                 // Adjust others to make total 100
                 popularity.others = 100 - popularity.player1 - popularity.player2;
+            }
+            
+            // Find the state data to get the state name
+            const stateData = this.statesData.find(state => state.SvgId === stateId);
+            if (stateData) {
+                // Apply home state bonus if applicable
+                const updatedPopularity = homeStateBonus.applyHomeStateBonus(
+                    stateId, 
+                    stateData.State, 
+                    this.statePopularity.get(stateId)
+                );
+                
+                // Update the state popularity with the home state bonus applied
+                this.statePopularity.set(stateId, updatedPopularity);
             }
             
             this.stateActions.set(stateId, {
@@ -515,6 +535,20 @@ class StateInfo {
                 return `${groupName}${marker}`;
             });
         }
+          // Check if this is a home state for any player
+        const isP1HomeState = homeStateBonus.isHomeState(1, stateData.State);
+        const isP2HomeState = homeStateBonus.isHomeState(2, stateData.State);
+        
+        // Calculate campaign costs with home state discount if applicable
+        const baseCost = parseInt(stateData.LokSabhaSeats);
+        const p1Cost = homeStateBonus.getCampaignCost(1, stateData.State, baseCost);
+        const p2Cost = homeStateBonus.getCampaignCost(2, stateData.State, baseCost);
+        
+        // Prepare home state bonus indicators
+        const p1HomeStateHTML = isP1HomeState ? 
+            '<span class="home-state-bonus">Home State: +20% initial popularity, -20% campaign cost</span>' : '';
+        const p2HomeStateHTML = isP2HomeState ? 
+            '<span class="home-state-bonus">AI Home State: +20% initial popularity, -20% campaign cost</span>' : '';
 
         // If this is the same state as currently displayed, just update the values
         if (this.currentStateId === stateId && this.stateInfoElements) {
@@ -523,6 +557,14 @@ class StateInfo {
             this.stateInfoElements.othersValue.textContent = `Others: ${Math.round(popularity.others)}%`;
             this.stateInfoElements.groupsList.textContent = groupsWithStatus.join(' • ');
             this.stateInfoElements.groupsCount.textContent = `Groups (${groupsWithStatus.length})`;
+              // Update campaign costs
+            this.stateInfoElements.campaignCosts.innerHTML = `
+                <span>Campaign Cost: P1 = ₹${p1Cost}M, P2 = ₹${p2Cost}M</span>
+            `;
+            
+            // Update home state bonus indicators
+            this.stateInfoElements.p1HomeState.innerHTML = p1HomeStateHTML;
+            this.stateInfoElements.p2HomeState.innerHTML = p2HomeStateHTML;
             return;
         }
 
@@ -531,7 +573,20 @@ class StateInfo {
         this.statesDetails.innerHTML = `
             <div class="state-info">
                 <h4>${stateData.State} (${stateData.LokSabhaSeats} seats)</h4>
-                  <div class="popularity-section">
+                
+                <div class="campaign-costs">
+                    <span>Campaign Cost: P1 = ₹${p1Cost}M, P2 = ₹${p2Cost}M</span>
+                </div>
+                
+                <div class="home-state-p1">
+                    ${p1HomeStateHTML}
+                </div>
+                
+                <div class="home-state-p2">
+                    ${p2HomeStateHTML}
+                </div>
+                
+                <div class="popularity-section">
                     <h5>Current Popularity</h5>
                     <div class="info-row">
                         <span class="p1-value">P1: ${Math.round(popularity.player1)}%</span>
@@ -548,14 +603,16 @@ class StateInfo {
                 </div>
             </div>
         `;
-        
-        // Cache DOM elements for faster future updates
+          // Cache DOM elements for faster future updates
         this.stateInfoElements = {
             p1Value: this.statesDetails.querySelector('.p1-value'),
             p2Value: this.statesDetails.querySelector('.p2-value'),
             othersValue: this.statesDetails.querySelector('.others-value'),
             groupsList: this.statesDetails.querySelector('.groups-list'),
-            groupsCount: this.statesDetails.querySelector('.groups-count')
+            groupsCount: this.statesDetails.querySelector('.groups-count'),
+            campaignCosts: this.statesDetails.querySelector('.campaign-costs'),
+            p1HomeState: this.statesDetails.querySelector('.home-state-p1'),
+            p2HomeState: this.statesDetails.querySelector('.home-state-p2')
         };
     }
 
@@ -623,6 +680,92 @@ class StateInfo {
         return playerId === 1 
             ? (this.gameConfig.player1Politician?.party || 'Player 1')
             : (this.gameConfig.player2Politician?.party || 'Player 2');
+    }
+
+    /**
+     * Force reapply home state bonuses to all states
+     * This can be called when we need to ensure all home state bonuses are correctly applied
+     */
+    async reapplyAllHomeStateBonuses() {
+        console.log('Force reapplying all home state bonuses...');
+        
+        // Make sure the homeStateBonus module is initialized
+        if (!homeStateBonus.initialized) {
+            await homeStateBonus.initialize();
+        }
+        
+        // Process each state
+        for (const [stateId, popularity] of this.statePopularity.entries()) {
+            // Find the state data to get the state name
+            const stateData = this.statesData.find(state => state.SvgId === stateId);
+            if (stateData) {
+                const stateName = stateData.State;
+                
+                // Check if this is a home state for either player
+                const isP1HomeState = homeStateBonus.isHomeState(1, stateName);
+                const isP2HomeState = homeStateBonus.isHomeState(2, stateName);
+                
+                // Only reapply if this is a home state
+                if (isP1HomeState || isP2HomeState) {
+                    console.log(`Reapplying home state bonus for ${stateName} (${stateId})`);
+                    
+                    // Apply home state bonus
+                    const updatedPopularity = homeStateBonus.applyHomeStateBonus(
+                        stateId,
+                        stateName,
+                        { ...popularity } // Create a copy of the popularity object
+                    );
+                    
+                    // Update the state popularity with the home state bonus applied
+                    this.statePopularity.set(stateId, updatedPopularity);
+                    
+                    // Notify of the change
+                    window.dispatchEvent(new CustomEvent('popularityChanged', {
+                        detail: {
+                            stateId,
+                            popularity: updatedPopularity
+                        }
+                    }));
+                }
+            }
+        }
+        
+        console.log('Finished reapplying home state bonuses');
+    }
+
+    forceReapplyHomeStateBonuses() {
+        console.log("Force reapplying home state bonuses to all states");
+        
+        // Make sure home state bonus module is initialized
+        homeStateBonus.initialize().then(() => {
+            // Process each state
+            this.statePopularity.forEach((popularity, stateId) => {
+                // Find the state data to get the state name
+                const stateData = this.statesData.find(state => state.SvgId === stateId);
+                if (stateData) {
+                    // Apply home state bonus if applicable
+                    const updatedPopularity = homeStateBonus.applyHomeStateBonus(
+                        stateId, 
+                        stateData.State, 
+                        JSON.parse(JSON.stringify(popularity)) // Create a deep copy
+                    );
+                    
+                    // Check if values changed
+                    if (updatedPopularity.player1 !== popularity.player1 || 
+                        updatedPopularity.player2 !== popularity.player2) {
+                        console.log(`%cHome state bonus reapplied for ${stateData.State}`, 'color: gold; font-weight: bold');
+                        console.log(`Before: P1=${popularity.player1}%, P2=${popularity.player2}%, Others=${popularity.others}%`);
+                        console.log(`After: P1=${updatedPopularity.player1}%, P2=${updatedPopularity.player2}%, Others=${updatedPopularity.others}%`);
+                        
+                        // Update the state popularity
+                        this.statePopularity.set(stateId, updatedPopularity);
+                    }
+                }
+            });
+            
+            // Force update all states on the map
+            this.forceUpdateAllStates();
+        });
     }
 }
 

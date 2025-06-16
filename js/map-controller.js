@@ -7,6 +7,7 @@ import { gameConfig } from './game-config.js';
 import { visualEffects } from './visual-effects.js';
 import { ColorUtils } from './color-utils.js';
 import { dragDropUtils } from './drag-drop-utils.js';
+import { homeStateBonus } from './home-state-bonus.js';
 
 class MapController {
     constructor() {
@@ -20,6 +21,9 @@ class MapController {
             // Load states data
             const response = await fetch('states_data.json');
             this.statesData = await response.json();
+            
+            // Initialize home state bonus module
+            await homeStateBonus.initialize();
             
             // Get map object and wait for it to load
             const map = document.getElementById('india-map');
@@ -235,7 +239,16 @@ class MapController {
         }
 
         const seats = parseInt(stateData.LokSabhaSeats);
-        const cost = seats;
+          // Apply home state discount to campaign cost if applicable
+        const baseCost = seats;
+        const cost = homeStateBonus.getCampaignCost(1, stateData.State, baseCost);
+        
+        // Show home state indicator if this is the player's home state
+        const isHomeState = homeStateBonus.isHomeState(1, stateData.State);
+        if (isHomeState) {
+            console.log(`Player 1 clicked on home state ${stateData.State}. Base cost: ${baseCost}M, Discounted: ${cost}M`);
+            visualEffects.showHomeStateIndicator(stateElement);
+        }
 
         // Get click coordinates for ripple effect
         const svgPoint = this.svgDocument.querySelector('svg').createSVGPoint();
@@ -264,7 +277,7 @@ class MapController {
             visualEffects.showErrorFeedback(stateElement);
             player1.showInsufficientFundsError();
         }
-    }    selectState(stateId) {
+    }selectState(stateId) {
         const stateElement = this.svgDocument.getElementById(stateId);
         if (stateElement) {
             const currentLeader = stateElement.getAttribute('data-leader');

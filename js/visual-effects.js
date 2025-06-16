@@ -12,9 +12,7 @@ class VisualEffects {
         this.svgDocument = svgDocument;
         this.createRippleContainer();
         this.injectSvgStyles();
-    }
-
-    injectSvgStyles() {
+    }    injectSvgStyles() {
         if (!this.svgDocument) return;
 
         const style = this.svgDocument.createElementNS("http://www.w3.org/2000/svg", "style");
@@ -31,6 +29,15 @@ class VisualEffects {
             
             .shimmer-missing {
                 animation: shimmer 2s infinite;
+            }
+            
+            .home-state {
+                filter: drop-shadow(0 0 5px gold) brightness(1.1);
+            }
+            
+            .home-state-icon {
+                pointer-events: none;
+                filter: drop-shadow(0 0 3px gold);
             }
             
             @keyframes shake {
@@ -175,6 +182,69 @@ class VisualEffects {
     showErrorFeedback(stateElement) {
         stateElement.classList.add('error');
         setTimeout(() => stateElement.classList.remove('error'), 500);
+    }
+
+    showHomeStateIndicator(stateElement) {
+        if (!stateElement || !this.svgDocument) return;
+        
+        // Create a glow effect for the home state
+        stateElement.classList.add('home-state');
+        
+        // Add animation to make it pulse
+        const animation = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animation.setAttribute("attributeName", "filter");
+        animation.setAttribute("values", "drop-shadow(0 0 5px gold) brightness(1.1); drop-shadow(0 0 10px gold) brightness(1.3); drop-shadow(0 0 5px gold) brightness(1.1)");
+        animation.setAttribute("dur", "2s");
+        animation.setAttribute("repeatCount", "2");
+        stateElement.appendChild(animation);
+        
+        // Add a crown icon or star symbol to indicate home state
+        const bbox = stateElement.getBBox();
+        const iconX = bbox.x + bbox.width / 2;
+        const iconY = bbox.y + bbox.height / 2;
+        
+        const homeIcon = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        homeIcon.setAttribute("x", iconX);
+        homeIcon.setAttribute("y", iconY);
+        homeIcon.setAttribute("text-anchor", "middle");
+        homeIcon.setAttribute("dominant-baseline", "middle");
+        homeIcon.setAttribute("font-family", "Arial");
+        homeIcon.setAttribute("font-size", "15");
+        homeIcon.setAttribute("fill", "gold");
+        homeIcon.setAttribute("stroke", "black");
+        homeIcon.setAttribute("stroke-width", "0.5");
+        homeIcon.setAttribute("class", "home-state-icon");
+        homeIcon.textContent = "★"; // Star symbol for home state
+        
+        // Add a glow effect to the icon
+        homeIcon.setAttribute("filter", "drop-shadow(0 0 2px gold)");
+        
+        // Animate the icon opacity for a brief highlight
+        const opacityAnimation = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        opacityAnimation.setAttribute("attributeName", "opacity");
+        opacityAnimation.setAttribute("values", "0;1;1;0");
+        opacityAnimation.setAttribute("keyTimes", "0;0.1;0.9;1");
+        opacityAnimation.setAttribute("dur", "3s");
+        opacityAnimation.setAttribute("fill", "remove");
+        homeIcon.appendChild(opacityAnimation);
+        
+        // Add the icon to the SVG
+        const svgElement = this.svgDocument.querySelector('svg');
+        if (svgElement) {
+            svgElement.appendChild(homeIcon);
+            
+            // Remove the icon after animation
+            setTimeout(() => {
+                if (svgElement.contains(homeIcon)) {
+                    svgElement.removeChild(homeIcon);
+                }
+            }, 3000);
+        }
+        
+        // Restore state to normal after highlight
+        setTimeout(() => {
+            stateElement.classList.remove('home-state');
+        }, 2000);
     }
 }
 

@@ -82,6 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeActionsLog();
     // stateInfo initializes itself
     // aiPlayerController initializes itself
+      // Force reapply home state bonuses after a short delay to ensure all modules are initialized
+    setTimeout(async () => {
+        try {
+            console.log('Applying home state bonuses...');
+            await stateInfo.forceReapplyHomeStateBonuses();
+        } catch (error) {
+            console.error('Error applying home state bonuses:', error);
+        }
+    }, 2000); // 2 seconds delay
     
     // Set up event listeners for game-wide events
     setupGameEventListeners();    // DEBUG: Add testing function to window
@@ -420,4 +429,59 @@ export const gameState = {
         // Note: gamePhaseChanged event is dispatched from main.js timer callback
         // to avoid duplicate events
     }
+};
+
+// Add a test function for home state bonus
+window.testHomeStateBonus = async function() {
+    console.log('Testing home state bonus functionality...');
+    
+    // Import the home state bonus module
+    const { homeStateBonus } = await import('./home-state-bonus.js');
+    
+    // Ensure it's initialized
+    await homeStateBonus.initialize();
+    
+    // Check all states against home states
+    console.log('Current home states:');
+    console.log(`Player 1 home state: ${homeStateBonus.getPlayerHomeState(1)}`);
+    console.log(`Player 2 home state: ${homeStateBonus.getPlayerHomeState(2)}`);
+    
+    // Get all states and test each one
+    console.log('Testing each state for home state match:');
+    const statesData = await fetch('states_data.json').then(res => res.json());
+    
+    // Test home state bonus application
+    for (const state of statesData) {
+        if (!state.SvgId) continue;
+        
+        const isP1Home = homeStateBonus.isHomeState(1, state.State);
+        const isP2Home = homeStateBonus.isHomeState(2, state.State);
+        
+        if (isP1Home || isP2Home) {
+            console.log(`%cFound home state match: ${state.State} (${state.SvgId})`, 'color: yellow; background: #333; font-weight: bold;');
+            console.log(`- Player 1 home: ${isP1Home}, Player 2 home: ${isP2Home}`);
+            
+            // Get current popularity
+            const currentPop = stateInfo.getStatePopularity(state.SvgId);
+            console.log(`- Current popularity: P1=${currentPop.player1}%, P2=${currentPop.player2}%, Others=${currentPop.others}%`);
+            
+            // Get campaign costs
+            const baseCost = parseInt(state.LokSabhaSeats);
+            const p1Cost = homeStateBonus.getCampaignCost(1, state.State, baseCost);
+            const p2Cost = homeStateBonus.getCampaignCost(2, state.State, baseCost);
+            console.log(`- Campaign costs: Base=${baseCost}M, P1=${p1Cost}M, P2=${p2Cost}M`);
+            
+            // Force reapply home state bonus
+            const updatedPop = homeStateBonus.applyHomeStateBonus(state.SvgId, state.State, currentPop);
+            console.log(`- After home state bonus reapplication: P1=${updatedPop.player1}%, P2=${updatedPop.player2}%, Others=${updatedPop.others}%`);
+            
+            // Update the popularity for this state to ensure bonus is applied
+            stateInfo.setStatePopularity(state.SvgId, updatedPop);
+        }
+    }
+    
+    // Update UI to reflect any changes
+    stateInfo.forceUpdateAllStates();
+    
+    console.log('Home state bonus test complete');
 };
