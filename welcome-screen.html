@@ -530,12 +530,11 @@
                     </div>
                     <div class="card-content">
                         <h3 class="politician-name">${politician.name}</h3>
-                        <p class="politician-party">${politician.party}</p>
-                        <div class="policies-grid">
+                        <p class="politician-party">${politician.party}</p>                        <div class="policies-grid">
                             ${politician.policies.slice(0, 6).map(policy => `
                                 <div class="policy-item-wrapper" style="background: linear-gradient(135deg, ${borderColor}CC 0%, ${borderColor}99 100%); border: 1px solid ${borderColor};">
                                     <div class="policy-label">${policy.name}</div>
-                                    <div class="policy-score">${policy.progress}%</div>
+                                    <div class="policy-score">+${policy.bonus} points</div>
                                 </div>
                             `).join('')}
                         </div>
