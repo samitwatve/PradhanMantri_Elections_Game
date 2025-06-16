@@ -28,6 +28,7 @@ class GameConfig {
             // AI settings
             aiEnabled: true,
             aiTurnInterval: 2000, // milliseconds between AI actions
+            aiDifficulty: 'EASY', // 'EASY', 'MEDIUM', 'HARD'
             
             // Debug settings
             debug: {
@@ -286,6 +287,31 @@ class GameConfig {
 
     isOneClickMaxPopularity() {
         return this.debugMode && this.settings.debug.oneClickMaxPopularity;
+    }
+    
+    getAIDifficulty() {
+        return this.settings.aiDifficulty;
+    }
+      setAIDifficulty(difficulty) {
+        if (['EASY', 'MEDIUM', 'HARD'].includes(difficulty)) {
+            this.settings.aiDifficulty = difficulty;
+            console.log(`AI difficulty set to: ${difficulty}`);
+            
+            // Update turn interval for HARD difficulty
+            if (difficulty === 'HARD') {
+                this.settings.aiTurnInterval = 1500; // 1.5 seconds
+            } else {
+                this.settings.aiTurnInterval = 2000; // 2 seconds
+            }
+            
+            // Notify any listeners
+            window.dispatchEvent(new CustomEvent('aiDifficultyChanged', { 
+                detail: { difficulty: difficulty }
+            }));
+            
+            return true;
+        }
+        return false;
     }
 }
 

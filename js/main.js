@@ -24,6 +24,16 @@ function checkGameConfiguration() {
             window.location.href = 'welcome-screen.html';
             return false;
         }
+        
+        // Apply AI difficulty if set in the game configuration
+        if (config.aiDifficulty) {
+            console.log(`Setting AI difficulty to: ${config.aiDifficulty}`);
+            // Import and use the gameConfig module to set difficulty
+            import('./game-config.js').then(({ gameConfig }) => {
+                gameConfig.setAIDifficulty(config.aiDifficulty);
+            });
+        }
+        
         console.log('Game configuration found:', config);
         return true;
     } catch (error) {

@@ -430,11 +430,48 @@
         .player-summary-name {
             font-weight: 600;
             font-size: 1.1rem;
-        }
-
-        .player-summary-party {
+        }        .player-summary-party {
             font-size: 0.9rem;
             opacity: 0.8;
+        }
+        
+        /* AI Difficulty Selector Styles */
+        .ai-difficulty-selector {
+            margin-top: 1.5rem;
+        }
+        
+        .difficulty-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .difficulty-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+          .difficulty-btn.active {
+            background: rgba(239, 68, 68, 0.6);
+            border-color: rgba(239, 68, 68, 0.8);
+            color: white;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+        }
+        
+        .difficulty-desc {
+            display: none;
+            max-width: 80%;
+            margin: 0 auto;
+            line-height: 1.3;
+        }
+        
+        .difficulty-desc.active {
+            display: block;
         }
     </style>
 </head>
@@ -479,12 +516,24 @@
                 <div id="player-summary" class="flex items-center justify-center gap-4">
                     <!-- Player selection will be shown here -->
                 </div>
-            </div>
-
-            <div class="ai-opponent">
+            </div>            <div class="ai-opponent">
                 <h3>AI Opponent</h3>
                 <div id="ai-summary" class="flex items-center justify-center gap-4">
                     <!-- AI selection will be shown here -->
+                </div>
+                  <!-- AI Difficulty Selector -->
+                <div class="ai-difficulty-selector mt-4">
+                    <h4 class="text-sm font-semibold mb-2">Select AI Difficulty:</h4>
+                    <div class="difficulty-options flex justify-center gap-3">
+                        <button class="difficulty-btn active" data-difficulty="EASY">Easy</button>
+                        <button class="difficulty-btn" data-difficulty="MEDIUM">Medium</button>
+                        <button class="difficulty-btn" data-difficulty="HARD">Hard</button>
+                    </div>
+                    <div class="difficulty-description mt-2 text-xs opacity-80">
+                        <span class="difficulty-desc easy active">Easy: AI makes random decisions and moves slowly.</span>
+                        <span class="difficulty-desc medium">Medium: AI targets specific state groups and prioritizes campaigns where it's leading.</span>
+                        <span class="difficulty-desc hard">Hard: AI makes faster decisions, targets competitive states, and employs strategic campaign tactics.</span>
+                    </div>
                 </div>
             </div>
 
@@ -493,11 +542,11 @@
     </div>
 
     <script>
-        let politicians = [];
-        let currentIndex = 0;
+        let politicians = [];        let currentIndex = 0;
         let selectedPolitician = null;
         let aiPolitician = null;
         let playerName = '';
+        let aiDifficulty = 'EASY'; // Default AI difficulty
 
         // Load politicians data on page load
         async function loadPoliticians() {
@@ -632,12 +681,12 @@
             `;
         }
 
-        function startGame() {
-            // Store selections in localStorage for the main game
+        function startGame() {            // Store selections in localStorage for the main game
             const gameConfig = {
                 playerName: playerName,
                 player1Politician: selectedPolitician,
-                player2Politician: aiPolitician
+                player2Politician: aiPolitician,
+                aiDifficulty: aiDifficulty
             };
             
             localStorage.setItem('gameConfig', JSON.stringify(gameConfig));
@@ -647,7 +696,38 @@
         }
 
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', loadPoliticians);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPoliticians();
+            setupDifficultyButtons();
+        });
+          // Set up AI difficulty buttons
+        function setupDifficultyButtons() {
+            const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+            
+            difficultyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    difficultyButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Update the selected difficulty
+                    aiDifficulty = button.getAttribute('data-difficulty');
+                    console.log(`AI difficulty set to: ${aiDifficulty}`);
+                    
+                    // Update the difficulty description
+                    const descriptions = document.querySelectorAll('.difficulty-desc');
+                    descriptions.forEach(desc => desc.classList.remove('active'));
+                    
+                    // Show the corresponding description
+                    const activeDifficultyDesc = document.querySelector(`.difficulty-desc.${aiDifficulty.toLowerCase()}`);
+                    if (activeDifficultyDesc) {
+                        activeDifficultyDesc.classList.add('active');
+                    }
+                });
+            });
+        }
 
         // Allow Enter key to proceed from name input
         document.getElementById('player-name').addEventListener('keypress', function(e) {
