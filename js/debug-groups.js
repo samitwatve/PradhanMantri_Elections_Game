@@ -4,6 +4,16 @@
 import { stateGroups } from './state-groups.js';
 
 class DebugGroups {
+    constructor() {
+        this.verbose = false; // Flag to toggle verbose logging
+    }
+    
+    // Toggle verbose logging mode
+    toggleVerboseLogging(enable) {
+        this.verbose = enable;
+        console.log(`Verbose group logging ${this.verbose ? 'enabled' : 'disabled'}`);
+    }
+    
     // Debug method to log all groups and their members
     async debugGroupMembership() {
         console.log('===== DEBUG: GROUP MEMBERSHIP =====');
@@ -11,7 +21,9 @@ class DebugGroups {
         
         stateGroups.groups.forEach((states, groupName) => {
             console.log(`Group "${groupName}": ${states.length} states`);
-            console.log(states);
+            if (this.verbose) {
+                console.log(states);
+            }
         });
         
         console.log('===== END DEBUG =====');
@@ -76,7 +88,7 @@ class DebugGroups {
             
             if (p1States === states.length) {
                 console.log("Group is DOMINATED by Player 1");
-            } else if (p1MissingStates.length > 0) {
+            } else if (p1MissingStates.length > 0 && this.verbose) {
                 console.log("Player 1 missing domination in these states:");
                 p1MissingStates.forEach(state => {
                     console.log(`  - ${state.name} (${state.id}): ${state.popularity}%`);
@@ -85,7 +97,7 @@ class DebugGroups {
             
             if (p2States === states.length) {
                 console.log("Group is DOMINATED by Player 2");
-            } else if (p2MissingStates.length > 0) {
+            } else if (p2MissingStates.length > 0 && this.verbose) {
                 console.log("Player 2 missing domination in these states:");
                 p2MissingStates.forEach(state => {
                     console.log(`  - ${state.name} (${state.id}): ${state.popularity}%`);
