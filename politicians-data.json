@@ -9,32 +9,26 @@
       "primaryColor": "#FF9933","policies": [
         {
           "name": "Healthcare",
-          "progress": 75,
           "bonus": 25
         },
         {
           "name": "Infrastructure",
-          "progress": 85,
           "bonus": 35
         },
         {
           "name": "Economic Liberalization",
-          "progress": 80,
           "bonus": 30
         },
         {
           "name": "Anti-Corruption",
-          "progress": 70,
           "bonus": 20
         },
         {
           "name": "Hindutva",
-          "progress": 95,
           "bonus": 40
         },
         {
           "name": "National Defense",
-          "progress": 90,
           "bonus": 25
         }
       ]
@@ -48,33 +42,27 @@
       "primaryColor": "#138808",
       "policies": [
         {
-          "name": "Economic Policy",
-          "progress": 95,
+          "name": "Economic Liberalization",
           "bonus": 40
         },
         {
-          "name": "Education Reform",
-          "progress": 85,
+          "name": "Education",
           "bonus": 30
         },
         {
-          "name": "Agricultural Development",
-          "progress": 80,
+          "name": "Agricultural Reforms",
           "bonus": 25
         },
         {
-          "name": "Financial Inclusion",
-          "progress": 90,
+          "name": "Public Sector",
           "bonus": 35
         },
         {
           "name": "Press Freedom",
-          "progress": 85,
           "bonus": 30
         },
         {
           "name": "Secularism",
-          "progress": 90,
           "bonus": 35
         }
       ]
@@ -88,32 +76,26 @@
       "primaryColor": "#138808","policies": [
         {
           "name": "Rural Development",
-          "progress": 90,
           "bonus": 35
         },
         {
           "name": "Land Reforms",
-          "progress": 80,
           "bonus": 25
         },
         {
           "name": "Privatization",
-          "progress": 65,
           "bonus": 15
         },
         {
           "name": "Anti-Corruption",
-          "progress": 75,
           "bonus": 20
         },
         {
           "name": "Secularism",
-          "progress": 85,
           "bonus": 30
         },
         {
           "name": "Caste Reservation",
-          "progress": 80,
           "bonus": 25
         }
       ]    },    {
@@ -127,32 +109,26 @@
       "policies": [
         {
           "name": "Education",
-          "progress": 80,
           "bonus": 25
         },
         {
           "name": "Infrastructure",
-          "progress": 90,
           "bonus": 35
         },
         {
           "name": "Economic Liberalization",
-          "progress": 85,
           "bonus": 30
         },
         {
           "name": "Judicial Activism",
-          "progress": 75,
           "bonus": 20
         },
         {
           "name": "Hindi Language",
-          "progress": 80,
           "bonus": 25
         },
         {
           "name": "National Defense",
-          "progress": 95,
           "bonus": 40
         }
       ]
@@ -166,32 +142,26 @@
       "policies": [
         {
           "name": "Anti-Corruption",
-          "progress": 95,
           "bonus": 40
         },
         {
-          "name": "Education Reform",
-          "progress": 90,
+          "name": "Education",
           "bonus": 35
         },
         {
-          "name": "Healthcare Access",
-          "progress": 85,
+          "name": "Healthcare",
           "bonus": 30
         },
         {
-          "name": "Digital Governance",
-          "progress": 85,
+          "name": "Digital Transformation",
           "bonus": 30
         },
         {
-          "name": "Water & Power",
-          "progress": 80,
+          "name": "Water and Mineral Rights",
           "bonus": 25
         },
         {
-          "name": "Women Safety",
-          "progress": 75,
+          "name": "Women's Empowerment",
           "bonus": 20
         }
       ]    },
@@ -206,32 +176,26 @@
       "policies": [
         {
           "name": "Women's Empowerment",
-          "progress": 95,
           "bonus": 40
         },
         {
           "name": "Agricultural Reforms",
-          "progress": 85,
           "bonus": 30
         },
         {
           "name": "Public Sector",
-          "progress": 80,
           "bonus": 25
         },
         {
           "name": "Press Freedom",
-          "progress": 75,
           "bonus": 20
         },
         {
           "name": "Secularism",
-          "progress": 80,
           "bonus": 25
         },
         {
           "name": "State's Rights",
-          "progress": 85,
           "bonus": 30
         }
       ]
@@ -244,33 +208,27 @@
       "primaryColor": "#5CB85C",
       "policies": [
         {
-          "name": "Development Focus",
-          "progress": 80,
+          "name": "Rural Development",
           "bonus": 25
         },
         {
-          "name": "Women Empowerment",
-          "progress": 85,
+          "name": "Women's Empowerment",
           "bonus": 30
         },
         {
-          "name": "Social Justice",
-          "progress": 75,
+          "name": "Law and Order",
           "bonus": 20
         },
         {
-          "name": "Prohibition Policy",
-          "progress": 90,
+          "name": "Caste Reservation",
           "bonus": 35
         },
         {
-          "name": "Administrative Reform",
-          "progress": 75,
+          "name": "Anti-Corruption",
           "bonus": 20
         },
         {
-          "name": "Caste Harmony",
-          "progress": 80,
+          "name": "State's Rights",
           "bonus": 25
         }
       ]    },
@@ -285,32 +243,26 @@
       "policies": [
         {
           "name": "Healthcare",
-          "progress": 80,
           "bonus": 25
         },
         {
           "name": "Infrastructure",
-          "progress": 85,
           "bonus": 30
         },
         {
           "name": "Privatization",
-          "progress": 75,
           "bonus": 20
         },
         {
           "name": "Law and Order",
-          "progress": 90,
           "bonus": 35
         },
         {
           "name": "Hindutva",
-          "progress": 95,
           "bonus": 40
         },
         {
           "name": "Uniform Civil Code",
-          "progress": 85,
           "bonus": 30
         }
       ]
