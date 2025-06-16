@@ -100,12 +100,14 @@ class MapController {
                 this.updateStateColor(state.id, popularity);
             }
         });
-        
-        // Check for group domination once all states are colored
+          // Check for group domination once all states are colored
         setTimeout(async () => {
             try {
                 const { stateGroups } = await import('./state-groups.js');
                 await stateGroups.checkAllGroupsDomination();
+                
+                // Add permanent home state indicators
+                visualEffects.addAllHomeStateIndicators();
             } catch (error) {
                 console.error('Error checking group domination:', error);
             }
@@ -433,9 +435,7 @@ class MapController {
             visualEffects.showErrorFeedback(stateElement);
             player1.showInsufficientFundsError();
         }
-    }
-
-    async refreshAllStateColors() {
+    }    async refreshAllStateColors() {
         if (!this.svgDocument) return;
 
         const { stateInfo } = await import('./state-info.js');
@@ -449,6 +449,9 @@ class MapController {
                 }
             }
         });
+        
+        // Add permanent home state indicators
+        visualEffects.addAllHomeStateIndicators();
     }
 }
 // Create and export a single instance of MapController

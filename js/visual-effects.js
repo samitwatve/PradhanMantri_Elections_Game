@@ -13,9 +13,7 @@ class VisualEffects {
         this.createRippleContainer();
         this.injectSvgStyles();
     }    injectSvgStyles() {
-        if (!this.svgDocument) return;
-
-        const style = this.svgDocument.createElementNS("http://www.w3.org/2000/svg", "style");
+        if (!this.svgDocument) return;        const style = this.svgDocument.createElementNS("http://www.w3.org/2000/svg", "style");
         style.textContent = `
             path, polygon {
                 cursor: pointer !important;
@@ -38,6 +36,11 @@ class VisualEffects {
             .home-state-icon {
                 pointer-events: none;
                 filter: drop-shadow(0 0 3px gold);
+            }
+            
+            .home-state-star {
+                pointer-events: none;
+                z-index: 1000;
             }
             
             @keyframes shake {
@@ -182,9 +185,7 @@ class VisualEffects {
     showErrorFeedback(stateElement) {
         stateElement.classList.add('error');
         setTimeout(() => stateElement.classList.remove('error'), 500);
-    }
-
-    showHomeStateIndicator(stateElement) {
+    }    showHomeStateIndicator(stateElement) {
         if (!stateElement || !this.svgDocument) return;
         
         // Create a glow effect for the home state
@@ -198,11 +199,28 @@ class VisualEffects {
         animation.setAttribute("repeatCount", "2");
         stateElement.appendChild(animation);
         
-        // Add a crown icon or star symbol to indicate home state
+        // Restore state to normal after highlight
+        setTimeout(() => {
+            stateElement.classList.remove('home-state');
+        }, 2000);
+    }
+
+    addPermanentHomeStateIndicator(stateId, playerId) {
+        if (!this.svgDocument) return;
+        
+        const stateElement = this.svgDocument.getElementById(stateId);
+        if (!stateElement) return;
+        
+        // Check if the star already exists to avoid duplicates
+        const existingStars = this.svgDocument.querySelectorAll(`.home-state-star-${stateId}-p${playerId}`);
+        if (existingStars.length > 0) return; // Star already exists
+        
+        // Calculate position for the star
         const bbox = stateElement.getBBox();
         const iconX = bbox.x + bbox.width / 2;
         const iconY = bbox.y + bbox.height / 2;
         
+        // Create the star icon
         const homeIcon = document.createElementNS("http://www.w3.org/2000/svg", "text");
         homeIcon.setAttribute("x", iconX);
         homeIcon.setAttribute("y", iconY);
@@ -210,41 +228,73 @@ class VisualEffects {
         homeIcon.setAttribute("dominant-baseline", "middle");
         homeIcon.setAttribute("font-family", "Arial");
         homeIcon.setAttribute("font-size", "15");
-        homeIcon.setAttribute("fill", "gold");
-        homeIcon.setAttribute("stroke", "black");
-        homeIcon.setAttribute("stroke-width", "0.5");
-        homeIcon.setAttribute("class", "home-state-icon");
+        homeIcon.setAttribute("class", `home-state-star home-state-star-${stateId}-p${playerId}`);
         homeIcon.textContent = "★"; // Star symbol for home state
         
-        // Add a glow effect to the icon
-        homeIcon.setAttribute("filter", "drop-shadow(0 0 2px gold)");
+        // Set color based on player
+        if (playerId === 1) {
+            homeIcon.setAttribute("fill", "orange");
+            homeIcon.setAttribute("stroke", "#000");
+            homeIcon.setAttribute("filter", "drop-shadow(0 0 3px gold)");
+        } else {
+            homeIcon.setAttribute("fill", "green");
+            homeIcon.setAttribute("stroke", "#000");
+            homeIcon.setAttribute("filter", "drop-shadow(0 0 3px lightgreen)");
+        }
         
-        // Animate the icon opacity for a brief highlight
-        const opacityAnimation = document.createElementNS("http://www.w3.org/2000/svg", "animate");
-        opacityAnimation.setAttribute("attributeName", "opacity");
-        opacityAnimation.setAttribute("values", "0;1;1;0");
-        opacityAnimation.setAttribute("keyTimes", "0;0.1;0.9;1");
-        opacityAnimation.setAttribute("dur", "3s");
-        opacityAnimation.setAttribute("fill", "remove");
-        homeIcon.appendChild(opacityAnimation);
+        homeIcon.setAttribute("stroke-width", "0.5");
+        homeIcon.setAttribute("pointer-events", "none"); // Make sure it doesn't interfere with clicks
         
         // Add the icon to the SVG
         const svgElement = this.svgDocument.querySelector('svg');
         if (svgElement) {
             svgElement.appendChild(homeIcon);
-            
-            // Remove the icon after animation
-            setTimeout(() => {
-                if (svgElement.contains(homeIcon)) {
-                    svgElement.removeChild(homeIcon);
-                }
-            }, 3000);
         }
+    }
+    
+    // Remove a permanent home state indicator
+    removePermanentHomeStateIndicator(stateId, playerId) {
+        if (!this.svgDocument) return;
         
-        // Restore state to normal after highlight
-        setTimeout(() => {
-            stateElement.classList.remove('home-state');
-        }, 2000);
+        const existingStars = this.svgDocument.querySelectorAll(`.home-state-star-${stateId}-p${playerId}`);
+        existingStars.forEach(star => {
+            star.parentNode.removeChild(star);
+        });
+    }
+    
+    // Add permanent home state indicators for all home states
+    addAllHomeStateIndicators() {
+        if (!this.svgDocument) return;
+        
+        import('./home-state-bonus.js').then(({ homeStateBonus }) => {
+            import('./state-info.js').then(({ stateInfo }) => {
+                // Make sure home state bonus is initialized
+                homeStateBonus.initialize().then(() => {
+                    // Process all states
+                    const states = this.svgDocument.querySelectorAll('path');
+                    states.forEach(state => {
+                        if (!state.id) return;
+                        
+                        // Find the state data
+                        const stateData = stateInfo.statesData.find(data => data.SvgId === state.id);
+                        if (!stateData) return;
+                        
+                        // Check if this is a home state for either player
+                        const isP1HomeState = homeStateBonus.isHomeState(1, stateData.State);
+                        const isP2HomeState = homeStateBonus.isHomeState(2, stateData.State);
+                        
+                        // Add permanent indicators
+                        if (isP1HomeState) {
+                            this.addPermanentHomeStateIndicator(state.id, 1);
+                        }
+                        
+                        if (isP2HomeState) {
+                            this.addPermanentHomeStateIndicator(state.id, 2);
+                        }
+                    });
+                });
+            });
+        });
     }
 }
 

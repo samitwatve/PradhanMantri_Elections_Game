@@ -543,40 +543,25 @@ class StateInfo {
         const baseCost = parseInt(stateData.LokSabhaSeats);
         const p1Cost = homeStateBonus.getCampaignCost(1, stateData.State, baseCost);
         const p2Cost = homeStateBonus.getCampaignCost(2, stateData.State, baseCost);
-        
-        // Prepare home state bonus indicators
-        const p1HomeStateHTML = isP1HomeState ? 
-            '<span class="home-state-bonus">Home State: +20% initial popularity, -20% campaign cost</span>' : '';
-        const p2HomeStateHTML = isP2HomeState ? 
-            '<span class="home-state-bonus">AI Home State: +20% initial popularity, -20% campaign cost</span>' : '';
-
-        // If this is the same state as currently displayed, just update the values
+          // Home state indicators removed as per request
+        const p1HomeStateHTML = '';
+        const p2HomeStateHTML = '';        // If this is the same state as currently displayed, just update the values
         if (this.currentStateId === stateId && this.stateInfoElements) {
             this.stateInfoElements.p1Value.textContent = `P1: ${Math.round(popularity.player1)}%`;
             this.stateInfoElements.p2Value.textContent = `P2: ${Math.round(popularity.player2)}%`;
             this.stateInfoElements.othersValue.textContent = `Others: ${Math.round(popularity.others)}%`;
             this.stateInfoElements.groupsList.textContent = groupsWithStatus.join(' • ');
             this.stateInfoElements.groupsCount.textContent = `Groups (${groupsWithStatus.length})`;
-              // Update campaign costs
-            this.stateInfoElements.campaignCosts.innerHTML = `
-                <span>Campaign Cost: P1 = ₹${p1Cost}M, P2 = ₹${p2Cost}M</span>
-            `;
             
-            // Update home state bonus indicators
+            // Home state bonus indicators (empty as per request)
             this.stateInfoElements.p1HomeState.innerHTML = p1HomeStateHTML;
             this.stateInfoElements.p2HomeState.innerHTML = p2HomeStateHTML;
             return;
-        }
-
-        // Full rebuild for new state
+        }        // Full rebuild for new state
         this.currentStateId = stateId;
         this.statesDetails.innerHTML = `
             <div class="state-info">
                 <h4>${stateData.State} (${stateData.LokSabhaSeats} seats)</h4>
-                
-                <div class="campaign-costs">
-                    <span>Campaign Cost: P1 = ₹${p1Cost}M, P2 = ₹${p2Cost}M</span>
-                </div>
                 
                 <div class="home-state-p1">
                     ${p1HomeStateHTML}
@@ -602,15 +587,13 @@ class StateInfo {
                     </div>
                 </div>
             </div>
-        `;
-          // Cache DOM elements for faster future updates
+        `;          // Cache DOM elements for faster future updates
         this.stateInfoElements = {
             p1Value: this.statesDetails.querySelector('.p1-value'),
             p2Value: this.statesDetails.querySelector('.p2-value'),
             othersValue: this.statesDetails.querySelector('.others-value'),
             groupsList: this.statesDetails.querySelector('.groups-list'),
             groupsCount: this.statesDetails.querySelector('.groups-count'),
-            campaignCosts: this.statesDetails.querySelector('.campaign-costs'),
             p1HomeState: this.statesDetails.querySelector('.home-state-p1'),
             p2HomeState: this.statesDetails.querySelector('.home-state-p2')
         };
