@@ -1,179 +1,211 @@
 /* TV Display Panel */
 .tv-display-panel {
-    position: absolute;
-    top: 620px; /* Position below the small UTs panel */
-    right: 20px; /* Align with the state groups panel */
-    width: 302px; /* Same width as state-groups-panel */
-    z-index: 1000;
+  position: absolute;
+  top: 620px; /* Position below the small UTs panel */
+  right: 20px; /* Align with the state groups panel */
+  width: 302px; /* Same width as state-groups-panel */
+  z-index: 1000;
 }
 
 .tv-frame {
-    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    overflow: hidden;
-    padding: 10px;
-    border: 2px solid #333;
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  padding: 10px;
+  border: 2px solid #333;
 }
 
 .tv-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px 10px 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px 10px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 10px;
 }
 
 .tv-header h3 {
-    color: #fff;
-    font-size: 0.9em;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    margin: 0;
+  color: #fff;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
 }
 
 .tv-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tv-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #ff3b30;
-    box-shadow: 0 0 10px #ff3b30;
-    animation: blink 2s infinite;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ff3b30;
+  box-shadow: 0 0 10px #ff3b30;
+  animation: blink 2s infinite;
 }
 
 .tv-button {
-    width: 12px;
-    height: 6px;
-    border-radius: 3px;
-    background-color: #666;
-    cursor: pointer;
+  width: 12px;
+  height: 6px;
+  border-radius: 3px;
+  background-color: #666;
+  cursor: pointer;
 }
 
 .tv-button:hover {
-    background-color: #999;
+  background-color: #999;
 }
 
 .tv-content {
-    height: 180px;
-    position: relative;
-    overflow: hidden;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
 }
 
 .tv-screen {
-    background: #000;
-    height: 100%;
-    border-radius: 4px;
-    padding: 15px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+  background: #000;
+  height: 100%;
+  border-radius: 4px;
+  padding: 15px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .tv-screen::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none;
-    opacity: 0.4;
-    z-index: 10;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06)
+    );
+  background-size:
+    100% 2px,
+    3px 100%;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 10;
 }
 
 .tv-text {
-    color: #c5e1ff;
-    font-family: 'Courier New', monospace;
-    font-size: 0.85em;
-    line-height: 1.6;
-    white-space: pre-line;
-    transition: opacity 0.2s ease-out;
+  color: #c5e1ff;
+  font-family: "Courier New", monospace;
+  font-size: 0.85em;
+  line-height: 1.6;
+  white-space: pre-line;
+  transition: opacity 0.2s ease-out;
 }
 
 .tv-text {
-    text-shadow: 0 0 2px rgba(197, 225, 255, 0.5);
+  text-shadow: 0 0 2px rgba(197, 225, 255, 0.5);
 }
 
 .tv-screen.news-flash .tv-text {
-    color: #ffeb3b; /* Highlight color for important updates */
-    text-shadow: 0 0 5px rgba(255, 235, 59, 0.5);
+  color: #ffeb3b; /* Highlight color for important updates */
+  text-shadow: 0 0 5px rgba(255, 235, 59, 0.5);
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 /* Animation for screen flicker effect */
 .tv-screen::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.03);
-    opacity: 0;
-    z-index: 2;
-    pointer-events: none;
-    animation: screenFlicker 8s infinite;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  animation: screenFlicker 8s infinite;
 }
 
 @keyframes screenFlicker {
-    0%, 95%, 100% { opacity: 0; }
-    96%, 99% { opacity: 1; }
+  0%,
+  95%,
+  100% {
+    opacity: 0;
+  }
+  96%,
+  99% {
+    opacity: 1;
+  }
 }
 
 /* Static effect for TV */
 .tv-screen.static-effect::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1IiBkPSJNMCAwaDIwMHYyMDBIMHoiLz48L3N2Zz4=');
-    opacity: 0.8;
-    z-index: 100;
-    pointer-events: none;
-    animation: staticNoise 0.2s steps(3) infinite;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1IiBkPSJNMCAwaDIwMHYyMDBIMHoiLz48L3N2Zz4=");
+  opacity: 0.8;
+  z-index: 100;
+  pointer-events: none;
+  animation: staticNoise 0.2s steps(3) infinite;
 }
 
 @keyframes staticNoise {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-1%); }
-    50% { transform: translateX(1%); }
-    75% { transform: translateX(-1%); }
-    100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1%);
+  }
+  50% {
+    transform: translateX(1%);
+  }
+  75% {
+    transform: translateX(-1%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .news-flash {
-    animation: newsFlash 1s ease-out;
+  animation: newsFlash 1s ease-out;
 }
 
 @keyframes newsFlash {
-    0% {
-        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-    }
-    50% {
-        box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.3);
-    }
-    100% {
-        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-    }
+  0% {
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  }
+  50% {
+    box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  }
 }

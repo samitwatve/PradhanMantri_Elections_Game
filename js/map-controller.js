@@ -1,458 +1,494 @@
 // Map interaction and state management
-import { player1, player2 } from './player-info.js';
-import { stateInfo } from './state-info.js';
-import { gameOptions, isGamePaused } from './game-options.js';
-import { rallyController } from './rally-controller.js';
-import { gameConfig } from './game-config.js';
-import { visualEffects } from './visual-effects.js';
-import { ColorUtils } from './color-utils.js';
-import { dragDropUtils } from './drag-drop-utils.js';
-import { homeStateBonus } from './home-state-bonus.js';
+import { player1, player2 } from "./player-info.js";
+import { stateInfo } from "./state-info.js";
+import { gameOptions, isGamePaused } from "./game-options.js";
+import { rallyController } from "./rally-controller.js";
+import { gameConfig } from "./game-config.js";
+import { visualEffects } from "./visual-effects.js";
+import { ColorUtils } from "./color-utils.js";
+import { dragDropUtils } from "./drag-drop-utils.js";
+import { homeStateBonus } from "./home-state-bonus.js";
 
 class MapController {
-    constructor() {
-        this.svgDocument = null;
-        this.selectedStates = new Set();
-        this.statesData = null;
-        this.playersInitialized = { 1: false, 2: false };
-        this.initialize();
-    }async initialize() {
-        try {
-            // Load states data
-            const response = await fetch('states_data.json');
-            this.statesData = await response.json();
-            
-            // Initialize home state bonus module
-            await homeStateBonus.initialize();
-            
-            // Get map object and wait for it to load
-            const map = document.getElementById('india-map');
-            await new Promise(resolve => {
-                const onLoad = () => {
-                    this.svgDocument = map.contentDocument;
-                    visualEffects.setSvgDocument(this.svgDocument);
-                    dragDropUtils.setSvgDocument(this.svgDocument);
-                    resolve();
-                };
+  constructor() {
+    this.svgDocument = null;
+    this.selectedStates = new Set();
+    this.statesData = null;
+    this.playersInitialized = { 1: false, 2: false };
+    this.initialize();
+  }
 
-                if (map.contentDocument && map.contentDocument.documentElement) {
-                    onLoad();
-                } else {
-                    map.addEventListener('load', onLoad);
-                }
-            });
+  async initialize() {
+    try {
+      // Load states data
+      const response = await fetch("states_data.json");
+      this.statesData = await response.json();
 
-            // Setup interactions after SVG is loaded
-            this.setupStateInteractions();
-            dragDropUtils.setupStateDropZones();
-            
-            // Listen for player initialization events
-            window.addEventListener('playerInitialized', (event) => {
-                const { playerId } = event.detail;
-                this.playersInitialized[playerId] = true;
-                
-                if (this.playersInitialized[1] && this.playersInitialized[2]) {
-                    setTimeout(() => this.refreshAllStateColors(), 100);
-                }
-            });
+      // Initialize home state bonus module
+      await homeStateBonus.initialize();
 
-            // Listen for popularity changes
-            window.addEventListener('popularityChanged', async (event) => {
-                const { stateId, popularity } = event.detail;
-                this.updateStateColor(stateId, popularity);
-                
-                // Check for group domination
-                setTimeout(async () => {
-                    try {
-                        const { stateGroups } = await import('./state-groups.js');
-                        stateGroups.scheduleGroupDominationCheck();
-                    } catch (error) {
-                        console.error('Error checking group domination:', error);
-                    }
-                }, 100);
-            });
+      // Get map object and wait for it to load
+      const map = document.getElementById("india-map");
+      await new Promise((resolve) => {
+        const onLoad = () => {
+          this.svgDocument = map.contentDocument;
+          visualEffects.setSvgDocument(this.svgDocument);
+          dragDropUtils.setSvgDocument(this.svgDocument);
+          resolve();
+        };
 
-            // Initialize all states with colors
-            setTimeout(async () => {
-                await this.initializeAllStates();
-            }, 500);
-
-        } catch (error) {
-            console.error('Failed to initialize map:', error);
+        if (map.contentDocument && map.contentDocument.documentElement) {
+          onLoad();
+        } else {
+          map.addEventListener("load", onLoad);
         }
+      });
 
-        // Add event listener for state highlighting
-        window.addEventListener('toggleStateHighlight', (event) => {
-            const { stateId, forceState, forceOff, highlightType } = event.detail;
-            visualEffects.toggleStateHighlight(stateId, forceState, forceOff, highlightType);
-        });
-    }    async initializeAllStates() {
-        const { stateInfo } = await import('./state-info.js');
-        
-        const states = this.svgDocument.querySelectorAll('path');
-        states.forEach(state => {
-            if (state.id) {
-                let popularity = stateInfo.getStatePopularity(state.id);
-                if (!popularity) {
-                    const stateData = stateInfo.initializeState(state.id);
-                    popularity = stateData.popularity;
-                }
-                this.updateStateColor(state.id, popularity);
-            }
-        });
-          // Check for group domination once all states are colored
+      // Setup interactions after SVG is loaded
+      this.setupStateInteractions();
+      dragDropUtils.setupStateDropZones();
+
+      // Listen for player initialization events
+      window.addEventListener("playerInitialized", (event) => {
+        const { playerId } = event.detail;
+        this.playersInitialized[playerId] = true;
+
+        if (this.playersInitialized[1] && this.playersInitialized[2]) {
+          setTimeout(() => this.refreshAllStateColors(), 100);
+        }
+      });
+
+      // Listen for popularity changes
+      window.addEventListener("popularityChanged", async (event) => {
+        const { stateId, popularity } = event.detail;
+        this.updateStateColor(stateId, popularity);
+
+        // Check for group domination
         setTimeout(async () => {
-            try {
-                const { stateGroups } = await import('./state-groups.js');
-                await stateGroups.checkAllGroupsDomination();
-                
-                // Add permanent home state indicators
-                visualEffects.addAllHomeStateIndicators();
-            } catch (error) {
-                console.error('Error checking group domination:', error);
-            }
-        }, 1000);
+          try {
+            const { stateGroups } = await import("./state-groups.js");
+            stateGroups.scheduleGroupDominationCheck();
+          } catch (error) {
+            console.error("Error checking group domination:", error);
+          }
+        }, 100);
+      });
+
+      // Initialize all states with colors
+      setTimeout(async () => {
+        await this.initializeAllStates();
+      }, 500);
+    } catch (error) {
+      console.error("Failed to initialize map:", error);
     }
 
-    setupStateInteractions() {
-        if (!this.svgDocument) return;
+    // Add event listener for state highlighting
+    window.addEventListener("toggleStateHighlight", (event) => {
+      const { stateId, forceState, forceOff, highlightType } = event.detail;
+      visualEffects.toggleStateHighlight(
+        stateId,
+        forceState,
+        forceOff,
+        highlightType,
+      );
+    });
+  }
 
-        const states = this.svgDocument.querySelectorAll('path, polygon');
-        states.forEach(state => {
-            if (!state.id) return;
-            
-            state.addEventListener('mousedown', (e) => this.handleStateClick(e));
-            state.addEventListener('mouseover', (e) => this.handleStateHover(e));
-            state.addEventListener('mouseout', (e) => this.handleStateUnhover(e));
-        });
+  async initializeAllStates() {
+    const { stateInfo } = await import("./state-info.js");
 
-        // Add interaction for Lakshadweep bounding box
-        const lakshadweepBbox = this.svgDocument.getElementById('bbox-lakshadweep');
-        if (lakshadweepBbox) {
-            lakshadweepBbox.addEventListener('mousedown', (e) => this.handleLakshadweepClick(e));
-            lakshadweepBbox.addEventListener('mouseover', (e) => {
-                const syntheticEvent = { ...e, target: { ...e.target, id: 'INLD' } };
-                this.handleStateHover(syntheticEvent);
-            });
-            lakshadweepBbox.addEventListener('mouseout', (e) => {
-                const syntheticEvent = { ...e, target: { ...e.target, id: 'INLD' } };
-                this.handleStateUnhover(syntheticEvent);
-            });
+    const states = this.svgDocument.querySelectorAll("path");
+    states.forEach((state) => {
+      if (state.id) {
+        let popularity = stateInfo.getStatePopularity(state.id);
+        if (!popularity) {
+          const stateData = stateInfo.initializeState(state.id);
+          popularity = stateData.popularity;
+        }
+        this.updateStateColor(state.id, popularity);
+      }
+    });
+    // Check for group domination once all states are colored
+    setTimeout(async () => {
+      try {
+        const { stateGroups } = await import("./state-groups.js");
+        await stateGroups.checkAllGroupsDomination();
+
+        // Add permanent home state indicators
+        visualEffects.addAllHomeStateIndicators();
+      } catch (error) {
+        console.error("Error checking group domination:", error);
+      }
+    }, 1000);
+  }
+
+  setupStateInteractions() {
+    if (!this.svgDocument) return;
+
+    const states = this.svgDocument.querySelectorAll("path, polygon");
+    states.forEach((state) => {
+      if (!state.id) return;
+
+      state.addEventListener("mousedown", (e) => this.handleStateClick(e));
+      state.addEventListener("mouseover", (e) => this.handleStateHover(e));
+      state.addEventListener("mouseout", (e) => this.handleStateUnhover(e));
+    });
+
+    // Add interaction for Lakshadweep bounding box
+    const lakshadweepBbox = this.svgDocument.getElementById("bbox-lakshadweep");
+    if (lakshadweepBbox) {
+      lakshadweepBbox.addEventListener("mousedown", (e) =>
+        this.handleLakshadweepClick(e),
+      );
+      lakshadweepBbox.addEventListener("mouseover", (e) => {
+        const syntheticEvent = { ...e, target: { ...e.target, id: "INLD" } };
+        this.handleStateHover(syntheticEvent);
+      });
+      lakshadweepBbox.addEventListener("mouseout", (e) => {
+        const syntheticEvent = { ...e, target: { ...e.target, id: "INLD" } };
+        this.handleStateUnhover(syntheticEvent);
+      });
+    }
+
+    // Listen for events from UT buttons
+    this.setupUTButtonEvents();
+    this.setupHoverEvents();
+  }
+  setupUTButtonEvents() {
+    window.addEventListener("stateClick", async (event) => {
+      if (isGamePaused()) return;
+
+      const { stateId } = event.detail;
+      if (!stateId) return;
+
+      try {
+        if (!this.statesData) {
+          const response = await fetch("states_data.json");
+          this.statesData = await response.json();
         }
 
-        // Listen for events from UT buttons
-        this.setupUTButtonEvents();
-        this.setupHoverEvents();
-    }    setupUTButtonEvents() {
-        window.addEventListener('stateClick', async (event) => {
-            if (isGamePaused()) return;
-            
-            const { stateId } = event.detail;
-            if (!stateId) return;
-
-            try {
-                if (!this.statesData) {
-                    const response = await fetch('states_data.json');
-                    this.statesData = await response.json();
-                }
-
-                const stateData = this.statesData.find(state => state.SvgId === stateId);
-                if (!stateData) return;
-
-                const [playerModule, stateModule] = await Promise.all([
-                    import('./player-info.js'),
-                    import('./state-info.js')
-                ]);
-
-                const player1 = playerModule.player1;
-                const stateInfo = stateModule.stateInfo;
-
-                // Debug mode: One-click max popularity
-                if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
-                    const newPopularity = { player1: 100, player2: 0, others: 0 };
-                    stateInfo.setStatePopularity(stateId, newPopularity);
-                    
-                    window.dispatchEvent(new CustomEvent('stateHover', {
-                        detail: { stateId: stateId }
-                    }));
-                    return;
-                }
-
-                const seats = parseInt(stateData.LokSabhaSeats);
-                const cost = seats;
-
-                if (player1.canSpend(cost)) {
-                    player1.updateFunds(-cost);
-                    stateInfo.recordStateAction(stateId, 1, cost);
-                } else {
-                    player1.showInsufficientFundsError();
-                }
-            } catch (error) {
-                console.error('Error processing state click:', error);
-            }
-        });
-    }
-
-    setupHoverEvents() {
-        window.addEventListener('stateHover', (event) => {
-            const { stateId } = event.detail;
-            if (!stateId) return;
-            
-            const stateElement = this.svgDocument.getElementById(stateId);
-            if (stateElement) {
-                this.handleStateHover({ target: stateElement });
-            }
-        });
-
-        window.addEventListener('stateUnhover', (event) => {
-            const { stateId } = event.detail;
-            if (!stateId) return;
-            
-            const stateElement = this.svgDocument.getElementById(stateId);
-            if (stateElement) {
-                this.handleStateUnhover({ target: stateElement });
-            }
-        });
-    }    async handleStateClick(event) {
-        if (isGamePaused()) return;
-        
-        const stateElement = event.target;
-        const stateId = stateElement.id;
-        const stateData = this.statesData.find(state => state.SvgId === stateId);
-        
+        const stateData = this.statesData.find(
+          (state) => state.SvgId === stateId,
+        );
         if (!stateData) return;
+
+        const [playerModule, stateModule] = await Promise.all([
+          import("./player-info.js"),
+          import("./state-info.js"),
+        ]);
+
+        const player1 = playerModule.player1;
+        const stateInfo = stateModule.stateInfo;
 
         // Debug mode: One-click max popularity
         if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
-            const newPopularity = { player1: 100, player2: 0, others: 0 };
-            stateInfo.setStatePopularity(stateId, newPopularity);
-            
-            // Create ripple effect
-            const svgPoint = this.svgDocument.querySelector('svg').createSVGPoint();
-            svgPoint.x = event.clientX;
-            svgPoint.y = event.clientY;
-            const point = svgPoint.matrixTransform(stateElement.getScreenCTM().inverse());
-            visualEffects.createRippleEffect(point.x, point.y, 1);
-            
-            window.dispatchEvent(new CustomEvent('stateHover', {
-                detail: { stateId: stateId }
-            }));
-            return;
-        }
+          const newPopularity = { player1: 100, player2: 0, others: 0 };
+          stateInfo.setStatePopularity(stateId, newPopularity);
 
-        const seats = parseInt(stateData.LokSabhaSeats);
-          // Apply home state discount to campaign cost if applicable
-        const baseCost = seats;
-        const cost = homeStateBonus.getCampaignCost(1, stateData.State, baseCost);
-        
-        // Show home state indicator if this is the player's home state
-        const isHomeState = homeStateBonus.isHomeState(1, stateData.State);
-        if (isHomeState) {
-            console.log(`Player 1 clicked on home state ${stateData.State}. Base cost: ${baseCost}M, Discounted: ${cost}M`);
-            visualEffects.showHomeStateIndicator(stateElement);
-        }
-
-        // Get click coordinates for ripple effect
-        const svgPoint = this.svgDocument.querySelector('svg').createSVGPoint();
-        svgPoint.x = event.clientX;
-        svgPoint.y = event.clientY;
-        const point = svgPoint.matrixTransform(stateElement.getScreenCTM().inverse());
-
-        const isSelected = this.selectedStates.has(stateId);
-
-        if (player1.canSpend(cost)) {
-            visualEffects.createRippleEffect(point.x, point.y, 1);
-            
-            player1.updateFunds(-cost);
-            stateInfo.recordStateAction(stateId, 1, cost);
-            
-            if (!isSelected) {
-                this.selectState(stateId);
-            } else {
-                this.deselectState(stateId);
-            }
-            
-            window.dispatchEvent(new CustomEvent('stateHover', {
-                detail: { stateId: stateId }
-            }));
-        } else {
-            visualEffects.showErrorFeedback(stateElement);
-            player1.showInsufficientFundsError();
-        }
-    }selectState(stateId) {
-        const stateElement = this.svgDocument.getElementById(stateId);
-        if (stateElement) {
-            const currentLeader = stateElement.getAttribute('data-leader');
-            stateElement.setAttribute('data-prev-leader', currentLeader || 'others');
-            stateElement.setAttribute('data-selected', 'true');
-            this.selectedStates.add(stateId);
-            this.triggerStateSelectionEvent(stateId, true);
-        }
-    }
-
-    deselectState(stateId) {
-        const stateElement = this.svgDocument.getElementById(stateId);
-        if (stateElement) {
-            stateElement.removeAttribute('data-selected');
-            this.selectedStates.delete(stateId);
-            
-            Promise.all([import('./state-info.js')]).then(([stateModule]) => {
-                const stateInfo = stateModule.stateInfo;
-                const popularity = stateInfo.getStatePopularity(stateId);
-                
-                if (popularity) {
-                    this.updateStateColor(stateId, popularity);
-                } else {
-                    stateElement.setAttribute('fill', '#9E9E9E');
-                    stateElement.setAttribute('data-leader', 'others');
-                }
-                
-                this.triggerStateSelectionEvent(stateId, false);
-            });
-        }
-    }
-
-    resetStateSelection(stateId) {
-        const stateElement = this.svgDocument.getElementById(stateId);
-        if (stateElement && this.selectedStates.has(stateId)) {
-            this.selectedStates.delete(stateId);
-            stateElement.removeAttribute('data-selected');
-            
-            Promise.all([import('./state-info.js')]).then(([stateModule]) => {
-                const stateInfo = stateModule.stateInfo;
-                const popularity = stateInfo.getStatePopularity(stateId);
-                if (popularity) {
-                    this.updateStateColor(stateId, popularity);
-                }
-            });
-            
-            this.triggerStateSelectionEvent(stateId, false);
-        }
-    }
-    
-    resetAllSelections() {
-        const selectedStatesCopy = [...this.selectedStates];
-        selectedStatesCopy.forEach(stateId => {
-            this.resetStateSelection(stateId);
-        });
-    }    handleStateHover(event) {
-        const stateElement = event.target;
-        const stateId = stateElement.id;
-        
-        window.dispatchEvent(new CustomEvent('stateHover', {
-            detail: { stateId: stateId }
-        }));
-    }
-
-    handleStateUnhover(event) {
-        // Colors are maintained by data attributes, no action needed
-    }
-
-    updateStateColor(stateId, popularityData) {
-        const stateElement = this.svgDocument.getElementById(stateId);
-        if (!stateElement) return;
-
-        // Check if player colors are available
-        if (!player1.primaryColor || !player2.primaryColor) {
-            setTimeout(() => this.updateStateColor(stateId, popularityData), 200);
-            return;
-        }
-
-        // Calculate color and leader
-        const { color, leader } = ColorUtils.getStateColor(
-            popularityData, 
-            player1.primaryColor, 
-            player2.primaryColor
-        );
-
-        // Update state element
-        stateElement.setAttribute('data-leader', leader);
-        stateElement.setAttribute('fill', color);
-        
-        // Update UT button
-        ColorUtils.updateUTButtonColor(stateId, popularityData);
-        
-        // Schedule group domination check
-        setTimeout(async () => {
-            try {
-                const { stateGroups } = await import('./state-groups.js');
-                stateGroups.scheduleGroupDominationCheck();
-            } catch (error) {
-                console.error('Error scheduling group domination check:', error);
-            }
-        }, 100);
-    }    triggerStateSelectionEvent(stateId, selected) {
-        window.dispatchEvent(new CustomEvent('stateSelection', {
-            detail: { stateId: stateId, selected: selected }
-        }));
-    }
-
-    handleLakshadweepClick(event) {
-        if (isGamePaused()) return;
-
-        const stateId = 'INLD';
-        const stateData = this.statesData.find(state => state.SvgId === stateId);
-        if (!stateData) return;
-
-        // Debug mode
-        if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
-            const newPopularity = { player1: 100, player2: 0, others: 0 };
-            stateInfo.setStatePopularity(stateId, newPopularity);
-            
-            const bbox = event.target.getBBox();
-            const centerX = bbox.x + bbox.width / 2;
-            const centerY = bbox.y + bbox.height / 2;
-            visualEffects.createRippleEffect(centerX, centerY, 1);
-            
-            window.dispatchEvent(new CustomEvent('stateHover', {
-                detail: { stateId: stateId }
-            }));
-            return;
+          window.dispatchEvent(
+            new CustomEvent("stateHover", {
+              detail: { stateId: stateId },
+            }),
+          );
+          return;
         }
 
         const seats = parseInt(stateData.LokSabhaSeats);
         const cost = seats;
-        const stateElement = this.svgDocument.getElementById(stateId);
-        if (!stateElement) return;
-
-        const bbox = event.target.getBBox();
-        const centerX = bbox.x + bbox.width / 2;
-        const centerY = bbox.y + bbox.height / 2;
-        const isSelected = this.selectedStates.has(stateId);
 
         if (player1.canSpend(cost)) {
-            visualEffects.createRippleEffect(centerX, centerY, 1);
-            
-            player1.updateFunds(-cost);
-            stateInfo.recordStateAction(stateId, 1, cost);
-            
-            if (!isSelected) {
-                this.selectState(stateId);
-            } else {
-                this.deselectState(stateId);
-            }
+          player1.updateFunds(-cost);
+          stateInfo.recordStateAction(stateId, 1, cost);
         } else {
-            visualEffects.showErrorFeedback(stateElement);
-            player1.showInsufficientFundsError();
+          player1.showInsufficientFundsError();
         }
-    }    async refreshAllStateColors() {
-        if (!this.svgDocument) return;
+      } catch (error) {
+        console.error("Error processing state click:", error);
+      }
+    });
+  }
 
-        const { stateInfo } = await import('./state-info.js');
-        
-        const states = this.svgDocument.querySelectorAll('path');
-        states.forEach(state => {
-            if (state.id) {
-                const popularity = stateInfo.getStatePopularity(state.id);
-                if (popularity) {
-                    this.updateStateColor(state.id, popularity);
-                }
-            }
-        });
-        
-        // Add permanent home state indicators
-        visualEffects.addAllHomeStateIndicators();
+  setupHoverEvents() {
+    window.addEventListener("stateHover", (event) => {
+      const { stateId } = event.detail;
+      if (!stateId) return;
+
+      const stateElement = this.svgDocument.getElementById(stateId);
+      if (stateElement) {
+        this.handleStateHover({ target: stateElement });
+      }
+    });
+
+    window.addEventListener("stateUnhover", (event) => {
+      const { stateId } = event.detail;
+      if (!stateId) return;
+
+      const stateElement = this.svgDocument.getElementById(stateId);
+      if (stateElement) {
+        this.handleStateUnhover({ target: stateElement });
+      }
+    });
+  }
+  async handleStateClick(event) {
+    if (isGamePaused()) return;
+
+    const stateElement = event.target;
+    const stateId = stateElement.id;
+    const stateData = this.statesData.find((state) => state.SvgId === stateId);
+
+    if (!stateData) return;
+
+    // Debug mode: One-click max popularity
+    if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
+      const newPopularity = { player1: 100, player2: 0, others: 0 };
+      stateInfo.setStatePopularity(stateId, newPopularity);
+
+      // Create ripple effect
+      const svgPoint = this.svgDocument.querySelector("svg").createSVGPoint();
+      svgPoint.x = event.clientX;
+      svgPoint.y = event.clientY;
+      const point = svgPoint.matrixTransform(
+        stateElement.getScreenCTM().inverse(),
+      );
+      visualEffects.createRippleEffect(point.x, point.y, 1);
+
+      window.dispatchEvent(
+        new CustomEvent("stateHover", {
+          detail: { stateId: stateId },
+        }),
+      );
+      return;
     }
+
+    const seats = parseInt(stateData.LokSabhaSeats);
+    // Apply home state discount to campaign cost if applicable
+    const baseCost = seats;
+    const cost = homeStateBonus.getCampaignCost(1, stateData.State, baseCost);
+
+    // Show home state indicator if this is the player's home state
+    const isHomeState = homeStateBonus.isHomeState(1, stateData.State);
+    if (isHomeState) {
+      console.log(
+        `Player 1 clicked on home state ${stateData.State}. Base cost: ${baseCost}M, Discounted: ${cost}M`,
+      );
+      visualEffects.showHomeStateIndicator(stateElement);
+    }
+
+    // Get click coordinates for ripple effect
+    const svgPoint = this.svgDocument.querySelector("svg").createSVGPoint();
+    svgPoint.x = event.clientX;
+    svgPoint.y = event.clientY;
+    const point = svgPoint.matrixTransform(
+      stateElement.getScreenCTM().inverse(),
+    );
+
+    const isSelected = this.selectedStates.has(stateId);
+
+    if (player1.canSpend(cost)) {
+      visualEffects.createRippleEffect(point.x, point.y, 1);
+
+      player1.updateFunds(-cost);
+      stateInfo.recordStateAction(stateId, 1, cost);
+
+      if (!isSelected) {
+        this.selectState(stateId);
+      } else {
+        this.deselectState(stateId);
+      }
+
+      window.dispatchEvent(
+        new CustomEvent("stateHover", {
+          detail: { stateId: stateId },
+        }),
+      );
+    } else {
+      visualEffects.showErrorFeedback(stateElement);
+      player1.showInsufficientFundsError();
+    }
+  }
+  selectState(stateId) {
+    const stateElement = this.svgDocument.getElementById(stateId);
+    if (stateElement) {
+      const currentLeader = stateElement.getAttribute("data-leader");
+      stateElement.setAttribute("data-prev-leader", currentLeader || "others");
+      stateElement.setAttribute("data-selected", "true");
+      this.selectedStates.add(stateId);
+      this.triggerStateSelectionEvent(stateId, true);
+    }
+  }
+
+  deselectState(stateId) {
+    const stateElement = this.svgDocument.getElementById(stateId);
+    if (stateElement) {
+      stateElement.removeAttribute("data-selected");
+      this.selectedStates.delete(stateId);
+
+      Promise.all([import("./state-info.js")]).then(([stateModule]) => {
+        const stateInfo = stateModule.stateInfo;
+        const popularity = stateInfo.getStatePopularity(stateId);
+
+        if (popularity) {
+          this.updateStateColor(stateId, popularity);
+        } else {
+          stateElement.setAttribute("fill", "#9E9E9E");
+          stateElement.setAttribute("data-leader", "others");
+        }
+
+        this.triggerStateSelectionEvent(stateId, false);
+      });
+    }
+  }
+
+  resetStateSelection(stateId) {
+    const stateElement = this.svgDocument.getElementById(stateId);
+    if (stateElement && this.selectedStates.has(stateId)) {
+      this.selectedStates.delete(stateId);
+      stateElement.removeAttribute("data-selected");
+
+      Promise.all([import("./state-info.js")]).then(([stateModule]) => {
+        const stateInfo = stateModule.stateInfo;
+        const popularity = stateInfo.getStatePopularity(stateId);
+        if (popularity) {
+          this.updateStateColor(stateId, popularity);
+        }
+      });
+
+      this.triggerStateSelectionEvent(stateId, false);
+    }
+  }
+
+  resetAllSelections() {
+    const selectedStatesCopy = [...this.selectedStates];
+    selectedStatesCopy.forEach((stateId) => {
+      this.resetStateSelection(stateId);
+    });
+  }
+  handleStateHover(event) {
+    const stateElement = event.target;
+    const stateId = stateElement.id;
+
+    window.dispatchEvent(
+      new CustomEvent("stateHover", {
+        detail: { stateId: stateId },
+      }),
+    );
+  }
+
+  handleStateUnhover(event) {
+    // Colors are maintained by data attributes, no action needed
+  }
+
+  updateStateColor(stateId, popularityData) {
+    const stateElement = this.svgDocument.getElementById(stateId);
+    if (!stateElement) return;
+
+    // Check if player colors are available
+    if (!player1.primaryColor || !player2.primaryColor) {
+      setTimeout(() => this.updateStateColor(stateId, popularityData), 200);
+      return;
+    }
+
+    // Calculate color and leader
+    const { color, leader } = ColorUtils.getStateColor(
+      popularityData,
+      player1.primaryColor,
+      player2.primaryColor,
+    );
+
+    // Update state element
+    stateElement.setAttribute("data-leader", leader);
+    stateElement.setAttribute("fill", color);
+
+    // Update UT button
+    ColorUtils.updateUTButtonColor(stateId, popularityData);
+
+    // Schedule group domination check
+    setTimeout(async () => {
+      try {
+        const { stateGroups } = await import("./state-groups.js");
+        stateGroups.scheduleGroupDominationCheck();
+      } catch (error) {
+        console.error("Error scheduling group domination check:", error);
+      }
+    }, 100);
+  }
+  triggerStateSelectionEvent(stateId, selected) {
+    window.dispatchEvent(
+      new CustomEvent("stateSelection", {
+        detail: { stateId: stateId, selected: selected },
+      }),
+    );
+  }
+
+  handleLakshadweepClick(event) {
+    if (isGamePaused()) return;
+
+    const stateId = "INLD";
+    const stateData = this.statesData.find((state) => state.SvgId === stateId);
+    if (!stateData) return;
+
+    // Debug mode
+    if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
+      const newPopularity = { player1: 100, player2: 0, others: 0 };
+      stateInfo.setStatePopularity(stateId, newPopularity);
+
+      const bbox = event.target.getBBox();
+      const centerX = bbox.x + bbox.width / 2;
+      const centerY = bbox.y + bbox.height / 2;
+      visualEffects.createRippleEffect(centerX, centerY, 1);
+
+      window.dispatchEvent(
+        new CustomEvent("stateHover", {
+          detail: { stateId: stateId },
+        }),
+      );
+      return;
+    }
+
+    const seats = parseInt(stateData.LokSabhaSeats);
+    const cost = seats;
+    const stateElement = this.svgDocument.getElementById(stateId);
+    if (!stateElement) return;
+
+    const bbox = event.target.getBBox();
+    const centerX = bbox.x + bbox.width / 2;
+    const centerY = bbox.y + bbox.height / 2;
+    const isSelected = this.selectedStates.has(stateId);
+
+    if (player1.canSpend(cost)) {
+      visualEffects.createRippleEffect(centerX, centerY, 1);
+
+      player1.updateFunds(-cost);
+      stateInfo.recordStateAction(stateId, 1, cost);
+
+      if (!isSelected) {
+        this.selectState(stateId);
+      } else {
+        this.deselectState(stateId);
+      }
+    } else {
+      visualEffects.showErrorFeedback(stateElement);
+      player1.showInsufficientFundsError();
+    }
+  }
+  async refreshAllStateColors() {
+    if (!this.svgDocument) return;
+
+    const { stateInfo } = await import("./state-info.js");
+
+    const states = this.svgDocument.querySelectorAll("path");
+    states.forEach((state) => {
+      if (state.id) {
+        const popularity = stateInfo.getStatePopularity(state.id);
+        if (popularity) {
+          this.updateStateColor(state.id, popularity);
+        }
+      }
+    });
+
+    // Add permanent home state indicators
+    visualEffects.addAllHomeStateIndicators();
+  }
 }
 // Create and export a single instance of MapController
 export const mapController = new MapController();

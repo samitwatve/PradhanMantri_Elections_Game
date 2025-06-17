@@ -1,562 +1,611 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Politician Trading Cards</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');        body {
-            font-family: 'Inter', sans-serif;
-            background: url('PradhanMantriBg.png') repeat-x center center/50% 95vh, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 2rem;
-            overflow-x: hidden;
-        }
-        .slide-container {
-            position: relative;
-            max-width: 400px;
-            margin: 0 auto;
-            perspective: 1000px;
-        }        .card-stack {
-            position: relative;
-            width: 100%;
-            height: 650px; /* Increased height to accommodate square image */
-        }        .card-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ffffff;
-            border-radius: 1.25rem;
-            border: 3px solid #f97316;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            transform-style: preserve-3d;
-            cursor: pointer;
-        }
-        
-        /* Custom aspect ratio for politician image container */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+        background:
+          url("PradhanMantriBg.png") repeat-x center center/50% 95vh,
+          linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem;
+        overflow-x: hidden;
+      }
+      .slide-container {
+        position: relative;
+        max-width: 400px;
+        margin: 0 auto;
+        perspective: 1000px;
+      }
+      .card-stack {
+        position: relative;
+        width: 100%;
+        height: 650px; /* Increased height to accommodate square image */
+      }
+      .card-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #ffffff;
+        border-radius: 1.25rem;
+        border: 3px solid #f97316;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        transform-style: preserve-3d;
+        cursor: pointer;
+      }
+
+      /* Custom aspect ratio for politician image container */
+      .politician-image-container {
+        aspect-ratio: 1 / 1; /* Square aspect ratio */
+        width: 100%;
+      }
+
+      /* Fallback for older browsers that don't support aspect-ratio */
+      @supports not (aspect-ratio: 1 / 1) {
         .politician-image-container {
-            aspect-ratio: 1 / 1; /* Square aspect ratio */
-            width: 100%;
+          height: 0;
+          padding-bottom: 100%; /* Square aspect ratio fallback */
+          position: relative;
         }
-        
-        /* Fallback for older browsers that don't support aspect-ratio */
-        @supports not (aspect-ratio: 1 / 1) {
-            .politician-image-container {
-                height: 0;
-                padding-bottom: 100%; /* Square aspect ratio fallback */
-                position: relative;
-            }
-            .politician-image-container img {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-            }
+        .politician-image-container img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
         }
-        .card-container.active {
-            z-index: 10;
-            transform: translateZ(0) rotateY(0deg);
+      }
+      .card-container.active {
+        z-index: 10;
+        transform: translateZ(0) rotateY(0deg);
+      }
+      .card-container.prev {
+        z-index: 5;
+        transform: translateX(-50px) translateZ(-100px) rotateY(25deg);
+        opacity: 0.7;
+      }
+      .card-container.next {
+        z-index: 5;
+        transform: translateX(50px) translateZ(-100px) rotateY(-25deg);
+        opacity: 0.7;
+      }
+      .card-container.hidden {
+        z-index: 1;
+        transform: translateZ(-200px) scale(0.8);
+        opacity: 0.3;
+      } /* Policy item styling for simple text display */
+      .policy-item-wrapper {
+        background-color: #fff7ed; /* Default very light orange background */
+        border-radius: 0.375rem; /* Rounded corners for the block */
+        padding: 0.6rem 0.8rem; /* Padding around the content */
+        border: 1px solid #fed7aa; /* Default subtle orange border */
+        overflow: hidden;
+        transition: all 0.2s ease; /* Smooth transition for hover effects */
+        text-align: center;
+      }
+
+      .policy-item-wrapper:hover {
+        transform: translateY(-1px); /* Slight lift on hover */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .policy-label {
+        color: #c2410c; /* Default darker orange text for policy title */
+        font-size: 0.85rem; /* Policy name font size */
+        font-weight: 600;
+        margin-bottom: 0.25rem; /* Small gap between label and score */
+        line-height: 1.2;
+      }
+
+      .policy-score {
+        color: #ea580c; /* Slightly different orange for the score */
+        font-size: 0.75rem; /* Score font size */
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .page-header {
+        text-align: center;
+        margin: 2rem 0;
+        color: white;
+      }
+
+      .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .page-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .navigation-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .nav-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .card-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .indicator-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .indicator-dot.active {
+        background: white;
+        transform: scale(1.2);
+      }
+      .card-info {
+        text-align: center;
+        color: white;
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+
+      .auto-play-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .play-pause-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .play-pause-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .speed-control {
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .speed-slider {
+        width: 100px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.3);
+        outline: none;
+        -webkit-appearance: none;
+      }
+      .speed-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+      }
+      .speed-slider::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        border: none;
+      }
+
+      /* Responsive styles for policy grid */
+      .policies-grid {
+        gap: 0.375rem; /* Slightly smaller gap for 3 columns */
+      }
+
+      @media (max-width: 480px) {
+        .policies-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 0.5rem;
         }
-        .card-container.prev {
-            z-index: 5;
-            transform: translateX(-50px) translateZ(-100px) rotateY(25deg);
-            opacity: 0.7;
-        }
-        .card-container.next {
-            z-index: 5;
-            transform: translateX(50px) translateZ(-100px) rotateY(-25deg);
-            opacity: 0.7;
-        }
-        .card-container.hidden {
-            z-index: 1;
-            transform: translateZ(-200px) scale(0.8);
-            opacity: 0.3;
-        }        /* Policy item styling for simple text display */
+
         .policy-item-wrapper {
-            background-color: #fff7ed; /* Default very light orange background */
-            border-radius: 0.375rem; /* Rounded corners for the block */
-            padding: 0.6rem 0.8rem; /* Padding around the content */
-            border: 1px solid #fed7aa; /* Default subtle orange border */
-            overflow: hidden;
-            transition: all 0.2s ease; /* Smooth transition for hover effects */
-            text-align: center;
-        }
-        
-        .policy-item-wrapper:hover {
-            transform: translateY(-1px); /* Slight lift on hover */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          padding: 0.3rem 0.5rem;
         }
 
         .policy-label {
-            color: #c2410c; /* Default darker orange text for policy title */
-            font-size: 0.85rem; /* Policy name font size */
-            font-weight: 600;
-            margin-bottom: 0.25rem; /* Small gap between label and score */
-            line-height: 1.2;
+          font-size: 0.75rem;
         }
+      }
 
-        .policy-score {
-            color: #ea580c; /* Slightly different orange for the score */
-            font-size: 0.75rem; /* Score font size */
-            font-weight: 700;
-            line-height: 1.1;
-        }
-          .page-header {
-            text-align: center;
-            margin: 2rem 0;
-            color: white;
-        }
-        
-        .page-header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .page-header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .navigation-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .card-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .indicator-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .indicator-dot.active {
-            background: white;
-            transform: scale(1.2);
-        }        .card-info {
-            text-align: center;
-            color: white;
-            margin-top: 1rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .auto-play-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .play-pause-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .play-pause-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .speed-control {
-            color: white;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .speed-slider {
-            width: 100px;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.3);
-            outline: none;
-            -webkit-appearance: none;
-        }        .speed-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-        }.speed-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            border: none;
-        }
-
-        /* Responsive styles for policy grid */
+      @media (min-width: 481px) and (max-width: 768px) {
         .policies-grid {
-            gap: 0.375rem; /* Slightly smaller gap for 3 columns */
+          grid-template-columns: repeat(3, 1fr) !important;
+          gap: 0.375rem;
         }
 
-        @media (max-width: 480px) {
-            .policies-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 0.5rem;
-            }
-            
-            .policy-item-wrapper {
-                padding: 0.3rem 0.5rem;
-            }
-            
-            .policy-label {
-                font-size: 0.75rem;
-            }
+        .policy-item-wrapper {
+          padding: 0.35rem 0.55rem;
         }
 
-        @media (min-width: 481px) and (max-width: 768px) {
-            .policies-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 0.375rem;
-            }
-            
-            .policy-item-wrapper {
-                padding: 0.35rem 0.55rem;
-            }
-            
-            .policy-label {
-                font-size: 0.8rem;
-            }
+        .policy-label {
+          font-size: 0.8rem;
         }
+      }
     </style>
-</head>
-<body class="antialiased">    <div class="page-header">
-        <h1>Indian Political Leaders</h1>
-        <p>Browse through profile cards of prominent politicians</p>
+  </head>
+  <body class="antialiased">
+    <div class="page-header">
+      <h1>Indian Political Leaders</h1>
+      <p>Browse through profile cards of prominent politicians</p>
     </div>
-    
+
     <div class="slide-container">
-        <div id="card-stack" class="card-stack">
-            <!-- Cards will be dynamically inserted here -->
-        </div>
-    </div>    <div class="navigation-controls">
-        <button id="prev-btn" class="nav-btn">← Previous</button>
-        <button id="next-btn" class="nav-btn">Next →</button>
+      <div id="card-stack" class="card-stack">
+        <!-- Cards will be dynamically inserted here -->
+      </div>
+    </div>
+    <div class="navigation-controls">
+      <button id="prev-btn" class="nav-btn">← Previous</button>
+      <button id="next-btn" class="nav-btn">Next →</button>
     </div>
 
     <div id="card-indicator" class="card-indicator">
-        <!-- Indicator dots will be dynamically inserted here -->
+      <!-- Indicator dots will be dynamically inserted here -->
     </div>
 
     <div id="card-info" class="card-info">
-        <span id="current-card">1</span> of <span id="total-cards">8</span>
-    </div>    <!-- Card Template (Hidden) -->
-    <template id="politician-card-template">        <div class="card-container w-full p-5 md:p-6">
-            <!-- Politician Image Section -->
-            <div class="politician-image-container relative bg-gray-200 rounded-lg overflow-hidden mb-4 border-3 border-gray-300">
-                <img class="politician-image w-full h-full object-cover rounded-lg"
-                     alt="Politician Image"
-                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/E2E8F0/A0AEC0?text=Image+Not+Found';">
-                <!-- Party Logo Overlay -->
-                <div class="absolute top-2 right-2 w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center shadow-md border-2 border-gray-200">
-                    <img class="party-logo w-full h-full object-contain rounded-full"
-                         alt="Party Logo"
-                         onerror="this.onerror=null; this.src='https://placehold.co/40x40/FFFFFF/F97316?text=Logo';">
-                </div>
-            </div>
-
-            <!-- Politician Details Section -->
-            <div class="text-center mb-4">
-                <h2 class="text-xl font-extrabold text-gray-900 leading-tight">
-                    <span class="politician-name"></span> <span class="politician-party text-sm font-semibold text-orange-600"></span>
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">
-                    Home State: <span class="politician-state font-medium text-gray-800"></span>
-                </p>
-            </div>
-
-            <!-- Policy Section -->
-            <div>
-                <h3 class="text-base font-bold text-gray-800 mb-2 text-center border-b-2 border-orange-200 pb-1">Key Policies</h3>
-                <div class="policies-grid grid grid-cols-3 gap-2">
-                    <!-- Policy items will be dynamically inserted here -->
-                </div>
-            </div>
+      <span id="current-card">1</span> of <span id="total-cards">8</span>
+    </div>
+    <!-- Card Template (Hidden) -->
+    <template id="politician-card-template">
+      <div class="card-container w-full p-5 md:p-6">
+        <!-- Politician Image Section -->
+        <div
+          class="politician-image-container relative bg-gray-200 rounded-lg overflow-hidden mb-4 border-3 border-gray-300"
+        >
+          <img
+            class="politician-image w-full h-full object-cover rounded-lg"
+            alt="Politician Image"
+            onerror="this.onerror=null; this.src='https://placehold.co/400x400/E2E8F0/A0AEC0?text=Image+Not+Found';"
+          />
+          <!-- Party Logo Overlay -->
+          <div
+            class="absolute top-2 right-2 w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center shadow-md border-2 border-gray-200"
+          >
+            <img
+              class="party-logo w-full h-full object-contain rounded-full"
+              alt="Party Logo"
+              onerror="this.onerror=null; this.src='https://placehold.co/40x40/FFFFFF/F97316?text=Logo';"
+            />
+          </div>
         </div>
-    </template>    <script>        let politicians = [];
-        let currentIndex = 0;        document.addEventListener('DOMContentLoaded', async function() {
-            // Fetch the politicians data from JSON file
-            try {
-                const response = await fetch('politicians-data.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const politiciansData = await response.json();
-                  // Process politicians data - use the image paths directly from JSON
-                politicians = politiciansData.politicians.map(politician => {
-                    const processedPolitician = { ...politician };
-                    
-                    // Use the image and logo paths directly from the JSON file
-                    // No need to override them here since they're already correct in the JSON
-                    
-                    return processedPolitician;
-                });
-                
-                console.log('Loaded and processed politicians data:', politicians);
-                renderPoliticianCards(politicians);
-                setupNavigation();
-                updateCardPositions();
-            } catch (error) {
-                console.error('Error loading politicians data:', error);
-                // Fallback to embedded data
-                loadFallbackData();
-            }
-        });        function loadFallbackData() {
-            console.error('Could not load politicians data from JSON file');
-            // Display error message to user
-            const container = document.getElementById('card-stack');
-            container.innerHTML = `
+
+        <!-- Politician Details Section -->
+        <div class="text-center mb-4">
+          <h2 class="text-xl font-extrabold text-gray-900 leading-tight">
+            <span class="politician-name"></span>
+            <span
+              class="politician-party text-sm font-semibold text-orange-600"
+            ></span>
+          </h2>
+          <p class="text-sm text-gray-600 mt-1">
+            Home State:
+            <span class="politician-state font-medium text-gray-800"></span>
+          </p>
+        </div>
+
+        <!-- Policy Section -->
+        <div>
+          <h3
+            class="text-base font-bold text-gray-800 mb-2 text-center border-b-2 border-orange-200 pb-1"
+          >
+            Key Policies
+          </h3>
+          <div class="policies-grid grid grid-cols-3 gap-2">
+            <!-- Policy items will be dynamically inserted here -->
+          </div>
+        </div>
+      </div>
+    </template>
+    <script>
+      let politicians = [];
+      let currentIndex = 0;
+      document.addEventListener("DOMContentLoaded", async function () {
+        // Fetch the politicians data from JSON file
+        try {
+          const response = await fetch("politicians-data.json");
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const politiciansData = await response.json();
+          // Process politicians data - use the image paths directly from JSON
+          politicians = politiciansData.politicians.map((politician) => {
+            const processedPolitician = { ...politician };
+
+            // Use the image and logo paths directly from the JSON file
+            // No need to override them here since they're already correct in the JSON
+
+            return processedPolitician;
+          });
+
+          console.log("Loaded and processed politicians data:", politicians);
+          renderPoliticianCards(politicians);
+          setupNavigation();
+          updateCardPositions();
+        } catch (error) {
+          console.error("Error loading politicians data:", error);
+          // Fallback to embedded data
+          loadFallbackData();
+        }
+      });
+      function loadFallbackData() {
+        console.error("Could not load politicians data from JSON file");
+        // Display error message to user
+        const container = document.getElementById("card-stack");
+        container.innerHTML = `
                 <div style="text-align: center; color: white; padding: 2rem;">
                     <h3>Error loading politicians data</h3>
                     <p>Please ensure politicians-data.json file is available</p>
                 </div>
             `;
-        }
+      }
 
-        function renderPoliticianCards(politicians) {
-            const container = document.getElementById('card-stack');
-            const template = document.getElementById('politician-card-template');
-            
-            politicians.forEach((politician, index) => {
-                // Clone the template
-                const card = template.content.cloneNode(true);
-                
-                // Set politician details
-                card.querySelector('.politician-name').textContent = politician.name;
-                card.querySelector('.politician-party').textContent = `(${politician.party})`;
-                card.querySelector('.politician-state').textContent = politician.homeState;
-                
-                // Set images with fallbacks
-                const politicianImage = card.querySelector('.politician-image');
-                politicianImage.src = politician.image;
-                politicianImage.alt = `${politician.name} - Photo`;
-                
-                const partyLogo = card.querySelector('.party-logo');
-                partyLogo.src = politician.partyLogo;
-                partyLogo.alt = `${politician.party} Logo`;
-                
-                // Apply primary color to card elements
-                const primaryColor = politician.primaryColor;
-                const cardContainer = card.querySelector('.card-container');
-                cardContainer.dataset.index = index;
-                
-                // Apply color to card border
-                cardContainer.style.borderColor = primaryColor;
-                
-                // Generate lighter and darker shades for hover and text effects
-                const lighterShade = lightenColor(primaryColor, 20);
-                const darkerShade = darkenColor(primaryColor, 20);
-                const veryLightShade = lightenColor(primaryColor, 45);
-                const veryLightBorder = lightenColor(primaryColor, 30);
-                
-                // Apply color to party affiliation text
-                const partyText = card.querySelector('.politician-party');
-                partyText.style.color = primaryColor;
-                  // Render policy items
-                const policiesGrid = card.querySelector('.policies-grid');
-                politician.policies.forEach(policy => {                    const policyItem = document.createElement('div');
-                    policyItem.className = 'policy-item-wrapper';
-                    policyItem.innerHTML = `
+      function renderPoliticianCards(politicians) {
+        const container = document.getElementById("card-stack");
+        const template = document.getElementById("politician-card-template");
+
+        politicians.forEach((politician, index) => {
+          // Clone the template
+          const card = template.content.cloneNode(true);
+
+          // Set politician details
+          card.querySelector(".politician-name").textContent = politician.name;
+          card.querySelector(".politician-party").textContent =
+            `(${politician.party})`;
+          card.querySelector(".politician-state").textContent =
+            politician.homeState;
+
+          // Set images with fallbacks
+          const politicianImage = card.querySelector(".politician-image");
+          politicianImage.src = politician.image;
+          politicianImage.alt = `${politician.name} - Photo`;
+
+          const partyLogo = card.querySelector(".party-logo");
+          partyLogo.src = politician.partyLogo;
+          partyLogo.alt = `${politician.party} Logo`;
+
+          // Apply primary color to card elements
+          const primaryColor = politician.primaryColor;
+          const cardContainer = card.querySelector(".card-container");
+          cardContainer.dataset.index = index;
+
+          // Apply color to card border
+          cardContainer.style.borderColor = primaryColor;
+
+          // Generate lighter and darker shades for hover and text effects
+          const lighterShade = lightenColor(primaryColor, 20);
+          const darkerShade = darkenColor(primaryColor, 20);
+          const veryLightShade = lightenColor(primaryColor, 45);
+          const veryLightBorder = lightenColor(primaryColor, 30);
+
+          // Apply color to party affiliation text
+          const partyText = card.querySelector(".politician-party");
+          partyText.style.color = primaryColor;
+          // Render policy items
+          const policiesGrid = card.querySelector(".policies-grid");
+          politician.policies.forEach((policy) => {
+            const policyItem = document.createElement("div");
+            policyItem.className = "policy-item-wrapper";
+            policyItem.innerHTML = `
                         <p class="policy-label" style="font-size: 0.8rem;">${policy.name}</p>
                         <p class="policy-score" style="font-size: 0.75rem; font-weight: bold;">+${policy.bonus}%</p>
                     `;
-                    
-                    // Apply styling to the newly created policy item
-                    policyItem.style.backgroundColor = veryLightShade;
-                    policyItem.style.borderColor = veryLightBorder;
-                    policyItem.style.padding = '0.4rem 0.6rem';
-                    
-                    const label = policyItem.querySelector('.policy-label');
-                    label.style.color = darkerShade;
-                    
-                    const scoreText = policyItem.querySelector('.policy-score');
-                    scoreText.style.color = primaryColor;
-                    
-                    policiesGrid.appendChild(policyItem);
-                });
-                
-                // Add click event to card for navigation
-                cardContainer.addEventListener('click', () => {
-                    if (index !== currentIndex) {
-                        currentIndex = index;
-                        updateCardPositions();
-                        updateIndicators();
-                        updateCardInfo();
-                    }
-                });
-                
-                // Add the card to the container
-                container.appendChild(card);
-            });            // Update total cards display
-            document.getElementById('total-cards').textContent = politicians.length;
-        }
 
-        function setupNavigation() {
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-            const indicatorContainer = document.getElementById('card-indicator');
+            // Apply styling to the newly created policy item
+            policyItem.style.backgroundColor = veryLightShade;
+            policyItem.style.borderColor = veryLightBorder;
+            policyItem.style.padding = "0.4rem 0.6rem";
 
-            // Create indicator dots
-            politicians.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = 'indicator-dot';
-                if (index === 0) dot.classList.add('active');
-                dot.addEventListener('click', () => {
-                    currentIndex = index;
-                    updateCardPositions();
-                    updateIndicators();
-                    updateCardInfo();
-                });
-                indicatorContainer.appendChild(dot);
-            });            // Previous button
-            prevBtn.addEventListener('click', () => {
-                currentIndex = currentIndex === 0 ? politicians.length - 1 : currentIndex - 1;
-                updateCardPositions();
-                updateIndicators();
-                updateCardInfo();
-            });
+            const label = policyItem.querySelector(".policy-label");
+            label.style.color = darkerShade;
 
-            // Next button
-            nextBtn.addEventListener('click', () => {
-                currentIndex = (currentIndex + 1) % politicians.length;
-                updateCardPositions();
-                updateIndicators();
-                updateCardInfo();
-            });            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') {
-                    currentIndex = currentIndex === 0 ? politicians.length - 1 : currentIndex - 1;
-                    updateCardPositions();
-                    updateIndicators();
-                    updateCardInfo();
-                } else if (e.key === 'ArrowRight') {
-                    currentIndex = (currentIndex + 1) % politicians.length;
-                    updateCardPositions();
-                    updateIndicators();
-                    updateCardInfo();
-                }
-            });
-        }        function updateCardPositions() {
-            const cards = document.querySelectorAll('.card-container');
+            const scoreText = policyItem.querySelector(".policy-score");
+            scoreText.style.color = primaryColor;
 
-            cards.forEach((card, index) => {
-                // Remove all position classes
-                card.classList.remove('active', 'prev', 'next', 'hidden');
-                
-                if (index === currentIndex) {
-                    card.classList.add('active');
-                } else if (index === currentIndex - 1) {
-                    card.classList.add('prev');
-                } else if (index === currentIndex + 1) {
-                    card.classList.add('next');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
+            policiesGrid.appendChild(policyItem);
+          });
 
-        function updateIndicators() {
-            const dots = document.querySelectorAll('.indicator-dot');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
-        }        function updateCardInfo() {
-            document.getElementById('current-card').textContent = currentIndex + 1;
-        }
+          // Add click event to card for navigation
+          cardContainer.addEventListener("click", () => {
+            if (index !== currentIndex) {
+              currentIndex = index;
+              updateCardPositions();
+              updateIndicators();
+              updateCardInfo();
+            }
+          });
 
-        // Helper function to lighten a color
-        function lightenColor(color, percent) {
-            const num = parseInt(color.replace("#", ""), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = (num >> 16) + amt;
-            const G = (num >> 8 & 0x00FF) + amt;
-            const B = (num & 0x0000FF) + amt;
-            return '#' + (
-                0x1000000 + 
-                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + 
-                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + 
-                (B < 255 ? (B < 1 ? 0 : B) : 255)
-            ).toString(16).slice(1);
-        }
-        
-        // Helper function to darken a color
-        function darkenColor(color, percent) {
-            const num = parseInt(color.replace("#", ""), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = (num >> 16) - amt;
-            const G = (num >> 8 & 0x00FF) - amt;
-            const B = (num & 0x0000FF) - amt;
-            return '#' + (
-                0x1000000 + 
-                (R > 0 ? (R > 255 ? 255 : R) : 0) * 0x10000 + 
-                (G > 0 ? (G > 255 ? 255 : G) : 0) * 0x100 + 
-                (B > 0 ? (B > 255 ? 255 : B) : 0)
-            ).toString(16).slice(1);
-        }
+          // Add the card to the container
+          container.appendChild(card);
+        }); // Update total cards display
+        document.getElementById("total-cards").textContent = politicians.length;
+      }
+
+      function setupNavigation() {
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const indicatorContainer = document.getElementById("card-indicator");
+
+        // Create indicator dots
+        politicians.forEach((_, index) => {
+          const dot = document.createElement("div");
+          dot.className = "indicator-dot";
+          if (index === 0) dot.classList.add("active");
+          dot.addEventListener("click", () => {
+            currentIndex = index;
+            updateCardPositions();
+            updateIndicators();
+            updateCardInfo();
+          });
+          indicatorContainer.appendChild(dot);
+        }); // Previous button
+        prevBtn.addEventListener("click", () => {
+          currentIndex =
+            currentIndex === 0 ? politicians.length - 1 : currentIndex - 1;
+          updateCardPositions();
+          updateIndicators();
+          updateCardInfo();
+        });
+
+        // Next button
+        nextBtn.addEventListener("click", () => {
+          currentIndex = (currentIndex + 1) % politicians.length;
+          updateCardPositions();
+          updateIndicators();
+          updateCardInfo();
+        }); // Keyboard navigation
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowLeft") {
+            currentIndex =
+              currentIndex === 0 ? politicians.length - 1 : currentIndex - 1;
+            updateCardPositions();
+            updateIndicators();
+            updateCardInfo();
+          } else if (e.key === "ArrowRight") {
+            currentIndex = (currentIndex + 1) % politicians.length;
+            updateCardPositions();
+            updateIndicators();
+            updateCardInfo();
+          }
+        });
+      }
+      function updateCardPositions() {
+        const cards = document.querySelectorAll(".card-container");
+
+        cards.forEach((card, index) => {
+          // Remove all position classes
+          card.classList.remove("active", "prev", "next", "hidden");
+
+          if (index === currentIndex) {
+            card.classList.add("active");
+          } else if (index === currentIndex - 1) {
+            card.classList.add("prev");
+          } else if (index === currentIndex + 1) {
+            card.classList.add("next");
+          } else {
+            card.classList.add("hidden");
+          }
+        });
+      }
+
+      function updateIndicators() {
+        const dots = document.querySelectorAll(".indicator-dot");
+        dots.forEach((dot, index) => {
+          dot.classList.toggle("active", index === currentIndex);
+        });
+      }
+      function updateCardInfo() {
+        document.getElementById("current-card").textContent = currentIndex + 1;
+      }
+
+      // Helper function to lighten a color
+      function lightenColor(color, percent) {
+        const num = parseInt(color.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) + amt;
+        const G = ((num >> 8) & 0x00ff) + amt;
+        const B = (num & 0x0000ff) + amt;
+        return (
+          "#" +
+          (
+            0x1000000 +
+            (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+            (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+            (B < 255 ? (B < 1 ? 0 : B) : 255)
+          )
+            .toString(16)
+            .slice(1)
+        );
+      }
+
+      // Helper function to darken a color
+      function darkenColor(color, percent) {
+        const num = parseInt(color.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) - amt;
+        const G = ((num >> 8) & 0x00ff) - amt;
+        const B = (num & 0x0000ff) - amt;
+        return (
+          "#" +
+          (
+            0x1000000 +
+            (R > 0 ? (R > 255 ? 255 : R) : 0) * 0x10000 +
+            (G > 0 ? (G > 255 ? 255 : G) : 0) * 0x100 +
+            (B > 0 ? (B > 255 ? 255 : B) : 0)
+          )
+            .toString(16)
+            .slice(1)
+        );
+      }
     </script>
-</body>
+  </body>
 </html>

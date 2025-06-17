@@ -1,76 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Comprehensive Home State Debug</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Comprehensive Home State Debug</h1>
     <div id="output"></div>
-    
+
     <script type="module">
-        // First, let's simulate the actual game config setup
-        const testGameConfig = {
-            playerName: "Test Player",
-            player1Politician: {
-                id: "yogi-adityanath",
-                name: "Yogi Adityanath",
-                party: "BJP",
-                homeState: "Uttar Pradesh",
-                primaryColor: "#FF9933"
-            },
-            player2Politician: {
-                id: "manmohan-singh", 
-                name: "Manmohan Singh",
-                party: "INC",
-                homeState: "Punjab",
-                primaryColor: "#138808"
-            }
-        };
-        
-        // Store in localStorage like the welcome screen does
-        localStorage.setItem('gameConfig', JSON.stringify(testGameConfig));
-        
-        // Now test the actual modules
-        import { politicianBonusSystem } from './js/politician-bonus-system.js';
-        import { popularityInitializer } from './js/popularity-initializer.js';
-        
-        async function comprehensiveTest() {
-            const output = document.getElementById('output');
-            
-            try {
-                output.innerHTML += '<h2>Step 1: Initialize Politician Bonus System</h2>';
-                const initialized = await politicianBonusSystem.initialize();
-                output.innerHTML += `<p>Initialized: ${initialized}</p>`;
-                
-                output.innerHTML += '<h2>Step 2: Test Home State Mappings</h2>';
-                const yogiHomeSvgId = politicianBonusSystem.getHomeStateSvgId('yogi-adityanath');
-                const manmohanHomeSvgId = politicianBonusSystem.getHomeStateSvgId('manmohan-singh');
-                
-                output.innerHTML += `<p>Yogi home state SVG ID: ${yogiHomeSvgId}</p>`;
-                output.innerHTML += `<p>Manmohan home state SVG ID: ${manmohanHomeSvgId}</p>`;
-                
-                output.innerHTML += '<h2>Step 3: Test Popularity Bonuses</h2>';
-                if (yogiHomeSvgId) {
-                    const testPop = 30;
-                    const bonusPop = politicianBonusSystem.applyHomeStatePopularityBonus('yogi-adityanath', yogiHomeSvgId, testPop);
-                    output.innerHTML += `<p>Yogi popularity bonus: ${testPop}% → ${bonusPop}%</p>`;
-                }
-                
-                output.innerHTML += '<h2>Step 4: Test Cost Reductions</h2>';
-                if (yogiHomeSvgId) {
-                    const testCost = 80; // UP has 80 seats
-                    const reducedCost = politicianBonusSystem.calculateCampaignCost('yogi-adityanath', yogiHomeSvgId, testCost);
-                    output.innerHTML += `<p>Yogi cost reduction: ${testCost}M → ${reducedCost}M</p>`;
-                }
-                
-                output.innerHTML += '<h2>Step 5: Test Full Popularity Initialization</h2>';
-                const popularityMap = await popularityInitializer.initializeStatePopularity('yogi-adityanath', 'manmohan-singh');
-                
-                if (popularityMap) {
-                    // Check Yogi's home state
-                    const upPopularity = popularityMap.get('INUP');
-                    if (upPopularity) {
-                        output.innerHTML += `
+      // First, let's simulate the actual game config setup
+      const testGameConfig = {
+        playerName: "Test Player",
+        player1Politician: {
+          id: "yogi-adityanath",
+          name: "Yogi Adityanath",
+          party: "BJP",
+          homeState: "Uttar Pradesh",
+          primaryColor: "#FF9933",
+        },
+        player2Politician: {
+          id: "manmohan-singh",
+          name: "Manmohan Singh",
+          party: "INC",
+          homeState: "Punjab",
+          primaryColor: "#138808",
+        },
+      };
+
+      // Store in localStorage like the welcome screen does
+      localStorage.setItem("gameConfig", JSON.stringify(testGameConfig));
+
+      // Now test the actual modules
+      import { politicianBonusSystem } from "./js/politician-bonus-system.js";
+      import { popularityInitializer } from "./js/popularity-initializer.js";
+
+      async function comprehensiveTest() {
+        const output = document.getElementById("output");
+
+        try {
+          output.innerHTML +=
+            "<h2>Step 1: Initialize Politician Bonus System</h2>";
+          const initialized = await politicianBonusSystem.initialize();
+          output.innerHTML += `<p>Initialized: ${initialized}</p>`;
+
+          output.innerHTML += "<h2>Step 2: Test Home State Mappings</h2>";
+          const yogiHomeSvgId =
+            politicianBonusSystem.getHomeStateSvgId("yogi-adityanath");
+          const manmohanHomeSvgId =
+            politicianBonusSystem.getHomeStateSvgId("manmohan-singh");
+
+          output.innerHTML += `<p>Yogi home state SVG ID: ${yogiHomeSvgId}</p>`;
+          output.innerHTML += `<p>Manmohan home state SVG ID: ${manmohanHomeSvgId}</p>`;
+
+          output.innerHTML += "<h2>Step 3: Test Popularity Bonuses</h2>";
+          if (yogiHomeSvgId) {
+            const testPop = 30;
+            const bonusPop =
+              politicianBonusSystem.applyHomeStatePopularityBonus(
+                "yogi-adityanath",
+                yogiHomeSvgId,
+                testPop,
+              );
+            output.innerHTML += `<p>Yogi popularity bonus: ${testPop}% → ${bonusPop}%</p>`;
+          }
+
+          output.innerHTML += "<h2>Step 4: Test Cost Reductions</h2>";
+          if (yogiHomeSvgId) {
+            const testCost = 80; // UP has 80 seats
+            const reducedCost = politicianBonusSystem.calculateCampaignCost(
+              "yogi-adityanath",
+              yogiHomeSvgId,
+              testCost,
+            );
+            output.innerHTML += `<p>Yogi cost reduction: ${testCost}M → ${reducedCost}M</p>`;
+          }
+
+          output.innerHTML +=
+            "<h2>Step 5: Test Full Popularity Initialization</h2>";
+          const popularityMap =
+            await popularityInitializer.initializeStatePopularity(
+              "yogi-adityanath",
+              "manmohan-singh",
+            );
+
+          if (popularityMap) {
+            // Check Yogi's home state
+            const upPopularity = popularityMap.get("INUP");
+            if (upPopularity) {
+              output.innerHTML += `
                             <div style="border: 2px solid #FF9933; margin: 10px; padding: 10px;">
                                 <h4>Uttar Pradesh (Yogi's Home State)</h4>
                                 <p><strong>Player 1 (Yogi):</strong> ${upPopularity.player1}%</p>
@@ -79,12 +96,12 @@
                                 <p><strong>Expected:</strong> Player 1 should have 20% bonus (e.g., 30% → 36%)</p>
                             </div>
                         `;
-                    }
-                    
-                    // Check Manmohan's home state
-                    const pbPopularity = popularityMap.get('INPB');
-                    if (pbPopularity) {
-                        output.innerHTML += `
+            }
+
+            // Check Manmohan's home state
+            const pbPopularity = popularityMap.get("INPB");
+            if (pbPopularity) {
+              output.innerHTML += `
                             <div style="border: 2px solid #138808; margin: 10px; padding: 10px;">
                                 <h4>Punjab (Manmohan's Home State)</h4>
                                 <p><strong>Player 1:</strong> ${pbPopularity.player1}%</p>
@@ -93,18 +110,18 @@
                                 <p><strong>Expected:</strong> Player 2 should have 20% bonus (e.g., 30% → 36%)</p>
                             </div>
                         `;
-                    }
-                } else {
-                    output.innerHTML += '<p style="color: red;">❌ Failed to initialize popularity map</p>';
-                }
-                
-            } catch (error) {
-                output.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
-                console.error('Comprehensive test error:', error);
             }
+          } else {
+            output.innerHTML +=
+              '<p style="color: red;">❌ Failed to initialize popularity map</p>';
+          }
+        } catch (error) {
+          output.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+          console.error("Comprehensive test error:", error);
         }
-        
-        comprehensiveTest();
+      }
+
+      comprehensiveTest();
     </script>
-</body>
+  </body>
 </html>

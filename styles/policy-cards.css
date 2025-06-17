@@ -1,222 +1,272 @@
 .policy-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);    gap: 10px;
-    margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .policy-card {
-    background: linear-gradient(135deg, rgba(30,30,60,0.8) 0%, rgba(20,20,40,0.9) 100%);
-    border: 2px solid rgba(100, 100, 255, 0.3); /* Reduced from 3px */    border-radius: 6px;
-    padding: 12px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-    transition: all 0.2s ease;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 60, 0.8) 0%,
+    rgba(20, 20, 40, 0.9) 100%
+  );
+  border: 2px solid rgba(100, 100, 255, 0.3); /* Reduced from 3px */
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
 }
 
 .policy-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(150, 150, 255, 0.5);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+  border-color: rgba(150, 150, 255, 0.5);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
 }
 
 .policy-card h4 {
-    font-size: 0.85em;
-    color: #a0c0ff;
-    margin-bottom: 12px;
-    text-align: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px; /* Reduced from 1px */
-    text-shadow: 0 0 5px rgba(0, 0, 255, 0.3);
+  font-size: 0.85em;
+  color: #a0c0ff;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px; /* Reduced from 1px */
+  text-shadow: 0 0 5px rgba(0, 0, 255, 0.3);
 }
 
 .progress-item {
-    margin-bottom: 8px;
-    padding: 6px;
-    background: rgba(20, 20, 40, 0.5);
-    border-radius: 3px; /* Reduced from 4px */
-    transition: all 0.2s ease;
-    border: 1px solid rgba(100, 100, 255, 0.2);
-    position: relative;
-    cursor: pointer;
+  margin-bottom: 8px;
+  padding: 6px;
+  background: rgba(20, 20, 40, 0.5);
+  border-radius: 3px; /* Reduced from 4px */
+  transition: all 0.2s ease;
+  border: 1px solid rgba(100, 100, 255, 0.2);
+  position: relative;
+  cursor: pointer;
 }
 
 .progress-item:hover {
-    background: rgba(30, 30, 60, 0.6);
-    border-color: rgba(150, 150, 255, 0.3);
-    transform: translateY(-1px);
+  background: rgba(30, 30, 60, 0.6);
+  border-color: rgba(150, 150, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .progress-item-label {
-    font-size: 0.7em; /* Reduced from 0.8em */
-    color: #e0e0ff;
-    margin-bottom: 3px; /* Reduced from 4px */
-    display: block;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 0.7em; /* Reduced from 0.8em */
+  color: #e0e0ff;
+  margin-bottom: 3px; /* Reduced from 4px */
+  display: block;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .progress-bar {
-    width: 100%;
-    height: 6px; /* Reduced from 7px */
-    background: rgba(40, 40, 80, 0.3);
-    border-radius: 3px; /* Reduced from 4px */
-    overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
-    position: relative;
+  width: 100%;
+  height: 6px; /* Reduced from 7px */
+  background: rgba(40, 40, 80, 0.3);
+  border-radius: 3px; /* Reduced from 4px */
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  position: relative;
 }
 
 .progress-fill {
-    height: 100%;
-    width: 0%;
-    transition: width 0.6s ease;
-    position: relative;
+  height: 100%;
+  width: 0%;
+  transition: width 0.6s ease;
+  position: relative;
 }
 
 .progress-fill.player1 {
-    background: linear-gradient(90deg, var(--player1-color-dark) 0%, var(--player1-color) 100%);
-    box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
+  background: linear-gradient(
+    90deg,
+    var(--player1-color-dark) 0%,
+    var(--player1-color) 100%
+  );
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
 }
 
 .progress-fill.player2 {
-    background: linear-gradient(90deg, var(--player2-color-dark) 0%, var(--player2-color) 100%);
-    box-shadow: 0 0 10px rgba(46, 125, 50, 0.4);
+  background: linear-gradient(
+    90deg,
+    var(--player2-color-dark) 0%,
+    var(--player2-color) 100%
+  );
+  box-shadow: 0 0 10px rgba(46, 125, 50, 0.4);
 }
 
 .progress-fill.complete.player1 {
-    background: linear-gradient(90deg, var(--player1-color) 0%, var(--player1-color-light) 100%);
-    box-shadow: 0 0 15px rgba(255, 133, 51, 0.6);
-    animation: glow-pulse 2s infinite;
+  background: linear-gradient(
+    90deg,
+    var(--player1-color) 0%,
+    var(--player1-color-light) 100%
+  );
+  box-shadow: 0 0 15px rgba(255, 133, 51, 0.6);
+  animation: glow-pulse 2s infinite;
 }
 
 .progress-fill.complete.player2 {
-    background: linear-gradient(90deg, var(--player2-color) 0%, var(--player2-color-light) 100%);
-    box-shadow: 0 0 15px rgba(67, 160, 71, 0.6);
-    animation: glow-pulse 2s infinite;
+  background: linear-gradient(
+    90deg,
+    var(--player2-color) 0%,
+    var(--player2-color-light) 100%
+  );
+  box-shadow: 0 0 15px rgba(67, 160, 71, 0.6);
+  animation: glow-pulse 2s infinite;
 }
 
 /* Add animations for progress filling */
 @keyframes glow-pulse {
-    0% { box-shadow: 0 0 5px rgba(100, 100, 255, 0.3); }
-    50% { box-shadow: 0 0 15px rgba(100, 100, 255, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(100, 100, 255, 0.3); }
+  0% {
+    box-shadow: 0 0 5px rgba(100, 100, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(100, 100, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(100, 100, 255, 0.3);
+  }
 }
 
 /* Add shine effect on hover */
 @keyframes shine-effect {
-    0% { background-position: -200% center; }
-    100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .progress-item:hover::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0) 0%, 
-        rgba(255, 255, 255, 0.1) 25%, 
-        rgba(255, 255, 255, 0.1) 50%, 
-        rgba(255, 255, 255, 0) 100%);
-    background-size: 200% 100%;
-    animation: shine-effect 1.5s infinite linear;
-    pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shine-effect 1.5s infinite linear;
+  pointer-events: none;
 }
 
 /* Campaign contribution indicators */
 .contribution-info {
-    display: none;
+  display: none;
 }
 
 .contribution-player1 {
-    display: none;
+  display: none;
 }
 
 .contribution-player2 {
-    display: none;
+  display: none;
 }
 
 /* Campaign completion effect */
 .progress-item.completed {
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-    animation: completed-pulse 2s infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  animation: completed-pulse 2s infinite;
 }
 
 @keyframes completed-pulse {
-    0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
-    50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
-    100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+  }
 }
 
 /* Instruction tooltip */
 .progress-item::before {
-    display: none;
+  display: none;
 }
 
 .progress-item:hover::before {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Add responsive adjustments */
 @media (max-width: 768px) {
-    .policy-grid {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-    }
-    
-    .policy-card h4 {
-        font-size: 0.8em;
-    }
-    
-    .progress-item-label {
-        font-size: 0.7em;
-    }
+  .policy-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  .policy-card h4 {
+    font-size: 0.8em;
+  }
+
+  .progress-item-label {
+    font-size: 0.7em;
+  }
 }
 
 /* Campaign completion notifications moved to tv-display.css */
 
 /* Phase bonus notification */
 .phase-bonus-notification {
-    position: fixed;
-    bottom: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.9);
-    border-radius: 8px;
-    padding: 15px 25px;
-    z-index: 1000;
-    text-align: center;
-    animation: notification-slide 3s ease-in-out;
+  position: fixed;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  padding: 15px 25px;
+  z-index: 1000;
+  text-align: center;
+  animation: notification-slide 3s ease-in-out;
 }
 
 .phase-bonus-notification.player1 {
-    border: 3px solid var(--player1-color);
-    box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
+  border: 3px solid var(--player1-color);
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
 }
 
 .phase-bonus-notification.player2 {
-    border: 3px solid var(--player2-color);
-    box-shadow: 0 0 20px rgba(46, 125, 50, 0.6);
+  border: 3px solid var(--player2-color);
+  box-shadow: 0 0 20px rgba(46, 125, 50, 0.6);
 }
 
 @keyframes notification-slide {
-    0% { opacity: 0; transform: translate(-50%, 20px); }
-    10% { opacity: 1; transform: translate(-50%, 0); }
-    80% { opacity: 1; }
-    100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* Player instructions */
 .campaigns-section::before {
-    content: 'Click on a campaign to contribute as Player 1. Hold Shift key and click to contribute as Player 2.';
-    display: block;
-    font-size: 0.85em;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 10px;
-    text-align: center;
-    padding: 5px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+  content: "Click on a campaign to contribute as Player 1. Hold Shift key and click to contribute as Player 2.";
+  display: block;
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+  text-align: center;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }

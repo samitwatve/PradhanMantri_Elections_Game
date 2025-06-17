@@ -1,171 +1,206 @@
 /* Ripple effect styles */
 .ripple-container {
-    position: absolute;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
 }
 
 .ripple {
-    position: absolute;
-    border-radius: 50%;
-    transform: scale(0);
-    opacity: 0.5;
-    animation: ripple-animation 0.6s linear;
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0.5;
+  animation: ripple-animation 0.6s linear;
 }
 
 .ripple.player1 {
-    background: var(--player1-color);
+  background: var(--player1-color);
 }
 
 .ripple.player2 {
-    background: var(--player2-color);
+  background: var(--player2-color);
 }
 
 @keyframes ripple-animation {
-    to {
-        transform: scale(2);
-        opacity: 0;
-    }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 /* Fund change notification */
 .fund-change-notification {
-    position: absolute;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 4px 8px;
-    border-radius: 4px;    opacity: 0;
-    transform: translateY(0);
-    animation: fund-notification 0.6s ease-out forwards;
+  position: absolute;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateY(0);
+  animation: fund-notification 0.6s ease-out forwards;
 }
 
 .fund-change-notification.decrease {
-    background-color: rgba(255, 0, 0, 0.7);
+  background-color: rgba(255, 0, 0, 0.7);
 }
 
 .fund-change-notification.increase {
-    background-color: rgba(0, 128, 0, 0.7);
+  background-color: rgba(0, 128, 0, 0.7);
 }
 
 @keyframes fund-notification {
-    0% {
-        opacity: 0;
-        transform: translateY(0);
-    }
-    20% {
-        opacity: 1;
-        transform: translateY(-10px);
-    }
-    70% {
-        opacity: 1;
-        transform: translateY(-10px);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-10px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 
 /* Shake animation for insufficient funds */
 .shake-animation {
-    animation: shake 0.5s;
+  animation: shake 0.5s;
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 /* Blink animation for pause indicator */
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Pulse animation for game paused overlay */
 @keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 0.9; }
-    100% { opacity: 0.7; }
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.7;
+  }
 }
 
 /* Subtle glow animation for active elements */
 @keyframes subtle-glow {
-    from { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
-    to { text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+  from {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  }
 }
 
 /* Pause overlay styles */
 #game-pause-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.3s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .pause-message {
-    color: white;
-    font-size: 3rem;
-    font-weight: bold;
-    background-color: rgba(30, 30, 60, 0.8);
-    padding: 2rem 4rem;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    animation: pulse 2s infinite ease-in-out;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  background-color: rgba(30, 30, 60, 0.8);
+  padding: 2rem 4rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: pulse 2s infinite ease-in-out;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .resume-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .resume-button:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
+  background-color: #45a049;
+  transform: scale(1.05);
 }
 
 .resume-button:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* When game is paused, prevent mouse interactions with the game elements */
@@ -173,165 +208,185 @@
 .game-paused .player-actions,
 .game-paused .policy-section,
 .game-paused .states-section {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 /* Only allow interaction with the pause button and the pause overlay */
 .game-paused #gameplay-toggle,
 .game-paused #game-pause-overlay,
 .game-paused #resume-game-btn {
-    pointer-events: auto;
+  pointer-events: auto;
 }
 
 /* Phase Reset Effect */
 .phase-reset-effect {
-    animation: phaseResetPulse 1.5s ease-out;
+  animation: phaseResetPulse 1.5s ease-out;
 }
 
 .timer-box.phase-reset-effect {
-    animation: phaseResetGlow 1.5s ease-out;
+  animation: phaseResetGlow 1.5s ease-out;
 }
 
 @keyframes phaseResetPulse {
-    0% {
-        transform: scale(1);
-        color: #7bf7ff;
-        text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
-    }
-    25% {
-        transform: scale(1.2);
-        color: #ffffff;
-        text-shadow: 0 0 25px rgba(123, 247, 255, 1), 0 0 35px rgba(255, 255, 255, 0.8);
-    }
-    50% {
-        transform: scale(1.1);
-        color: #00ffff;
-        text-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9);
-    }
-    75% {
-        transform: scale(1.05);
-        color: #7bf7ff;
-        text-shadow: 0 0 20px rgba(123, 247, 255, 0.8);
-    }
-    100% {
-        transform: scale(1);
-        color: #7bf7ff;
-        text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
-    }
+  0% {
+    transform: scale(1);
+    color: #7bf7ff;
+    text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+  }
+  25% {
+    transform: scale(1.2);
+    color: #ffffff;
+    text-shadow:
+      0 0 25px rgba(123, 247, 255, 1),
+      0 0 35px rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    transform: scale(1.1);
+    color: #00ffff;
+    text-shadow:
+      0 0 30px rgba(0, 255, 255, 1),
+      0 0 40px rgba(255, 255, 255, 0.9);
+  }
+  75% {
+    transform: scale(1.05);
+    color: #7bf7ff;
+    text-shadow: 0 0 20px rgba(123, 247, 255, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    color: #7bf7ff;
+    text-shadow: 0 0 10px rgba(123, 247, 255, 0.5);
+  }
 }
 
 @keyframes phaseResetGlow {
-    0% {
-        border-color: rgba(100, 100, 255, 0.3);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-    }
-    25% {
-        border-color: rgba(0, 255, 255, 0.8);
-        box-shadow: 0 5px 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.4);
-        transform: translateY(-3px);
-    }
-    50% {
-        border-color: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4), 0 0 35px rgba(0, 255, 255, 0.6);
-        transform: translateY(-4px);
-    }
-    75% {
-        border-color: rgba(123, 247, 255, 0.6);
-        box-shadow: 0 6px 18px rgba(123, 247, 255, 0.5), 0 0 25px rgba(123, 247, 255, 0.3);
-        transform: translateY(-2px);
-    }
-    100% {
-        border-color: rgba(100, 100, 255, 0.3);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-        transform: translateY(0);
-    }
+  0% {
+    border-color: rgba(100, 100, 255, 0.3);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  }
+  25% {
+    border-color: rgba(0, 255, 255, 0.8);
+    box-shadow:
+      0 5px 20px rgba(0, 255, 255, 0.6),
+      0 0 30px rgba(0, 255, 255, 0.4);
+    transform: translateY(-3px);
+  }
+  50% {
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow:
+      0 8px 25px rgba(255, 255, 255, 0.4),
+      0 0 35px rgba(0, 255, 255, 0.6);
+    transform: translateY(-4px);
+  }
+  75% {
+    border-color: rgba(123, 247, 255, 0.6);
+    box-shadow:
+      0 6px 18px rgba(123, 247, 255, 0.5),
+      0 0 25px rgba(123, 247, 255, 0.3);
+    transform: translateY(-2px);
+  }
+  100% {
+    border-color: rgba(100, 100, 255, 0.3);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    transform: translateY(0);
+  }
 }
 
 /* Phase Reset Particle Effect */
 .phase-reset-particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: radial-gradient(circle, #00ffff, transparent);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: phaseResetParticle 1.2s ease-out forwards;
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #00ffff, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: phaseResetParticle 1.2s ease-out forwards;
 }
 
 @keyframes phaseResetParticle {
-    0% {
-        opacity: 1;
-        transform: scale(0) translateY(0);
-    }
-    25% {
-        opacity: 1;
-        transform: scale(1.5) translateY(-10px);
-    }
-    50% {
-        opacity: 0.8;
-        transform: scale(1) translateY(-20px);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(0.5) translateY(-30px);
-    }
+  0% {
+    opacity: 1;
+    transform: scale(0) translateY(0);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.5) translateY(-10px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1) translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-30px);
+  }
 }
 
 /* Timer Reset Highlight Effect */
 .timer-reset-highlight {
-    animation: timerResetHighlight 1s ease-out;
+  animation: timerResetHighlight 1s ease-out;
 }
 
 .timer-box.timer-reset-highlight {
-    animation: timerResetGlow 1s ease-out;
+  animation: timerResetGlow 1s ease-out;
 }
 
 @keyframes timerResetHighlight {
-    0% {
-        color: #ffcc00;
-        text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
-    }
-    25% {
-        color: #ffffff;
-        text-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 0 0 30px rgba(255, 255, 255, 0.6);
-    }
-    50% {
-        color: #ffff00;
-        text-shadow: 0 0 25px rgba(255, 255, 0, 0.9), 0 0 35px rgba(255, 204, 0, 0.7);
-    }
-    75% {
-        color: #ffcc00;
-        text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
-    }
-    100% {
-        color: #ffcc00;
-        text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
-    }
+  0% {
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+  }
+  25% {
+    color: #ffffff;
+    text-shadow:
+      0 0 20px rgba(255, 204, 0, 0.8),
+      0 0 30px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    color: #ffff00;
+    text-shadow:
+      0 0 25px rgba(255, 255, 0, 0.9),
+      0 0 35px rgba(255, 204, 0, 0.7);
+  }
+  75% {
+    color: #ffcc00;
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+  }
+  100% {
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+  }
 }
 
 @keyframes timerResetGlow {
-    0% {
-        border-color: rgba(100, 100, 255, 0.3);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-    }
-    25% {
-        border-color: rgba(255, 204, 0, 0.6);
-        box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4), 0 0 20px rgba(255, 204, 0, 0.3);
-        transform: translateY(-1px);
-    }
-    50% {
-        border-color: rgba(255, 255, 0, 0.7);
-        box-shadow: 0 5px 18px rgba(255, 255, 0, 0.4), 0 0 25px rgba(255, 204, 0, 0.4);
-        transform: translateY(-2px);
-    }
-    75% {
-        border-color: rgba(255, 204, 0, 0.5);
-        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3), 0 0 15px rgba(255, 204, 0, 0.2);
-        transform: translateY(-1px);
-    }
-    100% {
-        border-color: rgba(100, 100, 255, 0.3);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-        transform: translateY(0);
-    }
+  0% {
+    border-color: rgba(100, 100, 255, 0.3);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  }
+  25% {
+    border-color: rgba(255, 204, 0, 0.6);
+    box-shadow:
+      0 4px 15px rgba(255, 204, 0, 0.4),
+      0 0 20px rgba(255, 204, 0, 0.3);
+    transform: translateY(-1px);
+  }
+  50% {
+    border-color: rgba(255, 255, 0, 0.7);
+    box-shadow:
+      0 5px 18px rgba(255, 255, 0, 0.4),
+      0 0 25px rgba(255, 204, 0, 0.4);
+    transform: translateY(-2px);
+  }
+  75% {
+    border-color: rgba(255, 204, 0, 0.5);
+    box-shadow:
+      0 4px 12px rgba(255, 204, 0, 0.3),
+      0 0 15px rgba(255, 204, 0, 0.2);
+    transform: translateY(-1px);
+  }
+  100% {
+    border-color: rgba(100, 100, 255, 0.3);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    transform: translateY(0);
+  }
 }
