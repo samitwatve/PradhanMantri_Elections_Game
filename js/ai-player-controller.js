@@ -9,6 +9,7 @@ import { rallyController } from "./rally-controller.js";
 import { gameConfig } from "./game-config.js";
 import { homeStateBonus } from "./home-state-bonus.js";
 import { stateGroups } from "./state-groups.js";
+import { visualEffects } from "./visual-effects.js";
 
 class AIPlayerController {
   constructor() {
@@ -237,8 +238,7 @@ class AIPlayerController {
     } catch (error) {
       console.error("Error during AI turn:", error);
     }
-  }
-  async targetRandomState() {
+  }  async targetRandomState() {
     // Choose a random state for the AI to target
     const targetState = this.chooseTargetState();
 
@@ -277,11 +277,11 @@ class AIPlayerController {
         const centerX = bbox.x + bbox.width / 2;
         const centerY = bbox.y + bbox.height / 2;
         // Create a ripple effect at the center of the state
-        mapController.createRippleEffect(centerX, centerY, this.aiPlayerId);
+        visualEffects.createRippleEffect(centerX, centerY, this.aiPlayerId);
 
         // Show home state indicator if this is the AI's home state
         if (homeStateBonus.isHomeState(this.aiPlayerId, targetState.State)) {
-          mapController.visualEffects.showHomeStateIndicator(stateElement);
+          visualEffects.showHomeStateIndicator(stateElement);
         }
       }
 
@@ -723,7 +723,6 @@ class AIPlayerController {
 
     return suitableStates.sort((a, b) => b.score - a.score);
   }
-
   // Target a state in one of the focus groups
   targetStateInFocusGroup(moreStrategic = false) {
     console.log(`AI (${this.aiDifficulty}) targeting state in focus group`);
@@ -769,11 +768,11 @@ class AIPlayerController {
         const centerX = bbox.x + bbox.width / 2;
         const centerY = bbox.y + bbox.height / 2;
         // Create a ripple effect at the center of the state
-        mapController.createRippleEffect(centerX, centerY, this.aiPlayerId);
+        visualEffects.createRippleEffect(centerX, centerY, this.aiPlayerId);
 
         // Show home state indicator if this is the AI's home state
         if (homeStateBonus.isHomeState(this.aiPlayerId, targetState.State)) {
-          mapController.visualEffects.showHomeStateIndicator(stateElement);
+          visualEffects.showHomeStateIndicator(stateElement);
         }
       }
 
