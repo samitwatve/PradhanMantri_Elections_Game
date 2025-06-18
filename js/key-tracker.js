@@ -7,12 +7,12 @@ class KeyTracker {
     };
     
     this.initialize();
-  }
-  initialize() {
+  }  initialize() {
     document.addEventListener("keydown", (e) => {
       if (e.key === 'r' || e.key === 'R') {
         if (!this.keys.r) {
           this.keys.r = true;
+          console.log("R key pressed - Rally mode activated");
           document.body.classList.add('rally-mode-active');
         }
       }
@@ -24,6 +24,7 @@ class KeyTracker {
     document.addEventListener("keyup", (e) => {
       if (e.key === 'r' || e.key === 'R') {
         this.keys.r = false;
+        console.log("R key released - Rally mode deactivated");
         document.body.classList.remove('rally-mode-active');
       }
       if (e.key === 'Shift') {
@@ -40,6 +41,7 @@ class KeyTracker {
   }
 
   isRPressed() {
+    console.log(`isRPressed called: ${this.keys.r}`);
     return this.keys.r;
   }
 

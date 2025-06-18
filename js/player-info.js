@@ -312,11 +312,17 @@ class PlayerInfo {
       rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
     }
 
-    // Update draggable tokens if rally controller is available
+    // Update draggable tokens if rally controller is available and ready
     if (window.rallyController && this.playerId === 1) {
-      setTimeout(() => {
-        window.rallyController.createDraggableRallyIcons(rallyTokensElement);
-      }, 100);
+      const updateDraggableTokens = () => {
+        if (window.rallyController.isReady && window.rallyController.isReady()) {
+          window.rallyController.createDraggableRallyIcons(rallyTokensElement);
+        } else {
+          // Wait for rally controller to be ready
+          setTimeout(updateDraggableTokens, 50);
+        }
+      };
+      updateDraggableTokens();
     }
   }
 

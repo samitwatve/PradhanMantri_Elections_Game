@@ -12,6 +12,7 @@ class RallyController {
     this.svgDocument = null;
     this.rallyMode = false;
     this.gameConfig = null; // Store game configuration
+    this.initialized = false; // Track initialization status
     this.initialize();
   }
 
@@ -31,11 +32,17 @@ class RallyController {
       } else {
         map.addEventListener("load", onLoad);
       }
-    }); // Set up event listeners
+    });
+
+    // Set up event listeners
     this.setupEventListeners();
 
     // Set up drag and drop functionality
     this.setupDragAndDrop();
+    
+    // Mark as initialized
+    this.initialized = true;
+    console.log("Rally Controller fully initialized");
   }
   setupEventListeners() {
     // Listen for drop events on states
@@ -49,12 +56,22 @@ class RallyController {
       console.log("Rally controller received phase change event");
     });
   }
-
   setupDragAndDrop() {
     // Make rally tokens in player info draggable
-    setTimeout(() => {
-      this.setupPlayerRallyDragAndDrop();
-    }, 1000); // Wait for player info to be initialized
+    // Use a more robust approach to wait for player info to be ready
+    const setupWhenReady = () => {
+      const player1Info = document.getElementById("player1-info");
+      const rallyTokensDisplay = player1Info?.querySelector(".rally-tokens-display");
+      
+      if (player1Info && rallyTokensDisplay) {
+        this.setupPlayerRallyDragAndDrop();
+      } else {
+        // Retry after a short delay
+        setTimeout(setupWhenReady, 100);
+      }
+    };
+    
+    setupWhenReady();
   }
 
   setupPlayerRallyDragAndDrop() {
@@ -122,19 +139,45 @@ class RallyController {
 
       container.appendChild(tokenElement);
     }
-  }
-
-  async handleRallyPlacement(stateId, playerId) {
-    console.log(
-      `Attempting to place rally for player ${playerId} in state ${stateId}`,
-    );
+  }  async handleRallyPlacement(stateId, playerId) {
+    console.log(`=== RALLY PLACEMENT DEBUG ===`);
+    console.log(`State: ${stateId}, Player: ${playerId}`);
+    console.log(`Rally controller initialized: ${this.initialized}`);
+    
+    // Wait for initialization to complete if needed
+    while (!this.initialized) {
+      console.log("Rally controller waiting for initialization...");
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    console.log("Rally controller is initialized, proceeding...");
 
     // Check if player has rally tokens
     const player = playerId === 1 ? player1 : player2;
+    console.log(`Player object:`, player);
+    console.log(`Player element exists: ${!!player.element}`);
+    console.log(`Player canUseRallyToken function exists: ${typeof player.canUseRallyToken === 'function'}`);
+    
+    // Wait for player to be fully initialized
+    let waitCount = 0;
+    while (!player.element || typeof player.canUseRallyToken !== 'function') {
+      console.log(`Waiting for player ${playerId} to be fully initialized... (${waitCount})`);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      waitCount++;
+      if (waitCount > 100) { // 5 seconds timeout
+        console.error(`Timeout waiting for player ${playerId} initialization`);
+        return false;
+      }
+    }
+    
+    console.log(`Player ${playerId} rally tokens: ${player.rallyTokens}`);
+    console.log(`Can use rally token: ${player.canUseRallyToken()}`);
+    
     if (!player.canUseRallyToken()) {
+      console.log(`Player ${playerId} cannot use rally token`);
       player.showInsufficientRallyTokensError();
       return false;
-    } // Check if state can accept more rallies
+    }// Check if state can accept more rallies
     if (!this.canPlaceRallyInState(stateId)) {
       this.showMaxRalliesError(stateId, playerId);
       return false;
@@ -407,7 +450,6 @@ class RallyController {
       };
     }
   }
-
   // Get party name for a player
   getPlayerPartyName(playerId) {
     if (!this.gameConfig) {
@@ -416,6 +458,11 @@ class RallyController {
     return playerId === 1
       ? this.gameConfig.player1Politician?.party || "Player 1"
       : this.gameConfig.player2Politician?.party || "Player 2";
+  }
+
+  // Check if rally controller is ready for use
+  isReady() {
+    return this.initialized;
   }
 }
 

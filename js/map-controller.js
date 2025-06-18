@@ -181,12 +181,14 @@ class MapController {
               detail: { stateId: stateId },
             }),
           );          return;
-        }
-
-        // Check if this is a rally deployment (R + click)
+        }        // Check if this is a rally deployment (R + click)
         if (keyTracker.isRPressed()) {
-          const { rallyController } = await import("./rally-controller.js");
+          console.log(`=== R + CLICK DETECTED IN setupUTButtonEvents ===`);
+          console.log(`State: ${stateId}`);
+          console.log(`Rally controller available: ${!!rallyController}`);
+          
           const success = await rallyController.handleRallyPlacement(stateId, 1);
+          console.log(`Rally placement result: ${success}`);
           
           if (success) {
             // Dispatch hover event for state info update
@@ -262,12 +264,14 @@ class MapController {
         new CustomEvent("stateHover", {
           detail: { stateId: stateId },
         }),
-      );
-      return;    }    // Check if this is a rally deployment (R + click)
+      );      return;    }    // Check if this is a rally deployment (R + click)
     if (keyTracker.isRPressed()) {
-      // Import rally controller dynamically
-      const { rallyController } = await import("./rally-controller.js");
+      console.log(`=== R + CLICK DETECTED IN handleStateClick ===`);
+      console.log(`State: ${stateId}`);
+      console.log(`Rally controller available: ${!!rallyController}`);
+      
       const success = await rallyController.handleRallyPlacement(stateId, 1);
+      console.log(`Rally placement result: ${success}`);
       
       if (success) {
         // Handle selection state
@@ -461,10 +465,10 @@ class MapController {
           detail: { stateId: stateId },
         }),
       );      return;
-    }    // Check if this is a rally deployment (R + click)
+    }
+
+    // Check if this is a rally deployment (R + click)
     if (keyTracker.isRPressed()) {
-      // Import rally controller dynamically
-      const { rallyController } = await import("./rally-controller.js");
       const success = await rallyController.handleRallyPlacement(stateId, 1);
       
       if (success) {
