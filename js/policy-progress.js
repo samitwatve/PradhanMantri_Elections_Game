@@ -205,20 +205,24 @@ function showCampaignCompletionNotification(category, index, playerId) {
     ".progress-item-label",
   ).textContent;
 
-  // Add news update to TV display
+  // Add news update to TV display with short 2-second duration
   const playerName = getPlayerPartyName(playerId);
   window.tvDisplay.addNewsUpdate(
     `🎉 ${playerName} completes ${policyLabel}! +${CAMPAIGN_COMPLETION_BONUS}M`,
+    false,
+    2000
   );
 }
 
 // Function to show phase bonus notification
 function showPhaseBonusNotification(playerId, amount, completedCount) {
-  // Add news update to TV display
+  // Add news update to TV display with short 1.5-second duration
   const playerName = getPlayerPartyName(playerId);
   const totalBonus = amount * completedCount;
   window.tvDisplay.addNewsUpdate(
     `💰 Phase Bonus: ${playerName} gains +${totalBonus}M for ${completedCount} campaigns`,
+    false,
+    1500
   );
 }
 

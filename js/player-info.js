@@ -280,7 +280,7 @@ class PlayerInfo {
     }
   }
   showGroupDominationBonusNotification(groupName, bonusAmount) {
-    // Add news update to TV display
+    // Add news update to TV display with short 2-second duration
     const playerParty =
       this.politician?.party || (this.playerId === 1 ? "Player 1" : "Player 2");
     window.tvDisplay.addNewsUpdate(
@@ -291,6 +291,8 @@ class PlayerInfo {
         "! +" +
         bonusAmount +
         "M bonus",
+      false,
+      2000
     );
   } // Rally token management methods
   getRallyTokensDisplay() {
