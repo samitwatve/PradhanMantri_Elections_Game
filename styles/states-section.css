@@ -1,64 +1,72 @@
 #states-info {
-    height: auto;
-    min-height: 28vh;
-    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-left: 4px solid #ff69b4;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
+  height: auto;
+  min-height: 28vh;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #ff69b4;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 #states-info h3 {
-    color: #fff;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .states-details {
-    flex: 1;
-    overflow-y: auto;
-    color: #e0e0ff;
-    padding: 0;
-    margin: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-    border-radius: 4px;
-    margin-top: 8px;
+  flex: 1;
+  overflow-y: auto;
+  color: #e0e0ff;
+  padding: 0;
+  margin: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 4px;
+  margin-top: 8px;
 }
 
 .popularity-section {
-    margin: 12px 0;
+  margin: 12px 0;
 }
 
 .popularity-section h5 {
-    font-size: 1.1em;
-    margin-bottom: 8px;
-    color: #ccc;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  color: #ccc;
 }
 
 .info-row {
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: space-around;
 }
 
 .info-row span {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #e0e0ff;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #e0e0ff;
 }
 
 .groups-section h5 {
-    font-size: 1.1em;
-    margin-bottom: 8px;
-    color: #ccc;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  color: #ccc;
 }
 
 .groups-list {
-    font-size: 0.9em;
-    color: #ccc;
-    line-height: 1.4;
+  font-size: 0.9em;
+  color: #ccc;
+  line-height: 1.4;
 }

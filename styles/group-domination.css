@@ -1,78 +1,92 @@
 /* Group domination styles */
 .button-grid button.player1-dominated {
-    border: 3px solid var(--player1-color);
-    box-shadow: 0 0 15px var(--player1-color);
-    animation: pulse-player1 1.5s infinite;
-    background-color: rgba(255, 152, 0, 0.4);
-    font-weight: bold;
-    color: #000;
-    outline: 2px solid white;
-    position: relative;
-    z-index: 10;
+  border: 3px solid var(--player1-color);
+  box-shadow: 0 0 15px var(--player1-color);
+  animation: pulse-player1 1.5s infinite;
+  background-color: rgba(255, 152, 0, 0.4);
+  font-weight: bold;
+  color: #000;
+  outline: 2px solid white;
+  position: relative;
+  z-index: 10;
 }
 
 .button-grid button.player2-dominated {
-    border: 3px solid var(--player2-color);
-    box-shadow: 0 0 15px var(--player2-color);
-    animation: pulse-player2 1.5s infinite;
-    background-color: rgba(76, 175, 80, 0.4);
-    font-weight: bold;
-    color: #000;
-    outline: 2px solid white;
-    position: relative;
-    z-index: 10;
+  border: 3px solid var(--player2-color);
+  box-shadow: 0 0 15px var(--player2-color);
+  animation: pulse-player2 1.5s infinite;
+  background-color: rgba(76, 175, 80, 0.4);
+  font-weight: bold;
+  color: #000;
+  outline: 2px solid white;
+  position: relative;
+  z-index: 10;
 }
 
 /* Make sure the pulse animations don't cause layout shifts */
 @keyframes pulse-player1 {
-    0% { box-shadow: 0 0 5px var(--player1-color); }
-    50% { box-shadow: 0 0 20px var(--player1-color); border-color: #ffcc80; }
-    100% { box-shadow: 0 0 5px var(--player1-color); }
+  0% {
+    box-shadow: 0 0 5px var(--player1-color);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--player1-color);
+    border-color: #ffcc80;
+  }
+  100% {
+    box-shadow: 0 0 5px var(--player1-color);
+  }
 }
 
 @keyframes pulse-player2 {
-    0% { box-shadow: 0 0 5px var(--player2-color); }
-    50% { box-shadow: 0 0 20px var(--player2-color); border-color: #a5d6a7; }
-    100% { box-shadow: 0 0 5px var(--player2-color); }
+  0% {
+    box-shadow: 0 0 5px var(--player2-color);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--player2-color);
+    border-color: #a5d6a7;
+  }
+  100% {
+    box-shadow: 0 0 5px var(--player2-color);
+  }
 }
 
 /* Ensure highlight state is visible with high contrast */
 .button-grid button.player1-dominated:hover,
 .button-grid button.player1-dominated:focus,
 .button-grid button.player1-dominated.active {
-    background-color: rgba(255, 152, 0, 0.6);
-    box-shadow: 0 0 25px var(--player1-color);
+  background-color: rgba(255, 152, 0, 0.6);
+  box-shadow: 0 0 25px var(--player1-color);
 }
 
 .button-grid button.player2-dominated:hover,
 .button-grid button.player2-dominated:focus,
 .button-grid button.player2-dominated.active {
-    background-color: rgba(76, 175, 80, 0.6);
-    box-shadow: 0 0 25px var(--player2-color);
+  background-color: rgba(76, 175, 80, 0.6);
+  box-shadow: 0 0 25px var(--player2-color);
 }
 
 /* Group domination bonus styles moved to tv-display.css */
 
 /* Group domination bonus tracker in player section */
 .group-domination-bonuses {
-    margin-top: 10px;
-    font-size: 12px;
+  margin-top: 10px;
+  font-size: 12px;
 }
 
 .group-domination-bonus-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 2px 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
 }
 
 .group-domination-bonus-item .group-name {
-    max-width: 70%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .group-domination-bonus-item .bonus-amount {
-    font-weight: bold;
-    color: #4CAF50;
+  font-weight: bold;
+  color: #4caf50;
 }

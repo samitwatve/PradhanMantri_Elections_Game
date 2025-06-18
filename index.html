@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>India Elections Game V2</title>      <link rel="stylesheet" href="styles/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <title>India Elections Game V2</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/map.css">
     <link rel="stylesheet" href="styles/panels.css">
     <link rel="stylesheet" href="styles/policy-cards.css">
@@ -12,8 +15,7 @@
     <link rel="stylesheet" href="styles/actions-section.css">
     <link rel="stylesheet" href="styles/status-section.css">    <link rel="stylesheet" href="styles/effects.css">
     <link rel="stylesheet" href="styles/game-options.css">
-    <link rel="stylesheet" href="styles/group-domination.css">    <link rel="stylesheet" href="styles/tv-display.css">
-    <link rel="stylesheet" href="styles/help-screen.css">    <link rel="stylesheet" href="styles/rally.css">
+    <link rel="stylesheet" href="styles/group-domination.css">    <link rel="stylesheet" href="styles/tv-display.css">    <link rel="stylesheet" href="styles/help-screen.css">    <link rel="stylesheet" href="styles/rally.css">
     <link rel="stylesheet" href="styles/game-over-screen.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -87,39 +89,38 @@
                         <span class="tv-indicator"></span>
                         <span class="tv-button"></span>
                         <span class="tv-button"></span>
-                    </div>
-                </div>
-                <div class="tv-content">
+                    </div>                </div>                <div class="tv-content">
                     <div class="tv-screen">
-                        <p class="tv-text">Welcome to Election Coverage</p>
+                        <!-- Rich notifications will be added here dynamically -->
                     </div>
                 </div>
             </div>
         </div></div>    <div class="right-pane">
-        <h2 class="compact-heading">Game Options</h2>
-        <div class="info-section game-options">
+        <h2 class="compact-heading">Game Options</h2>        <div class="info-section game-options">
             <div class="options-grid">
-                <div class="option-button" id="random-events-toggle" data-state="on" data-tooltip="Toggle Random Events">
-                    <i class="option-icon fas fa-dice"></i>
-                    <span class="option-label">Events</span>
-                </div>
-                <div class="option-button" id="sound-toggle" data-state="on" data-tooltip="Toggle Sound Effects">
+                <div class="option-button" id="new-game-button" data-tooltip="Start a New Game">
+                    <i class="option-icon fas fa-plus"></i>
+                    <span class="option-label">New Game</span>
+                </div>                <div class="option-button" id="sound-toggle" data-state="off" data-tooltip="Toggle Sound Effects">
                     <i class="option-icon fas fa-volume-high"></i>
                     <span class="option-label">Sound</span>
                 </div>
                 <div class="option-button" id="music-toggle" data-state="off" data-tooltip="Toggle Background Music">
                     <i class="option-icon fas fa-music"></i>
                     <span class="option-label">Music</span>
-                </div>                <div class="option-button" id="gameplay-toggle" data-state="on" data-tooltip="Pause/Resume Game (Stops Timer & AI)">
+                </div><div class="option-button" id="gameplay-toggle" data-state="on" data-tooltip="Pause/Resume Game (Stops Timer & AI)">
                     <i class="option-icon fas fa-pause"></i>
                     <span class="option-label">Pause</span>
                 </div>                <div class="option-button" id="help-toggle" data-state="off" data-tooltip="Show Help Guide">
                     <i class="option-icon fas fa-circle-question"></i>
                     <span class="option-label">Help</span>
+                </div>                <div class="option-button" id="random-events-toggle" data-state="on" data-tooltip="Toggle Random Events">
+                    <i class="option-icon fas fa-dice"></i>
+                    <span class="option-label">Events</span>
                 </div>
-                <div class="option-button" id="new-game-button" data-tooltip="Start a New Game">
-                    <i class="option-icon fas fa-plus"></i>
-                    <span class="option-label">New Game</span>
+                <div class="option-button" id="ai-difficulty-display" data-tooltip="Current AI Difficulty Level">
+                    <i class="option-icon fas fa-robot"></i>
+                    <span class="option-label" id="ai-difficulty-label">Easy</span>
                 </div>
             </div>
         </div>
@@ -164,9 +165,8 @@
                     <div class="progress-bar">
                         <div class="progress-fill" id="social-1"></div>
                     </div>
-                </div>
-                <div class="progress-item">
-                    <span class="progress-item-label">Social Welfare</span>
+                </div>                <div class="progress-item">
+                    <span class="progress-item-label">Rural Development</span>
                     <div class="progress-bar">
                         <div class="progress-fill" id="social-2"></div>
                     </div>
@@ -199,9 +199,8 @@
                     <div class="progress-bar">
                         <div class="progress-fill" id="land-2"></div>
                     </div>
-                </div>
-                <div class="progress-item">
-                    <span class="progress-item-label">Land Acquisition</span>
+                </div>                <div class="progress-item">
+                    <span class="progress-item-label">Water and Mineral Rights</span>
                     <div class="progress-bar">
                         <div class="progress-fill" id="land-3"></div>
                     </div>
@@ -360,11 +359,10 @@
                             
                             <h4>Game Phases</h4>
                             <p>The election campaign is divided into <strong>8 phases</strong>, each lasting 30 seconds. Use your limited time and funds wisely!</p>
-                            
-                            <h4>Victory Conditions</h4>
+                              <h4>Victory Conditions</h4>
                             <ul>
-                                <li><strong>Majority Government:</strong> Get 272+ seats to form government</li>
-                                <li><strong>Hung Parliament:</strong> If neither player reaches 272, it's a tie</li>
+                                <li><strong>Majority Government:</strong> Get 272+ seats to form government (evaluated at the end of all 8 phases)</li>
+                                <li><strong>Hung Parliament:</strong> If neither player reaches 272 at the end, it's a tie</li>
                             </ul>
                             
                             <h4>Your Resources</h4>
@@ -377,12 +375,12 @@
                     </div>
                     
                     <!-- Controls Tab -->
-                    <div class="help-section" id="help-controls">
-                        <h3><i class="fas fa-mouse-pointer"></i> Controls & Interface</h3>
-                        <div class="help-content-section">
+                    <div class="help-section" id="help-controls">                        <h3><i class="fas fa-mouse-pointer"></i> Controls & Interface</h3>                        <div class="help-content-section">
                             <h4>Map Interaction</h4>
                             <ul>
-                                <li><strong>Click on States:</strong> Invest funds directly in any state or UT</li>
+                                <li><strong>Click on States:</strong> Invest funds directly in any state or UT (single campaign)</li>
+                                <li><strong>Shift + Click:</strong> Burst spend - invest 3x funds at once for maximum impact</li>
+                                <li><strong>R + Click:</strong> Deploy rally token for popularity boost</li>
                                 <li><strong>State Groups:</strong> Use group buttons to target multiple states at once</li>
                                 <li><strong>Small UTs:</strong> Special buttons for tiny territories like Puducherry</li>
                             </ul>
@@ -505,6 +503,9 @@
     </div>
 
 <script type="module" src="js/main.js"></script>
+<script type="module" src="js/visual-effects.js"></script>
+<script type="module" src="js/color-utils.js"></script>
+<script type="module" src="js/drag-drop-utils.js"></script>
 <script type="module" src="js/map-controller.js"></script>
 <script type="module" src="js/game-timer.js"></script>
 <script type="module" src="js/player-info.js"></script>
@@ -515,5 +516,7 @@
 <script type="module" src="js/game-options.js"></script>
 <script type="module" src="js/tv-display.js"></script>
 <script type="module" src="js/game-over-screen.js"></script>
+<!-- Debug utilities - comment out in production -->
+<script type="module" src="js/debug-index.js"></script>
 </body>
 </html>
