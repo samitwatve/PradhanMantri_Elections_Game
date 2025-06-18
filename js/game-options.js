@@ -3,8 +3,8 @@
 // Track the state of each option
 const gameOptions = {
   randomEvents: true,
-  sound: true,
-  music: true, // Enable music by default
+  sound: false,
+  music: false, // Disable music by default
   gameplay: true, // true = playing, false = paused
   help: false,
 };
