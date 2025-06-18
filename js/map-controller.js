@@ -9,6 +9,7 @@ import { ColorUtils } from "./color-utils.js";
 import { dragDropUtils } from "./drag-drop-utils.js";
 import { homeStateBonus } from "./home-state-bonus.js";
 import { campaignSpending } from "./campaign-spending.js";
+import { keyTracker } from "./key-tracker.js";
 
 class MapController {
   constructor() {
@@ -121,9 +122,7 @@ class MapController {
         console.error("Error checking group domination:", error);
       }
     }, 1000);
-  }
-
-  setupStateInteractions() {
+  }  setupStateInteractions() {
     if (!this.svgDocument) return;
 
     const states = this.svgDocument.querySelectorAll("path, polygon");
@@ -181,9 +180,26 @@ class MapController {
             new CustomEvent("stateHover", {
               detail: { stateId: stateId },
             }),
-          );
+          );          return;
+        }
+
+        // Check if this is a rally deployment (R + click)
+        if (keyTracker.isRPressed()) {
+          const { rallyController } = await import("./rally-controller.js");
+          const success = await rallyController.handleRallyPlacement(stateId, 1);
+          
+          if (success) {
+            // Dispatch hover event for state info update
+            window.dispatchEvent(
+              new CustomEvent("stateHover", {
+                detail: { stateId: stateId },
+              }),
+            );
+          }
           return;
-        }        // Use the new centralized campaign spending service
+        }
+
+        // Use the new centralized campaign spending service
         // Extract the original event from detail if available
         const originalEvent = event.detail?.originalEvent || event;
         await campaignSpending.handleCampaignSpend(
@@ -247,6 +263,26 @@ class MapController {
           detail: { stateId: stateId },
         }),
       );
+      return;    }    // Check if this is a rally deployment (R + click)
+    if (keyTracker.isRPressed()) {
+      // Import rally controller dynamically
+      const { rallyController } = await import("./rally-controller.js");
+      const success = await rallyController.handleRallyPlacement(stateId, 1);
+      
+      if (success) {
+        // Handle selection state
+        const isSelected = this.selectedStates.has(stateId);
+        if (!isSelected) {
+          this.selectState(stateId);
+        }
+
+        // Dispatch hover event for state info update
+        window.dispatchEvent(
+          new CustomEvent("stateHover", {
+            detail: { stateId: stateId },
+          }),
+        );
+      }
       return;
     }
 
@@ -424,7 +460,27 @@ class MapController {
         new CustomEvent("stateHover", {
           detail: { stateId: stateId },
         }),
-      );
+      );      return;
+    }    // Check if this is a rally deployment (R + click)
+    if (keyTracker.isRPressed()) {
+      // Import rally controller dynamically
+      const { rallyController } = await import("./rally-controller.js");
+      const success = await rallyController.handleRallyPlacement(stateId, 1);
+      
+      if (success) {
+        // Handle selection state
+        const isSelected = this.selectedStates.has(stateId);
+        if (!isSelected) {
+          this.selectState(stateId);
+        }
+
+        // Dispatch hover event for state info update
+        window.dispatchEvent(
+          new CustomEvent("stateHover", {
+            detail: { stateId: stateId },
+          }),
+        );
+      }
       return;
     }
 

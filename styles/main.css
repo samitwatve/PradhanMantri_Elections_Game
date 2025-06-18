@@ -231,6 +231,38 @@ h2 {
   }
 }
 
+/* Rally mode indicator */
+body.rally-mode-active {
+  cursor: crosshair;
+}
+
+body.rally-mode-active::before {
+  content: "RALLY MODE - Click on states to deploy rally tokens";
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff6b00;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10000;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: rallyPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes rallyPulse {
+  0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+}
+
+body.rally-mode-active .india-map {
+  filter: hue-rotate(20deg) brightness(1.1);
+}
+
 /* Responsive styles */
 @media (max-width: 1400px) {
   .left-pane {

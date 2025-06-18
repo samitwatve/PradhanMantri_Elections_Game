@@ -8,6 +8,7 @@ import { rallyController } from "./rally-controller.js";
 import { soundManager } from "./sound-manager.js";
 import { gameOverScreen } from "./game-over-screen.js";
 import { gameConfig } from "./game-config.js";
+import { keyTracker } from "./key-tracker.js"; // Initialize global key tracking
 
 // Check if game configuration exists, if not redirect to welcome screen
 function checkGameConfiguration() {
