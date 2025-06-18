@@ -216,28 +216,24 @@ class MapController {
       }
     });
   }
-
   setupHoverEvents() {
     window.addEventListener("stateHover", (event) => {
       const { stateId } = event.detail;
       if (!stateId) return;
 
-      const stateElement = this.svgDocument.getElementById(stateId);
-      if (stateElement) {
-        this.handleStateHover({ target: stateElement });
-      }
+      // Don't call handleStateHover here as it would create infinite recursion
+      // This event is for other components to listen to state hover events
+      // The actual hover handling is done in setupStateInteractions
     });
 
     window.addEventListener("stateUnhover", (event) => {
       const { stateId } = event.detail;
-      if (!stateId) return;
-
-      const stateElement = this.svgDocument.getElementById(stateId);
-      if (stateElement) {
-        this.handleStateUnhover({ target: stateElement });
-      }
+      if (!stateId) return;      // Don't call handleStateUnhover here as it would create infinite recursion
+      // This event is for other components to listen to state unhover events
     });
-  }  async handleStateClick(event) {
+  }
+
+  async handleStateClick(event) {
     if (isGamePaused()) return;
 
     const stateElement = event.target;

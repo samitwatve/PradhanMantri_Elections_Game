@@ -314,15 +314,16 @@ class PlayerInfo {
 
     // Update draggable tokens if rally controller is available and ready
     if (window.rallyController && this.playerId === 1) {
-      const updateDraggableTokens = () => {
-        if (window.rallyController.isReady && window.rallyController.isReady()) {
-          window.rallyController.createDraggableRallyIcons(rallyTokensElement);
-        } else {
-          // Wait for rally controller to be ready
-          setTimeout(updateDraggableTokens, 50);
-        }
-      };
-      updateDraggableTokens();
+      // Don't interfere with R + click by constantly recreating draggable icons
+      // Only update them when necessary
+      if (window.rallyController.isReady && window.rallyController.isReady()) {
+        // Small delay to avoid conflicts
+        setTimeout(() => {
+          if (rallyTokensElement) {
+            window.rallyController.createDraggableRallyIcons(rallyTokensElement);
+          }
+        }, 100);
+      }
     }
   }
 

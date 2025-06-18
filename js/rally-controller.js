@@ -85,9 +85,7 @@ class RallyController {
 
     // Create draggable rally icons
     this.createDraggableRallyIcons(rallyTokensDisplay);
-  }
-
-  createDraggableRallyIcons(container) {
+  }  createDraggableRallyIcons(container) {
     // Clear existing content
     container.innerHTML = "";
 
@@ -102,9 +100,9 @@ class RallyController {
         tokenElement.classList.add("available");
         tokenElement.draggable = true;
         tokenElement.title = "Drag to a state to place rally (+8% popularity)";
+        
         // Add drag event listeners
         tokenElement.addEventListener("dragstart", (e) => {
-          console.log("Rally token drag started");
           e.dataTransfer.setData("text/plain", "rally-token");
           e.dataTransfer.effectAllowed = "move";
           tokenElement.classList.add("dragging");
@@ -120,7 +118,6 @@ class RallyController {
         });
 
         tokenElement.addEventListener("dragend", (e) => {
-          console.log("Rally token drag ended");
           tokenElement.classList.remove("dragging");
           document.body.classList.remove("rally-dragging");
 
@@ -139,54 +136,32 @@ class RallyController {
 
       container.appendChild(tokenElement);
     }
-  }  async handleRallyPlacement(stateId, playerId) {
-    console.log(`=== RALLY PLACEMENT DEBUG ===`);
-    console.log(`State: ${stateId}, Player: ${playerId}`);
-    console.log(`Rally controller initialized: ${this.initialized}`);
+  }async handleRallyPlacement(stateId, playerId) {
+    console.log(`Rally placement attempt: ${stateId}, Player: ${playerId}`);
     
     // Wait for initialization to complete if needed
     while (!this.initialized) {
-      console.log("Rally controller waiting for initialization...");
       await new Promise(resolve => setTimeout(resolve, 50));
     }
-    
-    console.log("Rally controller is initialized, proceeding...");
 
     // Check if player has rally tokens
     const player = playerId === 1 ? player1 : player2;
-    console.log(`Player object:`, player);
-    console.log(`Player element exists: ${!!player.element}`);
-    console.log(`Player canUseRallyToken function exists: ${typeof player.canUseRallyToken === 'function'}`);
     
-    // Wait for player to be fully initialized
-    let waitCount = 0;
-    while (!player.element || typeof player.canUseRallyToken !== 'function') {
-      console.log(`Waiting for player ${playerId} to be fully initialized... (${waitCount})`);
-      await new Promise(resolve => setTimeout(resolve, 50));
-      waitCount++;
-      if (waitCount > 100) { // 5 seconds timeout
-        console.error(`Timeout waiting for player ${playerId} initialization`);
-        return false;
-      }
-    }
-    
-    console.log(`Player ${playerId} rally tokens: ${player.rallyTokens}`);
-    console.log(`Can use rally token: ${player.canUseRallyToken()}`);
-    
-    if (!player.canUseRallyToken()) {
-      console.log(`Player ${playerId} cannot use rally token`);
+    // Simple check - if player doesn't have tokens, return false
+    if (player.rallyTokens <= 0) {
+      console.log(`Player ${playerId} has no rally tokens (${player.rallyTokens})`);
       player.showInsufficientRallyTokensError();
       return false;
     }// Check if state can accept more rallies
     if (!this.canPlaceRallyInState(stateId)) {
       this.showMaxRalliesError(stateId, playerId);
       return false;
-    }
-
-    // Use rally token
-    if (!player.useRallyToken()) {
-      return false;
-    }
+    }    // Use rally token - directly decrement instead of relying on the method
+    player.rallyTokens--;
+    console.log(`Rally token used. Player ${playerId} tokens remaining: ${player.rallyTokens}`);
+    
+    // Update display
+    player.updateRallyTokensDisplay();
 
     // Place rally
     this.placeRally(stateId, playerId);

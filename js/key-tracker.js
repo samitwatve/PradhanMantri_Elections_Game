@@ -9,12 +9,12 @@ class KeyTracker {
     this.initialize();
   }  initialize() {
     document.addEventListener("keydown", (e) => {
+      // Prevent default to avoid browser shortcuts
       if (e.key === 'r' || e.key === 'R') {
-        if (!this.keys.r) {
-          this.keys.r = true;
-          console.log("R key pressed - Rally mode activated");
-          document.body.classList.add('rally-mode-active');
-        }
+        e.preventDefault();
+        this.keys.r = true;
+        console.log("R key pressed - Rally mode activated");
+        document.body.classList.add('rally-mode-active');
       }
       if (e.key === 'Shift') {
         this.keys.shift = true;
@@ -39,9 +39,7 @@ class KeyTracker {
       document.body.classList.remove('rally-mode-active');
     });
   }
-
   isRPressed() {
-    console.log(`isRPressed called: ${this.keys.r}`);
     return this.keys.r;
   }
 
