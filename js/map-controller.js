@@ -8,6 +8,7 @@ import { visualEffects } from "./visual-effects.js";
 import { ColorUtils } from "./color-utils.js";
 import { dragDropUtils } from "./drag-drop-utils.js";
 import { homeStateBonus } from "./home-state-bonus.js";
+import { campaignSpending } from "./campaign-spending.js";
 
 class MapController {
   constructor() {
@@ -153,8 +154,7 @@ class MapController {
     // Listen for events from UT buttons
     this.setupUTButtonEvents();
     this.setupHoverEvents();
-  }
-  setupUTButtonEvents() {
+  }  setupUTButtonEvents() {
     window.addEventListener("stateClick", async (event) => {
       if (isGamePaused()) return;
 
@@ -172,14 +172,6 @@ class MapController {
         );
         if (!stateData) return;
 
-        const [playerModule, stateModule] = await Promise.all([
-          import("./player-info.js"),
-          import("./state-info.js"),
-        ]);
-
-        const player1 = playerModule.player1;
-        const stateInfo = stateModule.stateInfo;
-
         // Debug mode: One-click max popularity
         if (gameConfig.isDebugMode() && gameConfig.isOneClickMaxPopularity()) {
           const newPopularity = { player1: 100, player2: 0, others: 0 };
@@ -191,17 +183,16 @@ class MapController {
             }),
           );
           return;
-        }
+        }        // Use the new centralized campaign spending service
+        // Extract the original event from detail if available
+        const originalEvent = event.detail?.originalEvent || event;
+        await campaignSpending.handleCampaignSpend(
+          originalEvent,
+          stateId,
+          stateData,
+          1 // Player 1
+        );
 
-        const seats = parseInt(stateData.LokSabhaSeats);
-        const cost = seats;
-
-        if (player1.canSpend(cost)) {
-          player1.updateFunds(-cost);
-          stateInfo.recordStateAction(stateId, 1, cost);
-        } else {
-          player1.showInsufficientFundsError();
-        }
       } catch (error) {
         console.error("Error processing state click:", error);
       }
@@ -228,8 +219,7 @@ class MapController {
         this.handleStateUnhover({ target: stateElement });
       }
     });
-  }
-  async handleStateClick(event) {
+  }  async handleStateClick(event) {
     if (isGamePaused()) return;
 
     const stateElement = event.target;
@@ -260,21 +250,7 @@ class MapController {
       return;
     }
 
-    const seats = parseInt(stateData.LokSabhaSeats);
-    // Apply home state discount to campaign cost if applicable
-    const baseCost = seats;
-    const cost = homeStateBonus.getCampaignCost(1, stateData.State, baseCost);
-
-    // Show home state indicator if this is the player's home state
-    const isHomeState = homeStateBonus.isHomeState(1, stateData.State);
-    if (isHomeState) {
-      console.log(
-        `Player 1 clicked on home state ${stateData.State}. Base cost: ${baseCost}M, Discounted: ${cost}M`,
-      );
-      visualEffects.showHomeStateIndicator(stateElement);
-    }
-
-    // Get click coordinates for ripple effect
+    // Get click coordinates for visual effects
     const svgPoint = this.svgDocument.querySelector("svg").createSVGPoint();
     svgPoint.x = event.clientX;
     svgPoint.y = event.clientY;
@@ -282,28 +258,36 @@ class MapController {
       stateElement.getScreenCTM().inverse(),
     );
 
-    const isSelected = this.selectedStates.has(stateId);
+    // Prepare visual context for campaign spending
+    const visualContext = {
+      element: stateElement,
+      point: point
+    };
 
-    if (player1.canSpend(cost)) {
-      visualEffects.createRippleEffect(point.x, point.y, 1);
+    // Use the new centralized campaign spending service
+    const success = await campaignSpending.handleCampaignSpend(
+      event,
+      stateId,
+      stateData,
+      1, // Player 1
+      visualContext
+    );
 
-      player1.updateFunds(-cost);
-      stateInfo.recordStateAction(stateId, 1, cost);
-
+    if (success) {
+      // Handle selection state
+      const isSelected = this.selectedStates.has(stateId);
       if (!isSelected) {
         this.selectState(stateId);
       } else {
         this.deselectState(stateId);
       }
 
+      // Dispatch hover event for state info update
       window.dispatchEvent(
         new CustomEvent("stateHover", {
           detail: { stateId: stateId },
         }),
       );
-    } else {
-      visualEffects.showErrorFeedback(stateElement);
-      player1.showInsufficientFundsError();
     }
   }
   selectState(stateId) {
@@ -419,8 +403,7 @@ class MapController {
       }),
     );
   }
-
-  handleLakshadweepClick(event) {
+  async handleLakshadweepClick(event) {
     if (isGamePaused()) return;
 
     const stateId = "INLD";
@@ -445,30 +428,34 @@ class MapController {
       return;
     }
 
-    const seats = parseInt(stateData.LokSabhaSeats);
-    const cost = seats;
-    const stateElement = this.svgDocument.getElementById(stateId);
-    if (!stateElement) return;
-
+    // Prepare visual context for Lakshadweep
     const bbox = event.target.getBBox();
     const centerX = bbox.x + bbox.width / 2;
     const centerY = bbox.y + bbox.height / 2;
-    const isSelected = this.selectedStates.has(stateId);
+    const stateElement = this.svgDocument.getElementById(stateId);
+    
+    const visualContext = {
+      element: stateElement,
+      point: { x: centerX, y: centerY }
+    };
 
-    if (player1.canSpend(cost)) {
-      visualEffects.createRippleEffect(centerX, centerY, 1);
+    // Use the new centralized campaign spending service
+    const success = await campaignSpending.handleCampaignSpend(
+      event,
+      stateId,
+      stateData,
+      1, // Player 1
+      visualContext
+    );
 
-      player1.updateFunds(-cost);
-      stateInfo.recordStateAction(stateId, 1, cost);
-
+    if (success) {
+      // Handle selection state
+      const isSelected = this.selectedStates.has(stateId);
       if (!isSelected) {
         this.selectState(stateId);
       } else {
         this.deselectState(stateId);
       }
-    } else {
-      visualEffects.showErrorFeedback(stateElement);
-      player1.showInsufficientFundsError();
     }
   }
   async refreshAllStateColors() {

@@ -134,10 +134,20 @@ class GroupUIController {
     // Toggle the selection state for the button
     button.classList.toggle("selected");
 
+    // Create a synthetic event object that preserves the shift key state
+    const syntheticEvent = {
+      shiftKey: event.shiftKey,
+      ctrlKey: event.ctrlKey,
+      altKey: event.altKey,
+      metaKey: event.metaKey,
+      originalEvent: event
+    };
+
     // Dispatch an event that will be handled like a regular state click
+    // Include the synthetic event with preserved modifier keys
     window.dispatchEvent(
       new CustomEvent("stateClick", {
-        detail: { stateId: utId },
+        detail: { stateId: utId, originalEvent: syntheticEvent },
       }),
     );
 
