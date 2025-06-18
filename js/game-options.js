@@ -20,18 +20,19 @@ let soundButton;
 let musicButton;
 let gameplayButton;
 let helpButton;
+let aiDifficultyDisplay;
 
 // Audio elements for later implementation
 let backgroundMusic;
 let soundEffects = {};
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize DOM elements
+document.addEventListener("DOMContentLoaded", () => {  // Initialize DOM elements
   randomEventsButton = document.getElementById("random-events-toggle");
   soundButton = document.getElementById("sound-toggle");
   musicButton = document.getElementById("music-toggle");
   gameplayButton = document.getElementById("gameplay-toggle");
   helpButton = document.getElementById("help-toggle");
+  aiDifficultyDisplay = document.getElementById("ai-difficulty-display");
 
   // Set up event listeners
   if (randomEventsButton) {
@@ -53,16 +54,25 @@ document.addEventListener("DOMContentLoaded", () => {
   if (helpButton) {
     helpButton.addEventListener("click", toggleHelp);
   }
-
   // Add new game button listener
   const newGameButton = document.getElementById("new-game-button");
   if (newGameButton) {
     newGameButton.addEventListener("click", startNewGame);
   }
+  // Set up AI difficulty display
+  if (aiDifficultyDisplay) {
+    aiDifficultyDisplay.addEventListener("click", showAIDifficultyInfo);
+    updateAIDifficultyDisplay();
+  }
 
   // Initialize states based on stored preferences (future enhancement)
   // For now, just sync the UI with default values
   updateButtonStates();
+  
+  // Update AI difficulty display after a short delay to ensure game config is loaded
+  setTimeout(() => {
+    updateAIDifficultyDisplay();
+  }, 500);
 
   // Add debug options
   addDebugOptions();
@@ -326,6 +336,60 @@ function updateButtonStates() {
     // No icon change needed for help
   }
 }
+
+// Update AI difficulty display
+function updateAIDifficultyDisplay() {
+  if (!aiDifficultyDisplay) return;
+  
+  // Import game config dynamically to avoid circular dependencies
+  import("./game-config.js").then(({ gameConfig }) => {
+    const difficulty = gameConfig.getAIDifficulty();
+    const difficultyLabel = document.getElementById("ai-difficulty-label");
+    
+    if (difficultyLabel) {
+      // Capitalize first letter and make rest lowercase
+      const displayText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+      difficultyLabel.textContent = displayText;
+      
+      // Update tooltip to show more detail
+      const descriptions = {
+        'EASY': 'AI makes moves slowly and randomly',
+        'MEDIUM': 'AI makes strategic moves at moderate speed',
+        'HARD': 'AI makes quick strategic moves and aggressive plays'
+      };
+      
+      aiDifficultyDisplay.setAttribute('data-tooltip', `AI Difficulty: ${displayText} - ${descriptions[difficulty] || 'Current AI difficulty level'}`);
+    }
+  }).catch(error => {
+    console.error("Error loading game config for AI difficulty:", error);
+  });
+}
+
+// Show AI difficulty information when clicked
+function showAIDifficultyInfo() {
+  import("./game-config.js").then(({ gameConfig }) => {
+    const difficulty = gameConfig.getAIDifficulty();
+    const descriptions = {
+      'EASY': 'AI makes moves slowly and randomly, giving you more time to strategize.',
+      'MEDIUM': 'AI makes strategic moves at moderate speed with some planning.',
+      'HARD': 'AI makes quick strategic moves with aggressive campaign tactics.'
+    };
+    
+    const displayText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+    const description = descriptions[difficulty] || 'Current AI difficulty level';
+    
+    // Show an alert with AI difficulty info
+    alert(`Current AI Difficulty: ${displayText}\n\n${description}\n\nThis setting was selected in the welcome screen and affects how the AI opponent plays throughout the game.`);
+  }).catch(error => {
+    console.error("Error showing AI difficulty info:", error);
+    alert("Unable to retrieve AI difficulty information.");
+  });
+}
+
+// Listen for AI difficulty changes from other parts of the game
+window.addEventListener("aiDifficultyChanged", () => {
+  updateAIDifficultyDisplay();
+});
 
 // Add a debug button for checking group domination
 function addDebugOptions() {
