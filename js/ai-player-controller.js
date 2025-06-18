@@ -425,23 +425,30 @@ class AIPlayerController {
       // 70% chance to target a state in focus groups
       this.targetStateInFocusGroup();
     }
-  }
-  async takeHardDifficultyTurn() {
+  }  async takeHardDifficultyTurn() {
     try {
       console.log("AI taking HARD difficulty turn...");
 
       // HARD difficulty: Same as MEDIUM but with more strategic campaign choices
-      // and more effective state targeting with faster action rate
+      // and more effective state targeting with faster action rate      // High priority: Use rally tokens aggressively (25% chance at start)
+      if (player2.canUseRallyToken() && Math.random() < 0.25) {
+        console.log("AI prioritizing rally token usage - Current tokens:", player2.rallyTokens);
+        const rallyPlaced = await this.placeStrategyRally();
+        if (rallyPlaced) {
+          console.log("AI successfully placed priority rally");
+          return;
+        } else {
+          console.log("AI failed to place priority rally");
+        }
+      }
 
       // First check if there are any campaigns where AI is leading and nearly complete
       const leadingCampaign = this.findLeadingCampaign();
       console.log(
         "Leading campaign check:",
         leadingCampaign ? `Found in ${leadingCampaign.category}` : "None found",
-      );
-
-      if (leadingCampaign && Math.random() < 0.7) {
-        // 70% chance to prioritize leading campaign (higher than MEDIUM)
+      );if (leadingCampaign && Math.random() < 0.5) {
+        // 50% chance to prioritize leading campaign (reduced from 70% to allow more rally usage)
         const { category, index } = leadingCampaign;
         console.log(
           `Attempting to contribute to leading campaign: ${category}-${index + 1}`,
@@ -472,7 +479,7 @@ class AIPlayerController {
           : "None found",
       );
 
-      if (closeToCompletionCampaign && Math.random() < 0.4) {
+      if (closeToCompletionCampaign && Math.random() < 0.25) {
         const { category, index } = closeToCompletionCampaign;
         console.log(
           `Attempting to contribute to campaign close to completion: ${category}-${index + 1}`,
@@ -491,15 +498,11 @@ class AIPlayerController {
         } else {
           console.log("Failed to contribute to campaign close to completion");
         }
-      }
-
-      // Otherwise, decide between rally and state targeting
+      }      // Otherwise, decide between rally and state targeting
       const randomAction = Math.random();
-      console.log(`Random action value: ${randomAction}`);
-
-      if (randomAction < 0.35) {
-        // 35% chance to place a rally in target state groups
-        console.log("Attempting to place strategic rally");
+      console.log(`Random action value: ${randomAction}`);      if (randomAction < 0.55) {
+        // 55% chance to place a rally in target state groups (increased from 35%)
+        console.log("Attempting to place strategic rally - AI tokens:", player2.rallyTokens);
         const rallyPlaced = await this.placeStrategyRally();
         if (!rallyPlaced) {
           // If rally placement failed, fall back to state targeting
@@ -507,9 +510,11 @@ class AIPlayerController {
             "Rally placement failed, falling back to state targeting",
           );
           this.targetStateInFocusGroup(true); // Pass true for more strategic targeting
+        } else {
+          console.log("AI successfully placed strategic rally");
         }
       } else {
-        // 65% chance to target a state in focus groups
+        // 45% chance to target a state in focus groups
         console.log("Targeting state in focus group");
         this.targetStateInFocusGroup(true); // Pass true for more strategic targeting
       }
@@ -624,7 +629,6 @@ class AIPlayerController {
 
     return bestCampaign;
   }
-
   // Place a rally strategically for MEDIUM and HARD difficulties
   async placeStrategyRally() {
     console.log(
@@ -640,27 +644,52 @@ class AIPlayerController {
     if (!this.statesData) {
       const response = await fetch("states_data.json");
       this.statesData = await response.json();
-    }
-
-    // Find suitable states for rally that are in target groups
+    }    // Find suitable states for rally that are in target groups
     const suitableStates = this.findSuitableStatesForStrategicRally();
+    console.log(`Found ${suitableStates.length} suitable states for strategic rally`);
 
     if (suitableStates.length === 0) {
-      console.log("No suitable states found for AI strategic rally");
-      return false;
+      console.log("No suitable states found for AI strategic rally, trying fallback");
+      // Fallback to general AI rally placement
+      return await rallyController.placeAIRally();
+    }    // Choose state with weighted randomization (prefer higher scores but add variety)
+    let targetState;
+    
+    if (suitableStates.length === 1) {
+      targetState = suitableStates[0].stateId;
+    } else {
+      // Take top 3-5 states and choose randomly among them (weighted by score)
+      const topStates = suitableStates.slice(0, Math.min(5, suitableStates.length));
+      
+      // Use weighted random selection based on scores
+      const totalScore = topStates.reduce((sum, state) => sum + state.score, 0);
+      let randomValue = Math.random() * totalScore;
+      
+      for (const state of topStates) {
+        randomValue -= state.score;
+        if (randomValue <= 0) {
+          targetState = state.stateId;
+          break;
+        }
+      }
+      
+      // Fallback to first state if something goes wrong
+      if (!targetState) {
+        targetState = topStates[0].stateId;
+      }
     }
 
-    // Choose best state based on AI strategy
-    const targetState = suitableStates[0].stateId; // Take the highest scored state
-
     if (targetState) {
+      console.log(`AI chose rally target: ${targetState} from ${suitableStates.length} options`);
       return await rallyController.handleRallyPlacement(
         targetState,
         this.aiPlayerId,
       );
     }
 
-    return false;
+    // If strategic placement fails, try general rally placement
+    console.log("Strategic rally placement failed, trying fallback");
+    return await rallyController.placeAIRally();
   }
 
   // Find suitable states for strategic rally (in target groups)
@@ -861,17 +890,23 @@ class AIPlayerController {
           state: state,
           score: score,
         };
-      });
-
-      // Sort by score and pick top state
+      });      // Sort by score and pick from top states with some randomization
       scoredStates.sort((a, b) => b.score - a.score);
-      return scoredStates[0].state;
+      
+      // Choose from top 3 states to add variety
+      const topStates = scoredStates.slice(0, Math.min(3, scoredStates.length));
+      const randomIndex = Math.floor(Math.random() * topStates.length);
+      return topStates[randomIndex].state;
+    }    // For medium difficulty, choose from multiple random states in target groups for variety
+    if (targetGroupStates.length <= 3) {
+      // If few options, just pick randomly
+      return targetGroupStates[
+        Math.floor(Math.random() * targetGroupStates.length)
+      ];
+    } else {
+      // If many options, use weighted selection based on seat count for some strategy
+      return this.weightedRandomChoice(targetGroupStates);
     }
-
-    // For medium difficulty, just choose a random state from target groups
-    return targetGroupStates[
-      Math.floor(Math.random() * targetGroupStates.length)
-    ];
   }
 
   // Helper method to get all groups for a state
