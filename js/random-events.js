@@ -111,8 +111,7 @@ class RandomEvents {
     // Apply the event
     this.applyRandomEvent(randomState, eventDescription, isPositive, magnitude);
   }
-  
-  // Apply random event to a state
+    // Apply random event to a state
   applyRandomEvent(stateData, eventDescription, isPositive, magnitude) {
     const stateId = stateData.SvgId;
     const stateName = stateData.State;
@@ -121,49 +120,15 @@ class RandomEvents {
     const popularity = stateInfo.getStatePopularity(stateId);
     const player1Pop = popularity?.player1 || 0;
     const player2Pop = popularity?.player2 || 0;
-    const othersPercent = Math.max(0, 100 - player1Pop - player2Pop);
     
-    let affectedPlayer = null;
     let newPlayer1Pop = player1Pop;
     let newPlayer2Pop = player2Pop;
     
-    // Determine who is affected
-    if (player1Pop > player2Pop && player1Pop > othersPercent) {
-      // Player 1 is leading
-      affectedPlayer = 1;
-      if (isPositive) {
-        newPlayer1Pop = Math.min(100, player1Pop + magnitude);
-      } else {
-        newPlayer1Pop = Math.max(0, player1Pop - magnitude);
-      }
-    } else if (player2Pop > player1Pop && player2Pop > othersPercent) {
-      // Player 2 (AI) is leading
-      affectedPlayer = 2;
-      if (isPositive) {
-        newPlayer2Pop = Math.min(100, player2Pop + magnitude);
-      } else {
-        newPlayer2Pop = Math.max(0, player2Pop - magnitude);
-      }
+    // Simple logic: positive events always help Player 1, negative events always hurt Player 1
+    if (isPositive) {
+      newPlayer1Pop = Math.min(100, player1Pop + magnitude);
     } else {
-      // Others are leading, both players are affected proportionally
-      affectedPlayer = 'both';
-      const totalPlayerPop = player1Pop + player2Pop;
-      
-      if (totalPlayerPop > 0) {
-        const player1Ratio = player1Pop / totalPlayerPop;
-        const player2Ratio = player2Pop / totalPlayerPop;
-        
-        const player1Change = magnitude * player1Ratio;
-        const player2Change = magnitude * player2Ratio;
-        
-        if (isPositive) {
-          newPlayer1Pop = Math.min(100, player1Pop + player1Change);
-          newPlayer2Pop = Math.min(100, player2Pop + player2Change);
-        } else {
-          newPlayer1Pop = Math.max(0, player1Pop - player1Change);
-          newPlayer2Pop = Math.max(0, player2Pop - player2Change);
-        }
-      }
+      newPlayer1Pop = Math.max(0, player1Pop - magnitude);
     }
     
     // Update state popularity
@@ -173,7 +138,7 @@ class RandomEvents {
     this.createEventVisualEffect(stateId, isPositive);
     
     // Show notification
-    this.showEventNotification(stateName, eventDescription, isPositive, magnitude, affectedPlayer);
+    this.showEventNotification(stateName, eventDescription, isPositive, magnitude);
     
     console.log(`Random event in ${stateName}: ${eventDescription} (${isPositive ? 'positive' : 'negative'}, ${magnitude}%)`);
   }
@@ -196,17 +161,8 @@ class RandomEvents {
       console.error("Error creating event visual effect:", error);
     }
   }  // Show event notification in TV display
-  showEventNotification(stateName, eventDescription, isPositive, magnitude, affectedPlayer) {
+  showEventNotification(stateName, eventDescription, isPositive, magnitude) {
     const sign = isPositive ? '+' : '-';
-    
-    let affectedText = '';
-    if (affectedPlayer === 1) {
-      affectedText = 'Player 1 affected';
-    } else if (affectedPlayer === 2) {
-      affectedText = 'AI affected';
-    } else if (affectedPlayer === 'both') {
-      affectedText = 'Both players affected';
-    }
     
     // Get current timestamp
     const now = new Date();
@@ -227,22 +183,21 @@ class RandomEvents {
         </div>
         <div class="event-description">${eventDescription}</div>
         <div class="event-location">📍 ${stateName}</div>
-        <div class="event-affected">⚡ ${affectedText}</div>
         <div class="event-timestamp">[${time}] BREAKING NEWS</div>
       </div>
     `;
     
     // Add to TV display if available
     if (window.tvDisplay && typeof window.tvDisplay.addNewsUpdate === 'function') {
-      // Use HTML content with longer duration for events (10 seconds)
-      window.tvDisplay.addNewsUpdate(htmlContent, true, 10000);
+      // Use HTML content with 30 second duration for random events
+      window.tvDisplay.addNewsUpdate(htmlContent, true, 30000);
       console.log(`Random event added to TV: ${eventDescription} in ${stateName}`);
     } else {
       // Fallback: log to console if TV display not available
-      console.log(`TV Display not available. Event: ${eventDescription} affects ${stateName}. ${sign}${magnitude}% impact. ${affectedText}`);
+      console.log(`TV Display not available. Event: ${eventDescription} affects ${stateName}. ${sign}${magnitude}% impact.`);
     }
     
-    console.log(`🎲 RANDOM EVENT: ${eventDescription} affects ${stateName}. ${sign}${magnitude}% impact. ${affectedText}`);
+    console.log(`🎲 RANDOM EVENT: ${eventDescription} affects ${stateName}. ${sign}${magnitude}% impact.`);
   }
     // Note: repositionNotifications is no longer needed since we use TV display
   repositionNotifications(container = null) {
