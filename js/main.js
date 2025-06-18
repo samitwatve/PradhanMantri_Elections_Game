@@ -9,6 +9,7 @@ import { soundManager } from "./sound-manager.js";
 import { gameOverScreen } from "./game-over-screen.js";
 import { gameConfig } from "./game-config.js";
 import { keyTracker } from "./key-tracker.js"; // Initialize global key tracking
+import { randomEvents } from "./random-events.js"; // Add random events system
 
 // Check if game configuration exists, if not redirect to welcome screen
 function checkGameConfiguration() {
@@ -30,14 +31,21 @@ function checkGameConfiguration() {
       );
       window.location.href = "welcome-screen.html";
       return false;
-    }
-
-    // Apply AI difficulty if set in the game configuration
+    }    // Apply AI difficulty if set in the game configuration
     if (config.aiDifficulty) {
       console.log(`Setting AI difficulty to: ${config.aiDifficulty}`);
       // Import and use the gameConfig module to set difficulty
       import("./game-config.js").then(({ gameConfig }) => {
         gameConfig.setAIDifficulty(config.aiDifficulty);
+      });
+    }
+
+    // Apply random events setting if available
+    if (config.randomEventsEnabled !== undefined) {
+      console.log(`Setting random events to: ${config.randomEventsEnabled}`);
+      // Import and configure random events
+      import("./random-events.js").then(({ randomEvents }) => {
+        randomEvents.setEnabled(config.randomEventsEnabled);
       });
     }
 
@@ -65,7 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
   gameTimer.phaseDuration = gameConfig.getPhaseDuration();
   gameTimer.totalDuration = gameTimer.totalPhases * gameTimer.phaseDuration;
   gameTimer.remainingTime = gameTimer.totalDuration;
-  gameTimer.phaseTimeRemaining = gameTimer.phaseDuration; // Set up phase change listener
+  gameTimer.phaseTimeRemaining = gameTimer.phaseDuration; 
+  
+  // Set up phase change listener
   gameTimer.onPhaseChange((currentPhase, totalPhases) => {
     console.log(`Phase changed: ${currentPhase} of ${totalPhases}`);
     gameState.updatePhase(currentPhase);
@@ -75,6 +85,12 @@ document.addEventListener("DOMContentLoaded", () => {
       detail: { phase: currentPhase, totalPhases: totalPhases },
     });
     window.dispatchEvent(event);
+
+    // Dispatch phaseChanged event for random events system
+    const phaseEvent = new CustomEvent("phaseChanged", {
+      detail: { currentPhase: currentPhase, totalPhases: totalPhases },
+    });
+    window.dispatchEvent(phaseEvent);
 
     console.log(`Dispatched gamePhaseChanged event for phase ${currentPhase}`);
   });

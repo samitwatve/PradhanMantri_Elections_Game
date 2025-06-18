@@ -79,14 +79,22 @@ class TVDisplay {
   }
 
   // Add a method to add new messages from game events
-  addNewsUpdate(message) {
+  addNewsUpdate(message, isHtml = false, duration = 8000) {
     // Create news message with timestamp
     var now = new Date();
     var time = now.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-    var newsMessage = "[" + time + "] " + message;
+    
+    var newsMessage;
+    if (isHtml) {
+      // For HTML content, don't add timestamp wrapper
+      newsMessage = message;
+    } else {
+      // For plain text, add timestamp
+      newsMessage = "[" + time + "] " + message;
+    }
 
     // Add to messages array at the beginning
     this.messages.unshift(newsMessage);
@@ -102,8 +110,21 @@ class TVDisplay {
 
     var self = this;
     setTimeout(function () {
-      // Display all current messages
-      self.tvText.textContent = self.messages.slice(0, 4).join("\n");
+      if (isHtml) {
+        // For HTML content, show single rich message
+        self.tvText.innerHTML = newsMessage;
+        self.tvScreen.classList.add('news-flash');
+        
+        // Auto-revert to normal messages after specified duration
+        setTimeout(function() {
+          self.tvScreen.classList.remove('news-flash');
+          self.tvText.innerHTML = "";
+          self.tvText.textContent = self.messages.slice(1, 5).join("\n");
+        }, duration);
+      } else {
+        // Display all current messages as plain text
+        self.tvText.textContent = self.messages.slice(0, 4).join("\n");
+      }
       self.tvText.style.opacity = "1";
     }, 200);
   }

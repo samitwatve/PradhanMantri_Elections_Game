@@ -175,7 +175,29 @@ class StateInfo {
     return this.statePopularity.get(stateId);
   }
 
-  setStatePopularity(stateId, newPopularity) {
+  // Set state popularity with individual player values (for random events)
+  setStatePopularity(stateId, player1Pop, player2Pop) {
+    // Handle both the original object-based call and the new individual values call
+    if (typeof player1Pop === 'object' && player2Pop === undefined) {
+      // Original call with object
+      const newPopularity = player1Pop;
+      this.setStatePopularityObject(stateId, newPopularity);
+    } else if (typeof player1Pop === 'number' && typeof player2Pop === 'number') {
+      // New call with individual values
+      const othersPercent = Math.max(0, 100 - player1Pop - player2Pop);
+      const newPopularity = {
+        player1: player1Pop,
+        player2: player2Pop,
+        others: othersPercent
+      };
+      this.setStatePopularityObject(stateId, newPopularity);
+    } else {
+      console.error('Invalid parameters for setStatePopularity');
+    }
+  }
+
+  // Original method renamed for clarity
+  setStatePopularityObject(stateId, newPopularity) {
     // Ensure the state is initialized
     if (!this.statePopularity.has(stateId)) {
       this.initializeState(stateId);
@@ -235,6 +257,12 @@ class StateInfo {
       }
     }, 100);
   }
+
+  // Legacy method name for backward compatibility
+  setStatePopularity_old(stateId, newPopularity) {
+    this.setStatePopularityObject(stateId, newPopularity);
+  }
+
   updateStatePopularity(stateId, playerId, popularityBoost) {
     if (!this.statePopularity.has(stateId)) {
       this.initializeState(stateId);

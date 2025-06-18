@@ -153,6 +153,91 @@ class VisualEffects {
     }, 600);
   }
 
+  // Create event effect for random events
+  createEventEffect(x, y, color, isPositive) {
+    if (!this.rippleContainer) return;
+
+    // Create event effect element
+    const eventEffect = this.svgDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g",
+    );
+    eventEffect.setAttribute("class", "event-effect");
+
+    // Create outer ring
+    const outerRing = this.svgDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle",
+    );
+    outerRing.setAttribute("cx", x);
+    outerRing.setAttribute("cy", y);
+    outerRing.setAttribute("r", "5");
+    outerRing.setAttribute("fill", "none");
+    outerRing.setAttribute("stroke", color);
+    outerRing.setAttribute("stroke-width", "3");
+    outerRing.setAttribute("opacity", "0.8");
+
+    // Create inner circle
+    const innerCircle = this.svgDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle",
+    );
+    innerCircle.setAttribute("cx", x);
+    innerCircle.setAttribute("cy", y);
+    innerCircle.setAttribute("r", "2");
+    innerCircle.setAttribute("fill", color);
+    innerCircle.setAttribute("opacity", "0.9");
+
+    // Create event symbol (+ for positive, - for negative)
+    const symbol = this.svgDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "text",
+    );
+    symbol.setAttribute("x", x);
+    symbol.setAttribute("y", y + 2);
+    symbol.setAttribute("text-anchor", "middle");
+    symbol.setAttribute("font-family", "Arial, sans-serif");
+    symbol.setAttribute("font-size", "8");
+    symbol.setAttribute("font-weight", "bold");
+    symbol.setAttribute("fill", "white");
+    symbol.textContent = isPositive ? "+" : "−";
+
+    eventEffect.appendChild(outerRing);
+    eventEffect.appendChild(innerCircle);
+    eventEffect.appendChild(symbol);
+    this.rippleContainer.appendChild(eventEffect);
+
+    // Animate the effect
+    const animation = this.svgDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "animateTransform",
+    );
+    animation.setAttribute("attributeName", "transform");
+    animation.setAttribute("type", "scale");
+    animation.setAttribute("values", "1;3;1");
+    animation.setAttribute("dur", "2s");
+    animation.setAttribute("repeatCount", "2");
+
+    const fadeAnimation = this.svgDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "animate",
+    );
+    fadeAnimation.setAttribute("attributeName", "opacity");
+    fadeAnimation.setAttribute("values", "0.8;1;0.8;0");
+    fadeAnimation.setAttribute("dur", "4s");
+    fadeAnimation.setAttribute("repeatCount", "1");
+
+    eventEffect.appendChild(animation);
+    eventEffect.appendChild(fadeAnimation);
+
+    // Remove after animation
+    setTimeout(() => {
+      if (eventEffect.parentNode) {
+        eventEffect.parentNode.removeChild(eventEffect);
+      }
+    }, 4000);
+  }
+
   toggleStateHighlight(
     stateId,
     forceState = null,

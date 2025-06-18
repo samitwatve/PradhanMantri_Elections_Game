@@ -500,6 +500,70 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
       }
 
+      /* Feature toggle styling */
+      .random-events-toggle {
+        background: linear-gradient(
+          135deg,
+          rgba(168, 85, 247, 0.15) 0%,
+          rgba(168, 85, 247, 0.1) 100%
+        );
+        border: 2px solid rgba(168, 85, 247, 0.4);
+        border-radius: 15px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+      }
+
+      .random-events-toggle h4 {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .feature-options {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .feature-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .feature-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .feature-toggle input[type="checkbox"] {
+        accent-color: var(--accent-gold);
+        border-radius: 4px;
+      }
+
+      .feature-toggle span {
+        color: var(--text-light);
+        font-weight: 500;
+      }
+
+      .feature-description {
+        text-align: center;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .feature-desc {
+        color: rgba(224, 224, 255, 0.8);
+        line-height: 1.4;
+      }
+
       .player-summary-info {
         text-align: left;
         color: var(--text-light);
@@ -646,6 +710,22 @@
           </div>
         </div>
 
+        <!-- Random Events Toggle -->
+        <div class="random-events-toggle mt-4">
+          <h4 class="text-sm font-semibold mb-2">Game Features:</h4>
+          <div class="feature-options flex justify-center gap-4">
+            <label class="feature-toggle flex items-center gap-2">
+              <input type="checkbox" id="random-events-checkbox" class="w-4 h-4">
+              <span class="text-sm">Random Events</span>
+            </label>
+          </div>
+          <div class="feature-description mt-2 text-xs opacity-80">
+            <span class="feature-desc">
+              Random positive/negative events affect states every other phase, impacting the leading player's popularity by 5-20%.
+            </span>
+          </div>
+        </div>
+
         <button class="start-game-btn" onclick="startGame()">
           Start Game!
         </button>
@@ -659,6 +739,7 @@
       let aiPolitician = null;
       let playerName = "";
       let aiDifficulty = "EASY"; // Default AI difficulty
+      let randomEventsEnabled = false; // Default random events setting
 
       // Load politicians data on page load
       async function loadPoliticians() {
@@ -666,6 +747,8 @@
           const response = await fetch("politicians-data.json");
           const data = await response.json();
           politicians = data.politicians;
+          console.log("Loaded politicians:", politicians);
+          console.log("Number of politicians:", politicians.length);
           createCards();
           updateCardPositions();
         } catch (error) {
@@ -674,9 +757,17 @@
       }
       function createCards() {
         const cardStack = document.getElementById("card-stack");
+        if (!cardStack) {
+          console.error("Card stack element not found!");
+          return;
+        }
+        
         cardStack.innerHTML = "";
+        console.log("Creating cards for", politicians.length, "politicians");
 
         politicians.forEach((politician, index) => {
+          console.log(`Creating card ${index} for ${politician.name} (${politician.party})`);
+          
           const card = document.createElement("div");
           card.className = "card-container";
           card.setAttribute("data-index", index);
@@ -692,7 +783,8 @@
                     </div>
                     <div class="card-content">
                         <h3 class="politician-name">${politician.name}</h3>
-                        <p class="politician-party">${politician.party}</p>                        <div class="policies-grid">
+                        <p class="politician-party">${politician.party}</p>
+                        <div class="policies-grid">
                             ${politician.policies
                               .slice(0, 6)
                               .map(
@@ -760,7 +852,19 @@
       }
 
       function selectCurrentPolitician() {
+        if (!politicians || politicians.length === 0) {
+          alert("Error: No politicians data loaded. Please refresh the page.");
+          return;
+        }
+
+        if (currentIndex < 0 || currentIndex >= politicians.length) {
+          alert(`Error: Invalid politician index ${currentIndex}. Total politicians: ${politicians.length}`);
+          return;
+        }
+
         selectedPolitician = politicians[currentIndex];
+        console.log("Selected politician:", selectedPolitician);
+        console.log("Current index:", currentIndex);
 
         // Randomly select AI opponent from different party
         const availableOpponents = politicians.filter(
@@ -769,8 +873,14 @@
             p.id !== selectedPolitician.id,
         );
 
+        console.log("Available opponents:", availableOpponents);
+        console.log("Selected politician party:", selectedPolitician.party);
+        console.log("All politicians:", politicians.map(p => ({name: p.name, party: p.party})));
+
         if (availableOpponents.length === 0) {
-          alert("No available opponents from different parties!");
+          // More detailed error message
+          const allParties = [...new Set(politicians.map(p => p.party))];
+          alert(`No available opponents from different parties!\n\nSelected: ${selectedPolitician.name} (${selectedPolitician.party})\nAvailable parties: ${allParties.join(', ')}\nTotal politicians: ${politicians.length}`);
           return;
         }
 
@@ -779,6 +889,7 @@
             Math.floor(Math.random() * availableOpponents.length)
           ];
 
+        console.log("AI opponent selected:", aiPolitician);
         showGameSummary();
       }
       function showGameSummary() {
@@ -808,12 +919,17 @@
       }
 
       function startGame() {
+        // Get random events setting
+        const randomEventsCheckbox = document.getElementById("random-events-checkbox");
+        randomEventsEnabled = randomEventsCheckbox.checked;
+
         // Store selections in localStorage for the main game
         const gameConfig = {
           playerName: playerName,
           player1Politician: selectedPolitician,
           player2Politician: aiPolitician,
           aiDifficulty: aiDifficulty,
+          randomEventsEnabled: randomEventsEnabled,
         };
 
         localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
