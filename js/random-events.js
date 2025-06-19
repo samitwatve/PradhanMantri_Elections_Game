@@ -19,7 +19,7 @@ class RandomEvents {
       "Major infrastructure project announced",
       "New tech hub established",
       "Agricultural subsidy program launched",
-      "Educational Institute receives funding",
+      "Educational excellence award received",
       "Tourism boost from international recognition",
       "Industrial investment secured",
       "Healthcare facility modernization completed",
