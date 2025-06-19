@@ -52,14 +52,15 @@ class DragDropUtils {
     e.stopPropagation();
 
     const dragData = e.dataTransfer.getData("text/plain");
+    const tokenType = e.dataTransfer.getData("tokenType") || (dragData === "special-rally-token" ? "special" : "normal");
 
-    if (dragData === "rally-token") {
+    if (dragData === "rally-token" || dragData === "special-rally-token") {
       const targetStateId = this.findTargetState(e);
 
       if (targetStateId) {
         window.dispatchEvent(
           new CustomEvent("rallyDrop", {
-            detail: { stateId: targetStateId },
+            detail: { stateId: targetStateId, tokenType },
           }),
         );
       }
@@ -129,10 +130,11 @@ class DragDropUtils {
         state.style.filter = "";
 
         const dragData = e.dataTransfer.getData("text/plain");
-        if (dragData === "rally-token") {
+        const tokenType = e.dataTransfer.getData("tokenType") || (dragData === "special-rally-token" ? "special" : "normal");
+        if (dragData === "rally-token" || dragData === "special-rally-token") {
           window.dispatchEvent(
             new CustomEvent("rallyDrop", {
-              detail: { stateId: state.id },
+              detail: { stateId: state.id, tokenType },
             }),
           );
         }
@@ -156,12 +158,13 @@ class DragDropUtils {
     e.stopPropagation();
 
     const dragData = e.dataTransfer.getData("text/plain");
-    if (dragData === "rally-token") {
+    const tokenType = e.dataTransfer.getData("tokenType") || (dragData === "special-rally-token" ? "special" : "normal");
+    if (dragData === "rally-token" || dragData === "special-rally-token") {
       const target = e.target;
       if (target && target.tagName === "path" && target.id) {
         window.dispatchEvent(
           new CustomEvent("rallyDrop", {
-            detail: { stateId: target.id },
+            detail: { stateId: target.id, tokenType },
           }),
         );
       }

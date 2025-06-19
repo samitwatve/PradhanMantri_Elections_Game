@@ -1,0 +1,18 @@
+.gold-star {
+  color: gold !important;
+  text-shadow: 0 0 8px #ffd700, 0 0 16px #ffd700, 0 0 24px #ffd700;
+  font-size: 1.5em;
+  filter: drop-shadow(0 0 6px #ffd700);
+}
+.gold-star.used {
+  color: #bdb76b !important;
+  opacity: 0.5;
+  filter: none;
+}
+.special-rally-token {
+  animation: special-rally-glow 1.2s infinite alternate;
+}
+@keyframes special-rally-glow {
+  from { box-shadow: 0 0 8px 2px #ffd70066; }
+  to { box-shadow: 0 0 20px 6px #ffd700cc; }
+}

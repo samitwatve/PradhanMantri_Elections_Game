@@ -1,0 +1,16 @@
+.special-rally-shimmer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(circle at 50% 50%, rgba(255,215,0,0.35) 0%, rgba(255,215,0,0.15) 60%, rgba(255,215,0,0.0) 100%);
+  animation: shimmer-gold 1.2s ease-out;
+}
+@keyframes shimmer-gold {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}

@@ -15,12 +15,12 @@ class GameConfig {
       phaseDuration: 30, // seconds per phase
 
       // Player starting funds (in millions)
-      player1StartingFunds: 400,
-      player2StartingFunds: 400,
+      player1StartingFunds: 300,
+      player2StartingFunds: 300,
 
       // Player funds refresh per phase
-      player1RefreshFunds: 400,
-      player2RefreshFunds: 400,
+      player1RefreshFunds: 300,
+      player2RefreshFunds: 300,
 
       // Rally settings
       maxRallyTokens: 2,
