@@ -30,6 +30,19 @@
   margin: 0 2px;
   transition: all 0.2s ease;
   user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Grey background circle for rally tokens */
+.rally-token-bg {
+  background: #2a2d4a;
+  border-radius: 50%;
+  padding: 0.18em 0.18em 0.12em 0.18em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .rally-token-icon.available {

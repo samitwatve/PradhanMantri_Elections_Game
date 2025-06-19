@@ -301,14 +301,14 @@ class PlayerInfo {
     // Normal tokens
     for (let i = 0; i < this.maxRallyTokens; i++) {
       if (i < this.rallyTokens) {
-        display += '<span class="rally-token-icon available">📢</span>';
+        display += '<span class="rally-token-icon rally-token-bg available">📢</span>';
       } else {
-        display += '<span class="rally-token-icon used">⚪</span>';
+        display += '<span class="rally-token-icon rally-token-bg used">📢</span>';
       }
     }
     // Special token (if any)
     if (this.specialTokenCount > 0) {
-      display += '<span class="rally-token-icon special">★</span>';
+      display += '<span class="rally-token-icon rally-token-bg special">★</span>';
     }
     return display;
   }

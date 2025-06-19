@@ -92,12 +92,12 @@ class RallyController {
     for (let i = 0; i < player1.maxRallyTokens; i++) {
       const tokenElement = document.createElement("span");
       tokenElement.setAttribute("data-token-index", i);
-      tokenElement.style.color = "#FFD700";
-      tokenElement.style.fontSize = "2em";
+      tokenElement.classList.add("rally-token-icon", "rally-token-bg");
       if (i < player1.rallyTokens) {
         tokenElement.draggable = true;
         tokenElement.title = "Drag to use Rally Token (📢) - State effect";
         tokenElement.textContent = "📢";
+        tokenElement.classList.add("available");
         tokenElement.addEventListener("dragstart", (e) => {
           e.dataTransfer.setData("text/plain", "rally-token");
           e.dataTransfer.setData("rally-token", "normal");
@@ -118,7 +118,7 @@ class RallyController {
         tokenElement.draggable = false;
         tokenElement.textContent = "📢";
         tokenElement.title = "Rally token used - replenishes next phase";
-        tokenElement.style.opacity = 0.4;
+        tokenElement.classList.add("used");
       }
       container.appendChild(tokenElement);
     }
@@ -126,8 +126,7 @@ class RallyController {
     if (player1.specialTokenCount > 0) {
       const specialToken = document.createElement("span");
       specialToken.setAttribute("data-token-index", "special");
-      specialToken.style.color = "#FFD700";
-      specialToken.style.fontSize = "2em";
+      specialToken.classList.add("rally-token-icon", "rally-token-bg", "special");
       specialToken.draggable = true;
       specialToken.title = "Drag to use Special Rally Token (★) - Nationwide effect";
       specialToken.textContent = "★";
@@ -308,7 +307,9 @@ class RallyController {
     circle.setAttribute("cx", centerX + offsetX);
     circle.setAttribute("cy", centerY + offsetY);
     circle.setAttribute("r", "8");
-    circle.setAttribute("fill", playerId === 1 ? "#ff6b35" : "#4ecdc4");
+    // Use player primary color for rally fill
+    const fillColor = playerId === 1 ? player1.primaryColor : player2.primaryColor;
+    circle.setAttribute("fill", fillColor);
     circle.setAttribute("stroke", "#ffffff");
     circle.setAttribute("stroke-width", "2");
     circle.setAttribute("class", "rally-token");
