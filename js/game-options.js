@@ -3,8 +3,8 @@
 // Track the state of each option
 const gameOptions = {
   randomEvents: true,
-  sound: false,
-  music: false, // Disable music by default
+  sound: true, // Sound ON by default
+  music: true, // Music ON by default
   gameplay: true, // true = playing, false = paused
   help: false,
 };
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {  // Initialize DOM element
   // Add debug options
   addDebugOptions();
 
-  // Set up keyboard shortcut for play/pause (Space bar)
+  // Set up keyboard shortcuts for play/pause (Space bar), sound (S), and music (M)
   document.addEventListener("keydown", (event) => {
     // Only process when not in an input field
     if (
@@ -87,6 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {  // Initialize DOM element
       if (event.code === "Space") {
         event.preventDefault(); // Prevent scrolling the page
         toggleGameplay();
+      } else if (event.key === "s" || event.key === "S") {
+        event.preventDefault();
+        toggleSound();
+      } else if (event.key === "m" || event.key === "M") {
+        event.preventDefault();
+        toggleMusic();
       }
     }
   });
