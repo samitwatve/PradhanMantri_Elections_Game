@@ -88,31 +88,26 @@ class RallyController {
 
   createDraggableRallyIcons(container) {
     container.innerHTML = "";
-
+    // Normal tokens (not draggable, not special)
     for (let i = 0; i < player1.maxRallyTokens; i++) {
       const tokenElement = document.createElement("span");
       tokenElement.setAttribute("data-token-index", i);
-
-      // Always force gold color for the star and make it 50% bigger
       tokenElement.style.color = "#FFD700";
-      tokenElement.style.fontSize = "1.5em";
-
+      tokenElement.style.fontSize = "2em";
       if (i < player1.rallyTokens) {
         tokenElement.draggable = true;
-        tokenElement.title = "Drag to use Special Rally Token (★) - Nationwide effect";
-        tokenElement.textContent = "★";
-
+        tokenElement.title = "Drag to use Rally Token (📢) - State effect";
+        tokenElement.textContent = "📢";
         tokenElement.addEventListener("dragstart", (e) => {
-          e.dataTransfer.setData("text/plain", "special-rally-token");
-          e.dataTransfer.setData("rally-token", "special");
-          e.dataTransfer.setData("tokenType", "special");
+          e.dataTransfer.setData("text/plain", "rally-token");
+          e.dataTransfer.setData("rally-token", "normal");
+          e.dataTransfer.setData("tokenType", "normal");
           e.dataTransfer.effectAllowed = "move";
           tokenElement.classList.add("dragging");
           document.body.classList.add("rally-dragging");
           const mapContainer = document.querySelector(".map-container");
           if (mapContainer) mapContainer.classList.add("drag-active");
         });
-
         tokenElement.addEventListener("dragend", () => {
           tokenElement.classList.remove("dragging");
           document.body.classList.remove("rally-dragging");
@@ -121,12 +116,38 @@ class RallyController {
         });
       } else {
         tokenElement.draggable = false;
-        tokenElement.textContent = "★";
-        tokenElement.title = "Special rally token used - replenishes next phase";
+        tokenElement.textContent = "📢";
+        tokenElement.title = "Rally token used - replenishes next phase";
         tokenElement.style.opacity = 0.4;
       }
-
       container.appendChild(tokenElement);
+    }
+    // Special token (if any)
+    if (player1.specialTokenCount > 0) {
+      const specialToken = document.createElement("span");
+      specialToken.setAttribute("data-token-index", "special");
+      specialToken.style.color = "#FFD700";
+      specialToken.style.fontSize = "2em";
+      specialToken.draggable = true;
+      specialToken.title = "Drag to use Special Rally Token (★) - Nationwide effect";
+      specialToken.textContent = "★";
+      specialToken.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", "special-rally-token");
+        e.dataTransfer.setData("rally-token", "special");
+        e.dataTransfer.setData("tokenType", "special");
+        e.dataTransfer.effectAllowed = "move";
+        specialToken.classList.add("dragging");
+        document.body.classList.add("rally-dragging");
+        const mapContainer = document.querySelector(".map-container");
+        if (mapContainer) mapContainer.classList.add("drag-active");
+      });
+      specialToken.addEventListener("dragend", () => {
+        specialToken.classList.remove("dragging");
+        document.body.classList.remove("rally-dragging");
+        const mapContainer = document.querySelector(".map-container");
+        if (mapContainer) mapContainer.classList.remove("drag-active");
+      });
+      container.appendChild(specialToken);
     }
   }
 
@@ -138,6 +159,47 @@ class RallyController {
     }
 
     const player = playerId === 1 ? player1 : player2;
+    // Check for special token use
+    if (tokenType === 'special') {
+      if (player.specialTokenCount <= 0) {
+        player.showInsufficientRallyTokensError();
+        return false;
+      }
+      player.specialTokenCount = 0;
+      player.updateRallyTokensDisplay();
+
+      if (!this.statesData) {
+        const response = await fetch("states_data.json");
+        this.statesData = await response.json();
+      }
+      for (const state of this.statesData) {
+        stateInfo.updateStatePopularity(state.SvgId, playerId, 5);
+      }
+
+      const playerName = this.getPlayerPartyName(playerId);
+      try {
+        const { actionsLog } = await import("./actions-log.js");
+        actionsLog.addAction(`${playerName} used a Special Rally Token! (+5% popularity in all states)`);
+      } catch {
+        console.log(`${playerName} used a Special Rally Token! (+5% popularity in all states)`);
+      }
+
+      // Add special notification to LIVE updates (TV display)
+      if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
+        window.tvDisplay.addNotification({
+          type: 'event-positive',
+          title: 'Special Rally Token Activated!',
+          details: `${playerName} used a Special Rally Token! (+5% popularity in all states)`,
+          timestamp: new Date(),
+          duration: 5000
+        });
+      }
+
+      this.triggerSpecialRallyShimmer();
+      console.log(`Special Rally Token used by player ${playerId}`);
+      return true;
+    }
+    // Check for normal token use
     if (player.rallyTokens <= 0) {
       console.log(`Player ${playerId} has no rally tokens (${player.rallyTokens})`);
       player.showInsufficientRallyTokensError();
@@ -162,6 +224,17 @@ class RallyController {
         actionsLog.addAction(`${playerName} used a Special Rally Token! (+5% popularity in all states)`);
       } catch {
         console.log(`${playerName} used a Special Rally Token! (+5% popularity in all states)`);
+      }
+
+      // Add special notification to LIVE updates (TV display)
+      if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
+        window.tvDisplay.addNotification({
+          type: 'event-positive',
+          title: 'Special Rally Token Activated!',
+          details: `${playerName} used a Special Rally Token! (+5% popularity in all states)`,
+          timestamp: new Date(),
+          duration: 5000
+        });
       }
 
       this.triggerSpecialRallyShimmer();

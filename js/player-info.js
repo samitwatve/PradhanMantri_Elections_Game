@@ -14,9 +14,10 @@ class PlayerInfo {
       this.funds = gameConfig.getPlayer2StartingFunds();
     }
 
-    // Rally tokens - each player starts with 2 tokens, reset to 2 every phase
-    this.rallyTokens = 2;
+    // Rally tokens - each player starts with maxRallyTokens (normal tokens only)
     this.maxRallyTokens = 2;
+    this.rallyTokens = this.maxRallyTokens; // normal tokens
+    this.specialTokenCount = 0; // special tokens
 
     // Initialize when DOM is ready
     if (document.readyState === "loading") {
@@ -297,12 +298,17 @@ class PlayerInfo {
   } // Rally token management methods
   getRallyTokensDisplay() {
     let display = "";
+    // Normal tokens
     for (let i = 0; i < this.maxRallyTokens; i++) {
       if (i < this.rallyTokens) {
         display += '<span class="rally-token-icon available">📢</span>';
       } else {
         display += '<span class="rally-token-icon used">⚪</span>';
       }
+    }
+    // Special token (if any)
+    if (this.specialTokenCount > 0) {
+      display += '<span class="rally-token-icon special">★</span>';
     }
     return display;
   }
@@ -347,9 +353,16 @@ class PlayerInfo {
 
   replenishRallyTokens() {
     this.rallyTokens = this.maxRallyTokens;
+    // 5% chance to award a special rally token
+    if (Math.random() < 0.05) {
+      this.specialTokenCount = 1;
+      console.log(`Player ${this.playerId} received a SPECIAL rally token!`);
+    } else {
+      this.specialTokenCount = 0;
+    }
     this.updateRallyTokensDisplay();
     console.log(
-      `Player ${this.playerId} rally tokens replenished to ${this.rallyTokens}`,
+      `Player ${this.playerId} rally tokens replenished to ${this.rallyTokens}, special: ${this.specialTokenCount}`,
     );
   }
   showInsufficientRallyTokensError() {
