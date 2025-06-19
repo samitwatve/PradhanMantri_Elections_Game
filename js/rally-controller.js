@@ -247,6 +247,7 @@ class RallyController {
     rallyToken.setAttribute("stroke", "#ffffff");
     rallyToken.setAttribute("stroke-width", "2");
     rallyToken.setAttribute("class", "rally-token");
+    rallyToken.setAttribute("pointer-events", "none"); // Allow clicks to pass through
 
     // Add megaphone text
     const rallyText = this.svgDocument.createElementNS(
@@ -261,6 +262,7 @@ class RallyController {
     rallyText.setAttribute("fill", "#ffffff");
     rallyText.setAttribute("font-weight", "bold");
     rallyText.textContent = "📢";
+    rallyText.setAttribute("pointer-events", "none"); // Allow clicks to pass through
 
     // Add to SVG
     this.svgDocument.documentElement.appendChild(rallyToken);
