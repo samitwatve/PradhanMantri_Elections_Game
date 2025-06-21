@@ -329,9 +329,8 @@ class PlayerInfo {
       }
     }
   }
-
   canUseRallyToken() {
-    return this.rallyTokens > 0;
+    return this.rallyTokens > 0 || this.specialTokenCount > 0;
   }
 
   useRallyToken() {

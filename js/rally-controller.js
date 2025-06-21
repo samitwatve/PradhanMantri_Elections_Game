@@ -356,7 +356,9 @@ class RallyController {
       if (player.specialTokenCount <= 0) {
         player.showInsufficientRallyTokensError();
         return false;
-      }      player.specialTokenCount--;
+      }
+      
+      player.specialTokenCount--;
       console.log(`Player ${playerId} special token used. Remaining: ${player.specialTokenCount}`);
       
       // Update display using unified function
@@ -403,9 +405,7 @@ class RallyController {
           timestamp: new Date(),
           duration: 5000
         });
-      }
-
-      this.triggerSpecialRallyShimmer();
+      }      this.triggerSpecialRallyShimmer();
       console.log(`Special Rally Token used by player ${playerId}`);
       return true;
     }
@@ -539,9 +539,7 @@ class RallyController {
       const result = await this.handleRallyPlacement(null, 2, 'special');
       console.log(`Special rally result: ${result}`);
       return result;
-    }
-
-    // 2. Otherwise, use regular rally token
+    }    // 2. Otherwise, use regular rally token
     if (player2.rallyTokens <= 0) {
       console.log("AI has no rally tokens available");
       return false;
@@ -617,7 +615,6 @@ class RallyController {
       ? this.gameConfig.player1Politician.party
       : this.gameConfig.player2Politician.party;
   }
-
   isReady() {
     return this.initialized;
   }
