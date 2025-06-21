@@ -41,7 +41,8 @@ class RallyController {
       player.rallyTokens = 0;
       let specialAwarded = 0, regularAwarded = 0;
       for (let i = 0; i < 2; i++) {
-        if (Math.random() < 0.5) {
+        const specialProbability = idx === 0 ? 0.1 : 0.05; // 10% for player 1, 5% for player 2
+        if (Math.random() < specialProbability) {
           player.specialTokenCount++;
           specialAwarded++;
         } else {
@@ -188,7 +189,8 @@ class RallyController {
         player.specialTokenCount = 0;
         let specialAwarded = 0, regularAwarded = 0;
         for (let i = 0; i < 2; i++) {
-          if (Math.random() < 0.5) {
+          const specialProbability = idx === 0 ? 0.1 : 0.05; // 10% for player 1, 5% for player 2
+          if (Math.random() < specialProbability) {
             player.specialTokenCount++;
             specialAwarded++;
           } else {
