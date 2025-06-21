@@ -92,10 +92,9 @@ class PlayerInfo {
                     <div class="player-funds">
                         <span class="funds-label">Funds:</span>
                         <span class="funds-amount">₹${this.funds} M</span>
-                    </div>                    
-                    <div class="rally-tokens">
+                    </div>                      <div class="rally-tokens">
                         <span class="rally-tokens-label">Rally:</span>
-                        <span class="rally-tokens-display">${this.getRallyTokensDisplay()}</span>
+                        <span class="rally-tokens-display"><!-- Tokens will be rendered by rally controller --></span>
                     </div>
                 </div>
             `;
@@ -293,9 +292,12 @@ class PlayerInfo {
         bonusAmount +
         "M bonus",
       false,
-      2000
-    );
-  } // Rally token management methods
+      2000    );
+  }
+
+  // Rally token management methods
+  // DEPRECATED: This method has flawed logic that can show more than 2 tokens
+  // Use rallyController.createDraggableRallyIcons() instead for consistent display
   getRallyTokensDisplay() {
     let display = "";
     // Normal tokens
@@ -306,31 +308,24 @@ class PlayerInfo {
         display += '<span class="rally-token-icon rally-token-bg used">📢</span>';
       }
     }
-    // Special token (if any)
+    // Special token (if any) - FLAWED: This can cause more than 2 total tokens to display
     if (this.specialTokenCount > 0) {
       display += '<span class="rally-token-icon rally-token-bg special">★</span>';
     }
     return display;
   }
+
   updateRallyTokensDisplay() {
     const rallyTokensElement = this.element.querySelector(
       ".rally-tokens-display",
     );
     if (rallyTokensElement) {
-      rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
-    }
-
-    // Update draggable tokens if rally controller is available and ready
-    if (window.rallyController && this.playerId === 1) {
-      // Don't interfere with R + click by constantly recreating draggable icons
-      // Only update them when necessary
-      if (window.rallyController.isReady && window.rallyController.isReady()) {
-        // Small delay to avoid conflicts
-        setTimeout(() => {
-          if (rallyTokensElement) {
-            window.rallyController.createDraggableRallyIcons(rallyTokensElement);
-          }
-        }, 100);
+      // Use the rally controller's unified display function
+      if (window.rallyController && window.rallyController.isReady && window.rallyController.isReady()) {
+        window.rallyController.createDraggableRallyIcons(rallyTokensElement, this.playerId);
+      } else {
+        // Fallback to old method if rally controller not ready
+        rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
       }
     }
   }
@@ -396,13 +391,17 @@ class PlayerInfo {
     const fundsElement = this.element.querySelector(".funds-amount");
     if (fundsElement) {
       fundsElement.textContent = `₹${this.funds} M`;
-    }
-
-    const rallyTokensElement = this.element.querySelector(
+    }    const rallyTokensElement = this.element.querySelector(
       ".rally-tokens-display",
     );
     if (rallyTokensElement) {
-      rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
+      // Use the rally controller's unified display function
+      if (window.rallyController && window.rallyController.isReady && window.rallyController.isReady()) {
+        window.rallyController.createDraggableRallyIcons(rallyTokensElement, this.playerId);
+      } else {
+        // Fallback to old method if rally controller not ready
+        rallyTokensElement.innerHTML = this.getRallyTokensDisplay();
+      }
     }
 
     console.log(

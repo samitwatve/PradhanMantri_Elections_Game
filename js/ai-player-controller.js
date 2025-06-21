@@ -677,13 +677,20 @@ class AIPlayerController {
       if (!targetState) {
         targetState = topStates[0].stateId;
       }
-    }
-
-    if (targetState) {
+    }    if (targetState) {
       console.log(`AI chose rally target: ${targetState} from ${suitableStates.length} options`);
+      
+      // Check if AI should use special token first (always prioritize special tokens)
+      if (player2.specialTokenCount > 0) {
+        console.log("AI using special rally token strategically");
+        return await rallyController.handleRallyPlacement(null, this.aiPlayerId, 'special');
+      }
+      
+      // Otherwise use regular rally token on chosen state
       return await rallyController.handleRallyPlacement(
         targetState,
         this.aiPlayerId,
+        'normal'
       );
     }
 

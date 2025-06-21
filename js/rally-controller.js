@@ -33,8 +33,7 @@ class RallyController {
       }
     });
 
-    // Assign exactly 2 tokens (regular or special) at game start (phase 1)
-    // Assign exactly 2 tokens (regular or special) at game start (phase 1) for BOTH players
+    // Assign exactly 2 tokens (regular or special) at game start (phase 1)    // Assign exactly 2 tokens (regular or special) at game start (phase 1) for BOTH players
     [player1, player2].forEach((player, idx) => {
       if (typeof player.specialTokenCount !== 'number') player.specialTokenCount = 0;
       if (typeof player.rallyTokens !== 'number') player.rallyTokens = 0;
@@ -47,22 +46,21 @@ class RallyController {
           specialAwarded++;
         } else {
           player.rallyTokens++;
-          regularAwarded++;
+          regularAwarded++;        }
+      }
+      
+      // Update display for both players using unified function
+      const playerInfo = document.getElementById(`player${idx + 1}-info`);
+      if (playerInfo) {
+        const rallyTokensDisplay = playerInfo.querySelector(".rally-tokens-display");
+        if (rallyTokensDisplay) {
+          this.createDraggableRallyIcons(rallyTokensDisplay, idx + 1);
         }
       }
-      // Update display for both players if method exists
-      if (typeof player.updateRallyTokensDisplay === 'function') {
-        player.updateRallyTokensDisplay();
-      } else if (idx === 0) {
-        // fallback: re-render tokens if method missing for player1
-        const player1Info = document.getElementById("player1-info");
-        if (player1Info) {
-          const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
-          if (rallyTokensDisplay && typeof this.createDraggableRallyIcons === 'function') {
-            this.createDraggableRallyIcons(rallyTokensDisplay);
-          }
-        }
-      }
+      
+      console.log(`Player ${idx + 1} tokens assigned at game start - Regular: ${regularAwarded}, Special: ${specialAwarded}`);
+      console.log(`Player ${idx + 1} current tokens - Regular: ${player.rallyTokens}, Special: ${player.specialTokenCount}`);
+      
       // Only show notification for player1 if any special token awarded
       if (idx === 0 && specialAwarded > 0) {
         if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
@@ -195,23 +193,20 @@ class RallyController {
             specialAwarded++;
           } else {
             player.rallyTokens++;
-            regularAwarded++;
+            regularAwarded++;        }        }
+        
+        console.log(`Player ${idx + 1} tokens assigned on phase change - Regular: ${regularAwarded}, Special: ${specialAwarded}`);
+        console.log(`Player ${idx + 1} current tokens - Regular: ${player.rallyTokens}, Special: ${player.specialTokenCount}`);
+        
+        // Update display for both players using unified function
+        const playerInfo = document.getElementById(`player${idx + 1}-info`);
+        if (playerInfo) {
+          const rallyTokensDisplay = playerInfo.querySelector(".rally-tokens-display");
+          if (rallyTokensDisplay) {
+            this.createDraggableRallyIcons(rallyTokensDisplay, idx + 1);
           }
         }
-        // Only update display for player1 (UI), but both get tokens
-        // Update display for both players if method exists
-        if (typeof player.updateRallyTokensDisplay === 'function') {
-          player.updateRallyTokensDisplay();
-        } else if (idx === 0) {
-          // fallback: re-render tokens if method missing for player1
-          const player1Info = document.getElementById("player1-info");
-          if (player1Info) {
-            const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
-            if (rallyTokensDisplay && typeof this.createDraggableRallyIcons === 'function') {
-              this.createDraggableRallyIcons(rallyTokensDisplay);
-            }
-          }
-        }
+        
         // Only show notification for player1 if any special token awarded
         if (idx === 0 && specialAwarded > 0) {
           if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
@@ -246,7 +241,6 @@ class RallyController {
     
     setupWhenReady();
   }
-
   setupPlayerRallyDragAndDrop() {
     const player1Info = document.getElementById("player1-info");
     if (!player1Info) return;
@@ -254,72 +248,89 @@ class RallyController {
     const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
     if (!rallyTokensDisplay) return;
 
-    // Create draggable rally icons
-    this.createDraggableRallyIcons(rallyTokensDisplay);
-  }
-  createDraggableRallyIcons(container) {
+    // Create draggable rally icons for Player 1
+    this.createDraggableRallyIcons(rallyTokensDisplay, 1);
+  }createDraggableRallyIcons(container, playerId = 1) {
     container.innerHTML = "";
+    const player = playerId === 1 ? player1 : player2;
+    const isDraggable = playerId === 1; // Only Player 1 tokens are draggable
+    
     // Always render exactly 2 slots: fill with available tokens, then used/greyed out
-    let regularLeft = player1.rallyTokens || 0;
-    let specialLeft = player1.specialTokenCount || 0;
+    let regularLeft = player.rallyTokens || 0;
+    let specialLeft = player.specialTokenCount || 0;
     let rendered = 0;
+    
     // Render regular tokens first
     while (regularLeft > 0 && rendered < 2) {
       const tokenElement = document.createElement("span");
       tokenElement.setAttribute("data-token-index", rendered);
       tokenElement.classList.add("rally-token-icon", "rally-token-bg");
-      tokenElement.draggable = true;
-      tokenElement.title = "Drag to use Rally Token (📢) - State effect";
+      tokenElement.draggable = isDraggable;
+      tokenElement.title = isDraggable 
+        ? "Drag to use Rally Token (📢) - State effect" 
+        : "Rally Token (📢) - State effect";
       tokenElement.textContent = "📢";
       tokenElement.classList.add("available");
-      tokenElement.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", "rally-token");
-        e.dataTransfer.setData("rally-token", "normal");
-        e.dataTransfer.setData("tokenType", "normal");
-        e.dataTransfer.effectAllowed = "move";
-        tokenElement.classList.add("dragging");
-        document.body.classList.add("rally-dragging");
-        const mapContainer = document.querySelector(".map-container");
-        if (mapContainer) mapContainer.classList.add("drag-active");
-      });
-      tokenElement.addEventListener("dragend", () => {
-        tokenElement.classList.remove("dragging");
-        document.body.classList.remove("rally-dragging");
-        const mapContainer = document.querySelector(".map-container");
-        if (mapContainer) mapContainer.classList.remove("drag-active");
-      });
+      
+      if (isDraggable) {
+        tokenElement.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", "rally-token");
+          e.dataTransfer.setData("rally-token", "normal");
+          e.dataTransfer.setData("tokenType", "normal");
+          e.dataTransfer.effectAllowed = "move";
+          tokenElement.classList.add("dragging");
+          document.body.classList.add("rally-dragging");
+          const mapContainer = document.querySelector(".map-container");
+          if (mapContainer) mapContainer.classList.add("drag-active");
+        });
+        tokenElement.addEventListener("dragend", () => {
+          tokenElement.classList.remove("dragging");
+          document.body.classList.remove("rally-dragging");
+          const mapContainer = document.querySelector(".map-container");
+          if (mapContainer) mapContainer.classList.remove("drag-active");
+        });
+      }
+      
       container.appendChild(tokenElement);
       regularLeft--;
       rendered++;
     }
+    
     // Then render special tokens
     while (rendered < 2 && specialLeft > 0) {
       const specialToken = document.createElement("span");
       specialToken.setAttribute("data-token-index", "special-" + rendered);
       specialToken.classList.add("rally-token-icon", "rally-token-bg", "special");
-      specialToken.draggable = true;
-      specialToken.title = "Drag to use Special Rally Token (★) - Nationwide effect";
+      specialToken.draggable = isDraggable;
+      specialToken.title = isDraggable 
+        ? "Drag to use Special Rally Token (★) - Nationwide effect" 
+        : "Special Rally Token (★) - Nationwide effect";
       specialToken.textContent = "★";
-      specialToken.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", "special-rally-token");
-        e.dataTransfer.setData("rally-token", "special");
-        e.dataTransfer.setData("tokenType", "special");
-        e.dataTransfer.effectAllowed = "move";
-        specialToken.classList.add("dragging");
-        document.body.classList.add("rally-dragging");
-        const mapContainer = document.querySelector(".map-container");
-        if (mapContainer) mapContainer.classList.add("drag-active");
-      });
-      specialToken.addEventListener("dragend", () => {
-        specialToken.classList.remove("dragging");
-        document.body.classList.remove("rally-dragging");
-        const mapContainer = document.querySelector(".map-container");
-        if (mapContainer) mapContainer.classList.remove("drag-active");
-      });
+      
+      if (isDraggable) {
+        specialToken.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", "special-rally-token");
+          e.dataTransfer.setData("rally-token", "special");
+          e.dataTransfer.setData("tokenType", "special");
+          e.dataTransfer.effectAllowed = "move";
+          specialToken.classList.add("dragging");
+          document.body.classList.add("rally-dragging");
+          const mapContainer = document.querySelector(".map-container");
+          if (mapContainer) mapContainer.classList.add("drag-active");
+        });
+        specialToken.addEventListener("dragend", () => {
+          specialToken.classList.remove("dragging");
+          document.body.classList.remove("rally-dragging");
+          const mapContainer = document.querySelector(".map-container");
+          if (mapContainer) mapContainer.classList.remove("drag-active");
+        });
+      }
+      
       container.appendChild(specialToken);
       specialLeft--;
       rendered++;
     }
+    
     // If less than 2 tokens, fill the rest as used (greyed out)
     while (rendered < 2) {
       const usedToken = document.createElement("span");
@@ -345,15 +356,21 @@ class RallyController {
       if (player.specialTokenCount <= 0) {
         player.showInsufficientRallyTokensError();
         return false;
-      }
-      player.specialTokenCount--;
-      // Use our custom display update instead of player's method
-      const player1Info = document.getElementById("player1-info");
-      if (player1Info) {
-        const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
+      }      player.specialTokenCount--;
+      console.log(`Player ${playerId} special token used. Remaining: ${player.specialTokenCount}`);
+      
+      // Update display using unified function
+      const playerInfo = document.getElementById(`player${playerId}-info`);
+      if (playerInfo) {
+        const rallyTokensDisplay = playerInfo.querySelector(".rally-tokens-display");
         if (rallyTokensDisplay) {
-          this.createDraggableRallyIcons(rallyTokensDisplay);
+          console.log(`Updating rally display for player ${playerId}`);
+          this.createDraggableRallyIcons(rallyTokensDisplay, playerId);
+        } else {
+          console.log(`Rally tokens display not found for player ${playerId}`);
         }
+      } else {
+        console.log(`Player info not found for player ${playerId}`);
       }
 
       if (!this.statesData) {
@@ -370,14 +387,19 @@ class RallyController {
         actionsLog.addAction(`${playerName} used a Special Rally Token! (+5% popularity in all states)`);
       } catch {
         console.log(`${playerName} used a Special Rally Token! (+5% popularity in all states)`);
-      }
-
-      // Add special notification to LIVE updates (TV display)
+      }      // Add special notification to LIVE updates (TV display)
       if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
+        const notificationTitle = playerId === 1 
+          ? 'Special Rally Token Activated!' 
+          : 'AI Used Special Rally Token!';
+        const notificationDetails = playerId === 1
+          ? `${playerName} used a Special Rally Token! (+5% popularity in all states)`
+          : `${playerName} used a Special Rally Token! (+5% popularity in all states)`;
+        
         window.tvDisplay.addNotification({
-          type: 'event-positive',
-          title: 'Special Rally Token Activated!',
-          details: `${playerName} used a Special Rally Token! (+5% popularity in all states)`,
+          type: playerId === 1 ? 'event-positive' : 'event-negative',
+          title: notificationTitle,
+          details: notificationDetails,
           timestamp: new Date(),
           duration: 5000
         });
@@ -401,12 +423,12 @@ class RallyController {
       this.showMaxRalliesError(stateId, playerId);
       return false;
     }    player.rallyTokens--;
-    // Use our custom display update instead of player's method
-    const player1Info = document.getElementById("player1-info");
-    if (player1Info) {
-      const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
+    // Update display using unified function
+    const playerInfo = document.getElementById(`player${playerId}-info`);
+    if (playerInfo) {
+      const rallyTokensDisplay = playerInfo.querySelector(".rally-tokens-display");
       if (rallyTokensDisplay) {
-        this.createDraggableRallyIcons(rallyTokensDisplay);
+        this.createDraggableRallyIcons(rallyTokensDisplay, playerId);
       }
     }
     this.placeRally(stateId, playerId);
@@ -507,11 +529,20 @@ class RallyController {
     `;
     document.body.appendChild(errorMsg);
     setTimeout(() => errorMsg.remove(), 2000);
-  }
-
-  async placeAIRally() {
+  }  async placeAIRally() {
     console.log("AI attempting to place rally");
-    if (!player2.canUseRallyToken()) {
+    console.log(`AI tokens - Regular: ${player2.rallyTokens}, Special: ${player2.specialTokenCount}`);
+
+    // 1. Always use special rally token if available (instant priority)
+    if (player2.specialTokenCount > 0) {
+      console.log("AI instantly using special rally token");
+      const result = await this.handleRallyPlacement(null, 2, 'special');
+      console.log(`Special rally result: ${result}`);
+      return result;
+    }
+
+    // 2. Otherwise, use regular rally token
+    if (player2.rallyTokens <= 0) {
       console.log("AI has no rally tokens available");
       return false;
     }
