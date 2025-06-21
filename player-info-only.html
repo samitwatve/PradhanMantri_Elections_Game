@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Info Only</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/player-sections.css">
+  <link rel="stylesheet" href="./styles/player-info-only.css">
+</head>
+<body>
+  <div id="player1-info" class="player-info-container">
+    <!-- Player 1 info will be rendered here by JS -->
+    <div class="rally-tokens-display"></div>
+  </div>
+  <div id="player2-info" class="player-info-container">
+    <!-- Player 2 info will be rendered here by JS -->
+    <div class="rally-tokens-display"></div>
+  </div>
+
+  <div id="drop-area" class="drop-area">
+    <span>Drop Token Here</span>
+  </div>
+  <script type="module" src="./player-info.js"></script>
+  <script>
+    // Helper to create a token element
+    function createToken(type, index) {
+      const span = document.createElement('span');
+      span.classList.add('rally-token-icon', 'rally-token-bg', type);
+      span.textContent = type === 'special' ? '★' : '📢';
+      span.title = type === 'special' ? 'Special Rally Token (★)' : 'Rally Token (📢)';
+      span.dataset.tokenIndex = index;
+      span.draggable = true;
+      span.dataset.tokenType = type;
+      span.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('tokenType', type);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      return span;
+    }
+
+    function addTokensToPlayer(playerId) {
+      const container = document.querySelector(`#${playerId}-info .rally-tokens-display`);
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < 2; i++) {
+        const type = Math.random() < 0.5 ? 'normal' : 'special';
+        const token = createToken(type, Date.now() + '-' + Math.random());
+        container.appendChild(token);
+      }
+    }
+
+    setInterval(() => {
+      addTokensToPlayer('player1');
+      addTokensToPlayer('player2');
+    }, 3000);
+
+    // Drop area logic
+    const dropArea = document.getElementById('drop-area');
+    dropArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      dropArea.classList.add('drag-over');
+    });
+    dropArea.addEventListener('dragleave', function() {
+      dropArea.classList.remove('drag-over');
+    });
+    dropArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropArea.classList.remove('drag-over');
+      const tokenType = e.dataTransfer.getData('tokenType');
+      if (tokenType === 'special') {
+        flashScreen('green');
+      } else {
+        flashScreen('red');
+      }
+    });
+
+    function flashScreen(color) {
+      const flash = document.createElement('div');
+      flash.className = 'screen-flash';
+      flash.style.background = color === 'green' ? 'rgba(0,255,0,0.3)' : 'rgba(255,0,0,0.3)';
+      flash.style.position = 'fixed';
+      flash.style.top = 0;
+      flash.style.left = 0;
+      flash.style.width = '100vw';
+      flash.style.height = '100vh';
+      flash.style.zIndex = 9999;
+      flash.style.pointerEvents = 'none';
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 350);
+    }
+  </script>
+</body>
+</html>
+</html>

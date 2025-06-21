@@ -352,17 +352,10 @@ class PlayerInfo {
   }
 
   replenishRallyTokens() {
-    this.rallyTokens = this.maxRallyTokens;
-    // 5% chance to award a special rally token
-    if (Math.random() < 0.05) {
-      this.specialTokenCount = 1;
-      console.log(`Player ${this.playerId} received a SPECIAL rally token!`);
-    } else {
-      this.specialTokenCount = 0;
-    }
     this.updateRallyTokensDisplay();
+    // Only update the UI to reflect current values, do not assign tokens here
     console.log(
-      `Player ${this.playerId} rally tokens replenished to ${this.rallyTokens}, special: ${this.specialTokenCount}`,
+      `Player ${this.playerId} rally tokens UI refreshed (no assignment here). Current: ${this.rallyTokens}, special: ${this.specialTokenCount}`,
     );
   }
   showInsufficientRallyTokensError() {

@@ -34,47 +34,51 @@ class RallyController {
     });
 
     // Assign exactly 2 tokens (regular or special) at game start (phase 1)
-    if (typeof player1.specialTokenCount !== 'number') player1.specialTokenCount = 0;
-    if (typeof player1.rallyTokens !== 'number') player1.rallyTokens = 0;
-    player1.specialTokenCount = 0;
-    player1.rallyTokens = 0;
-    let specialAwarded = 0, regularAwarded = 0;
-    for (let i = 0; i < 2; i++) {
-      if (Math.random() < 0.5) {
-        player1.specialTokenCount++;
-        specialAwarded++;
-      } else {
-        player1.rallyTokens++;
-        regularAwarded++;
-      }
-    }
-    if (typeof player1.updateRallyTokensDisplay === 'function') {
-      player1.updateRallyTokensDisplay();
-    } else {
-      // fallback: re-render tokens if method missing
-      const player1Info = document.getElementById("player1-info");
-      if (player1Info) {
-        const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
-        if (rallyTokensDisplay && typeof this.createDraggableRallyIcons === 'function') {
-          this.createDraggableRallyIcons(rallyTokensDisplay);
+    // Assign exactly 2 tokens (regular or special) at game start (phase 1) for BOTH players
+    [player1, player2].forEach((player, idx) => {
+      if (typeof player.specialTokenCount !== 'number') player.specialTokenCount = 0;
+      if (typeof player.rallyTokens !== 'number') player.rallyTokens = 0;
+      player.specialTokenCount = 0;
+      player.rallyTokens = 0;
+      let specialAwarded = 0, regularAwarded = 0;
+      for (let i = 0; i < 2; i++) {
+        if (Math.random() < 0.5) {
+          player.specialTokenCount++;
+          specialAwarded++;
+        } else {
+          player.rallyTokens++;
+          regularAwarded++;
         }
       }
-    }
-    // Optional: show a notification or sound if any special token awarded
-    if (specialAwarded > 0) {
-      if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
-        window.tvDisplay.addNotification({
-          type: 'event-positive',
-          title: 'Special Rally Token Awarded!',
-          details: `You received ${specialAwarded} Special Rally Token${specialAwarded > 1 ? 's' : ''} (★) at game start!`,
-          timestamp: new Date(),
-          duration: 4000
-        });
+      // Update display for both players if method exists
+      if (typeof player.updateRallyTokensDisplay === 'function') {
+        player.updateRallyTokensDisplay();
+      } else if (idx === 0) {
+        // fallback: re-render tokens if method missing for player1
+        const player1Info = document.getElementById("player1-info");
+        if (player1Info) {
+          const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
+          if (rallyTokensDisplay && typeof this.createDraggableRallyIcons === 'function') {
+            this.createDraggableRallyIcons(rallyTokensDisplay);
+          }
+        }
       }
-      if (window.soundManager && typeof window.soundManager.playFanfare === 'function') {
-        window.soundManager.playFanfare();
+      // Only show notification for player1 if any special token awarded
+      if (idx === 0 && specialAwarded > 0) {
+        if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
+          window.tvDisplay.addNotification({
+            type: 'event-positive',
+            title: 'Special Rally Token Awarded!',
+            details: `You received ${specialAwarded} Special Rally Token${specialAwarded > 1 ? 's' : ''} (★) at game start!`,
+            timestamp: new Date(),
+            duration: 4000
+          });
+        }
+        if (window.soundManager && typeof window.soundManager.playFanfare === 'function') {
+          window.soundManager.playFanfare();
+        }
       }
-    }
+    });
 
     // Set up drag-and-drop for SVG map and states
     this.setupMapDragAndDrop();
@@ -178,49 +182,52 @@ class RallyController {
     });
 
     // Listen for game phase changes to reset AI rally behavior and assign 2 tokens (regular or special)
+    // Listen for game phase changes to reset AI rally behavior and assign 2 tokens (regular or special) for BOTH players
     window.addEventListener("gamePhaseChanged", () => {
       console.log("Rally controller received phase change event");
-      // Always reset both counts to 0 before assignment
-      player1.rallyTokens = 0;
-      player1.specialTokenCount = 0;
-      let specialAwarded = 0, regularAwarded = 0;
-      for (let i = 0; i < 2; i++) {
-        if (Math.random() < 0.5) {
-          player1.specialTokenCount++;
-          specialAwarded++;
-        } else {
-          player1.rallyTokens++;
-          regularAwarded++;
-        }
-      }
-      // Now update the display exactly once, after assignment
-      if (typeof player1.updateRallyTokensDisplay === 'function') {
-        player1.updateRallyTokensDisplay();
-      } else {
-        // fallback: re-render tokens if method missing
-        const player1Info = document.getElementById("player1-info");
-        if (player1Info) {
-          const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
-          if (rallyTokensDisplay && typeof this.createDraggableRallyIcons === 'function') {
-            this.createDraggableRallyIcons(rallyTokensDisplay);
+      [player1, player2].forEach((player, idx) => {
+        player.rallyTokens = 0;
+        player.specialTokenCount = 0;
+        let specialAwarded = 0, regularAwarded = 0;
+        for (let i = 0; i < 2; i++) {
+          if (Math.random() < 0.5) {
+            player.specialTokenCount++;
+            specialAwarded++;
+          } else {
+            player.rallyTokens++;
+            regularAwarded++;
           }
         }
-      }
-      // Only show notification if any special token awarded
-      if (specialAwarded > 0) {
-        if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
-          window.tvDisplay.addNotification({
-            type: 'event-positive',
-            title: 'Special Rally Token Awarded!',
-            details: `You received ${specialAwarded} Special Rally Token${specialAwarded > 1 ? 's' : ''} (★) this phase!`,
-            timestamp: new Date(),
-            duration: 4000
-          });
+        // Only update display for player1 (UI), but both get tokens
+        // Update display for both players if method exists
+        if (typeof player.updateRallyTokensDisplay === 'function') {
+          player.updateRallyTokensDisplay();
+        } else if (idx === 0) {
+          // fallback: re-render tokens if method missing for player1
+          const player1Info = document.getElementById("player1-info");
+          if (player1Info) {
+            const rallyTokensDisplay = player1Info.querySelector(".rally-tokens-display");
+            if (rallyTokensDisplay && typeof this.createDraggableRallyIcons === 'function') {
+              this.createDraggableRallyIcons(rallyTokensDisplay);
+            }
+          }
         }
-        if (window.soundManager && typeof window.soundManager.playFanfare === 'function') {
-          window.soundManager.playFanfare();
+        // Only show notification for player1 if any special token awarded
+        if (idx === 0 && specialAwarded > 0) {
+          if (window.tvDisplay && typeof window.tvDisplay.addNotification === 'function') {
+            window.tvDisplay.addNotification({
+              type: 'event-positive',
+              title: 'Special Rally Token Awarded!',
+              details: `You received ${specialAwarded} Special Rally Token${specialAwarded > 1 ? 's' : ''} (★) this phase!`,
+              timestamp: new Date(),
+              duration: 4000
+            });
+          }
+          if (window.soundManager && typeof window.soundManager.playFanfare === 'function') {
+            window.soundManager.playFanfare();
+          }
         }
-      }
+      });
     });
   }
 
