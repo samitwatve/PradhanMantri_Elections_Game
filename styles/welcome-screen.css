@@ -610,3 +610,85 @@ body::before {
 .difficulty-desc.active {
   display: block;
 }
+
+/* Politician Summary Styles for Step 3 */
+.politician-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.politician-summary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.politician-image-container-small {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--accent-gold);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.politician-image-small {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.party-logo-small {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 25px;
+  height: 25px;
+  background: white;
+  border-radius: 50%;
+  padding: 2px;
+  border: 2px solid var(--accent-gold);
+}
+
+.politician-info {
+  text-align: left;
+}
+
+.politician-name-small {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-light);
+}
+
+.politician-party-small {
+  font-size: 0.8rem;
+  margin: 0;
+  opacity: 0.8;
+  color: var(--accent-gold);
+}
+
+/* Make selection summary and ai opponent sections more prominent */
+.selection-summary, .ai-opponent {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.selection-summary h3, .ai-opponent h3 {
+  margin-bottom: 1rem;
+  color: var(--accent-gold);
+  font-size: 1.2rem;
+  font-weight: 600;
+}

@@ -90,9 +90,9 @@ async function signInWithGoogle() {
           </div>
         `
           )
-          .join("");
-
-        let currentIndex = 0;
+          .join("");        let currentIndex = 0;
+        let selectedPolitician = null;
+        
         const updateCarousel = () => {
           const cards = document.querySelectorAll(".card-container");
           cards.forEach((card, index) => {
@@ -119,47 +119,119 @@ async function signInWithGoogle() {
           updateCarousel();
         });
 
+        // Make selectCurrentPolitician globally available
+        window.selectCurrentPolitician = () => {
+          selectedPolitician = leaders[currentIndex];
+          gameConfig.player1Politician = selectedPolitician.name;
+          
+          // Randomly select AI opponent (different from player selection)
+          const availableOpponents = leaders.filter(leader => leader.name !== selectedPolitician.name);
+          const aiOpponent = availableOpponents[Math.floor(Math.random() * availableOpponents.length)];
+          gameConfig.player2Politician = aiOpponent.name;
+          
+          localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
+          console.log("Player selected:", selectedPolitician.name);
+          console.log("AI opponent:", aiOpponent.name);
+
+          // Update Step 3 with selections
+          updateStep3Display(selectedPolitician, aiOpponent);
+
+          // Show game options screen
+          document.getElementById("step-2").classList.add("hidden");
+          document.getElementById("step-3").classList.remove("hidden");
+        };
+
         updateCarousel();
       })
       .catch((error) => console.error("Error loading politicians data:", error));
 
-    console.log("Leader cards set up successfully.");
-
-    // Redirect to candidate selection screen
+    console.log("Leader cards set up successfully.");    // Redirect to candidate selection screen
     document.getElementById("step-2").classList.remove("hidden");
     document.getElementById("google-sign-in-btn").classList.add("hidden");
 
-    // Handle candidate selection
-    const selectButton = document.querySelector(".select-btn");
-    selectButton.addEventListener("click", () => {
-      const selectedCandidate = "Narendra Modi"; // Replace with actual selection logic
-      gameConfig.player1Politician = selectedCandidate;
-      localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
-      console.log("Candidate selected:", selectedCandidate);
+    // Function to update Step 3 display with selected politicians
+    function updateStep3Display(playerPolitician, aiPolitician) {
+      // Update player selection display
+      const playerSummary = document.getElementById("player-summary");
+      playerSummary.innerHTML = `
+        <div class="politician-summary">
+          <div class="politician-image-container-small">
+            <img src="${playerPolitician.image}" alt="${playerPolitician.name}" class="politician-image-small" />
+            <img src="${playerPolitician.partyLogo}" alt="${playerPolitician.party}" class="party-logo-small" />
+          </div>
+          <div class="politician-info">
+            <h4 class="politician-name-small">${playerPolitician.name}</h4>
+            <p class="politician-party-small">${playerPolitician.party}</p>
+          </div>
+        </div>
+      `;
 
-      // Show game options screen
-      document.getElementById("step-2").classList.add("hidden");
-      document.getElementById("step-3").classList.remove("hidden");
-    });
+      // Update AI opponent display
+      const aiSummary = document.getElementById("ai-summary");
+      aiSummary.innerHTML = `
+        <div class="politician-summary">
+          <div class="politician-image-container-small">
+            <img src="${aiPolitician.image}" alt="${aiPolitician.name}" class="politician-image-small" />
+            <img src="${aiPolitician.partyLogo}" alt="${aiPolitician.party}" class="party-logo-small" />
+          </div>
+          <div class="politician-info">
+            <h4 class="politician-name-small">${aiPolitician.name}</h4>
+            <p class="politician-party-small">${aiPolitician.party}</p>
+          </div>
+        </div>
+      `;
+    }
 
-    // Handle game options and start game
-    const startGameButton = document.querySelector(".start-game-btn");
-    startGameButton.addEventListener("click", () => {
-      const aiDifficulty = document.querySelector(".difficulty-btn.active").dataset.difficulty;
-      const randomEventsEnabled = document.getElementById("random-events-checkbox").checked;
+    // Set up difficulty selection
+    setupDifficultySelection();
 
-      gameConfig.aiDifficulty = aiDifficulty;
-      gameConfig.randomEventsEnabled = randomEventsEnabled;
-      localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
-      console.log("Game options set:", { aiDifficulty, randomEventsEnabled });
-
-      // Redirect to the main game
-      window.location.href = "index.html";
-    });
+    // Set up start game functionality
+    setupStartGameFunction();
   } catch (error) {
     console.error("Error during Google Sign-In:", error);
     alert(`Failed to sign in. Error: ${error.message}`);
   }
+}
+
+// Function to set up difficulty selection
+function setupDifficultySelection() {
+  const difficultyButtons = document.querySelectorAll(".difficulty-btn");
+  const difficultyDescriptions = document.querySelectorAll(".difficulty-desc");
+  
+  difficultyButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      // Remove active class from all buttons
+      difficultyButtons.forEach(btn => btn.classList.remove("active"));
+      difficultyDescriptions.forEach(desc => desc.classList.remove("active"));
+      
+      // Add active class to clicked button
+      button.classList.add("active");
+      
+      // Show corresponding description
+      const difficulty = button.dataset.difficulty.toLowerCase();
+      const description = document.querySelector(`.difficulty-desc.${difficulty}`);
+      if (description) {
+        description.classList.add("active");
+      }
+    });
+  });
+}
+
+// Function to set up start game functionality
+function setupStartGameFunction() {
+  window.startGame = () => {
+    const gameConfig = JSON.parse(localStorage.getItem("gameConfig"));
+    const aiDifficulty = document.querySelector(".difficulty-btn.active").dataset.difficulty;
+    const randomEventsEnabled = document.getElementById("random-events-checkbox").checked;
+
+    gameConfig.aiDifficulty = aiDifficulty;
+    gameConfig.randomEventsEnabled = randomEventsEnabled;
+    localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
+    console.log("Game options set:", { aiDifficulty, randomEventsEnabled });
+
+    // Redirect to the main game
+    window.location.href = "index.html";
+  };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
