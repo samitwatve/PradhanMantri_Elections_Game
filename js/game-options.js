@@ -451,8 +451,16 @@ function startNewGame() {
     // Clear the stored game configuration
     localStorage.removeItem("gameConfig");
 
-    // Redirect to welcome screen
-    window.location.href = "welcome-screen.html";
+    // Check if user is already signed in
+    const signInSuccessful = localStorage.getItem("signInSuccessful");
+    
+    if (signInSuccessful === "true") {
+      // User is already signed in, redirect to candidate selection
+      window.location.href = "welcome-screen.html#step-2";
+    } else {
+      // User is not signed in, redirect to sign-in screen
+      window.location.href = "welcome-screen.html";
+    }
   }
 }
 

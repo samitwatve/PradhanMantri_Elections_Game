@@ -24,8 +24,26 @@ console.log("Firebase Configuration:", firebaseConfig);
 console.log("Auth Object:", auth);
 console.log("Provider Object:", provider);
 
+// Variable to track if sign-in is in progress
+let isSigningIn = false;
+
 async function signInWithGoogle() {
+  // Prevent multiple simultaneous sign-in attempts
+  if (isSigningIn) {
+    console.log("Sign-in already in progress...");
+    return;
+  }
+
   try {
+    isSigningIn = true;
+    
+    // Disable the sign-in button to prevent multiple clicks
+    const signInButton = document.getElementById("google-sign-in-btn");
+    if (signInButton) {
+      signInButton.disabled = true;
+      signInButton.textContent = "Signing in...";
+    }
+
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
     console.log("User signed in successfully:", user);
@@ -35,27 +53,10 @@ async function signInWithGoogle() {
       name: user.displayName,
       email: user.email,
       photoURL: user.photoURL
-    }));
+    }));    console.log("User information stored in localStorage:", localStorage.getItem("user"));
 
-    console.log("User information stored in localStorage:", localStorage.getItem("user"));
-
-    // Initialize game configuration
-    const gameConfig = {
-      playerName: user.displayName,
-      player1Politician: "Narendra Modi", // Default politician for Player 1
-      player2Politician: "Rahul Gandhi", // Default politician for Player 2
-      aiDifficulty: "EASY", // Default AI difficulty
-      randomEventsEnabled: true // Enable random events by default
-    };
-
-    localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
-    console.log("Game configuration initialized:", gameConfig);
-
-    // Set up leader cards dynamically
-    const cardStack = document.getElementById("card-stack");
-    cardStack.style.display = "grid";
-    cardStack.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
-    cardStack.style.gap = "1rem";
+    // Set up the game after sign-in
+    setupGameAfterSignIn(user);
 
     let politiciansData;
     fetch("./politicians-data.json")
@@ -143,44 +144,9 @@ async function signInWithGoogle() {
 
         updateCarousel();
       })
-      .catch((error) => console.error("Error loading politicians data:", error));
-
-    console.log("Leader cards set up successfully.");    // Redirect to candidate selection screen
+      .catch((error) => console.error("Error loading politicians data:", error));    console.log("Leader cards set up successfully.");    // Redirect to candidate selection screen
     document.getElementById("step-2").classList.remove("hidden");
     document.getElementById("google-sign-in-btn").classList.add("hidden");
-
-    // Function to update Step 3 display with selected politicians
-    function updateStep3Display(playerPolitician, aiPolitician) {
-      // Update player selection display
-      const playerSummary = document.getElementById("player-summary");
-      playerSummary.innerHTML = `
-        <div class="politician-summary">
-          <div class="politician-image-container-small">
-            <img src="${playerPolitician.image}" alt="${playerPolitician.name}" class="politician-image-small" />
-            <img src="${playerPolitician.partyLogo}" alt="${playerPolitician.party}" class="party-logo-small" />
-          </div>
-          <div class="politician-info">
-            <h4 class="politician-name-small">${playerPolitician.name}</h4>
-            <p class="politician-party-small">${playerPolitician.party}</p>
-          </div>
-        </div>
-      `;
-
-      // Update AI opponent display
-      const aiSummary = document.getElementById("ai-summary");
-      aiSummary.innerHTML = `
-        <div class="politician-summary">
-          <div class="politician-image-container-small">
-            <img src="${aiPolitician.image}" alt="${aiPolitician.name}" class="politician-image-small" />
-            <img src="${aiPolitician.partyLogo}" alt="${aiPolitician.party}" class="party-logo-small" />
-          </div>
-          <div class="politician-info">
-            <h4 class="politician-name-small">${aiPolitician.name}</h4>
-            <p class="politician-party-small">${aiPolitician.party}</p>
-          </div>
-        </div>
-      `;
-    }
 
     // Set up difficulty selection
     setupDifficultySelection();
@@ -196,10 +162,40 @@ async function signInWithGoogle() {
         <p class="user-name">Welcome, ${user.displayName}!</p>
       </div>
     `;
-    userInfoDisplay.style.display = "block";
+    userInfoDisplay.style.display = "block";    // Add a variable to indicate sign-in success
+    localStorage.setItem("signInSuccessful", true);
   } catch (error) {
     console.error("Error during Google Sign-In:", error);
-    alert(`Failed to sign in. Error: ${error.message}`);
+    
+    // Handle specific Firebase auth errors
+    let errorMessage = "Failed to sign in. Please try again.";
+    
+    switch (error.code) {
+      case 'auth/cancelled-popup-request':
+        errorMessage = "Sign-in was cancelled. Please try again.";
+        break;
+      case 'auth/popup-closed-by-user':
+        errorMessage = "Sign-in popup was closed. Please try again.";
+        break;
+      case 'auth/popup-blocked':
+        errorMessage = "Popup was blocked by your browser. Please allow popups for this site.";
+        break;
+      case 'auth/network-request-failed':
+        errorMessage = "Network error. Please check your internet connection.";
+        break;
+      default:
+        errorMessage = `Sign-in failed: ${error.message}`;
+    }
+    
+    alert(errorMessage);
+  } finally {
+    // Reset sign-in state and button
+    isSigningIn = false;
+    const signInButton = document.getElementById("google-sign-in-btn");
+    if (signInButton) {
+      signInButton.disabled = false;
+      signInButton.textContent = "Sign in with Google";
+    }
   }
 }
 
@@ -246,5 +242,188 @@ function setupStartGameFunction() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const signInButton = document.getElementById("google-sign-in-btn");
-  signInButton.addEventListener("click", signInWithGoogle);
+  
+  // Remove any existing event listeners and add a single one
+  const newSignInButton = signInButton.cloneNode(true);
+  signInButton.parentNode.replaceChild(newSignInButton, signInButton);
+  
+  newSignInButton.addEventListener("click", signInWithGoogle);
+
+  // Check if user is already signed in and should skip to candidate selection
+  checkSignInStatus();
 });
+
+// Check if user is already signed in and should skip to candidate selection
+function checkSignInStatus() {
+  const signInSuccessful = localStorage.getItem("signInSuccessful");
+  const urlHash = window.location.hash;
+  
+  if (signInSuccessful === "true" && urlHash === "#step-2") {
+    // User is already signed in and wants to go to candidate selection
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      
+      // Set up the game as if they just signed in
+      setupGameAfterSignIn(user);      
+      
+      // Show candidate selection screen directly
+      document.getElementById("step-2").classList.remove("hidden");
+      document.getElementById("google-sign-in-btn").classList.add("hidden");
+      
+      // Display user information
+      const userInfoDisplay = document.getElementById("user-info-display");
+      userInfoDisplay.innerHTML = `
+        <div class="user-info">
+          <img src="${user.photoURL}" alt="${user.displayName}" class="user-photo" />
+          <p class="user-name">Welcome back, ${user.displayName}!</p>
+        </div>
+      `;
+      userInfoDisplay.style.display = "block";
+    }
+  }
+}
+
+// Extract common setup logic into a separate function
+function setupGameAfterSignIn(user) {
+  // Initialize game configuration
+  const gameConfig = {
+    playerName: user.displayName,
+    player1Politician: "Narendra Modi", // Default politician for Player 1
+    player2Politician: "Rahul Gandhi", // Default politician for Player 2
+    aiDifficulty: "EASY", // Default AI difficulty
+    randomEventsEnabled: true // Enable random events by default
+  };
+
+  localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
+  console.log("Game configuration initialized:", gameConfig);
+
+  // Set up leader cards dynamically
+  const cardStack = document.getElementById("card-stack");
+  cardStack.style.display = "grid";
+  cardStack.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
+  cardStack.style.gap = "1rem";
+
+  let politiciansData;
+  fetch("./politicians-data.json")
+    .then((response) => response.json())
+    .then((data) => {
+      politiciansData = data;
+
+      const leaders = politiciansData.politicians;      cardStack.innerHTML = leaders
+        .map(
+          (leader) => `
+        <div class="card-container">
+          <div class="politician-image-container">
+            <img src="${leader.image}" alt="${leader.name}" class="politician-image" />
+            <img src="${leader.partyLogo}" alt="${leader.party}" class="party-logo" />
+          </div>
+          <div class="card-content">
+            <h3 class="politician-name">${leader.name}</h3>
+            <p class="politician-party">${leader.party}</p>
+            <div class="policies-grid">
+              ${leader.policies
+                .map(
+                  (policy) => `
+                    <div class="policy-item-wrapper" style="background: ${leader.primaryColor};">
+                      <p class="policy-label">${policy.name}</p>
+                      <p class="policy-score">+${policy.bonus}%</p>
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+          </div>
+        </div>
+      `
+        )
+        .join("");      let currentIndex = 0;
+      let selectedPolitician = null;
+      
+      const updateCarousel = () => {
+        const cards = document.querySelectorAll(".card-container");
+        cards.forEach((card, index) => {
+          card.classList.remove("active", "prev", "next", "hidden");
+          if (index === currentIndex) {
+            card.classList.add("active");
+          } else if (index === currentIndex - 1) {
+            card.classList.add("prev");
+          } else if (index === currentIndex + 1) {
+            card.classList.add("next");
+          } else {
+            card.classList.add("hidden");
+          }
+        });
+      };
+
+      document.getElementById("prev-btn").addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + leaders.length) % leaders.length;
+        updateCarousel();
+      });
+
+      document.getElementById("next-btn").addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % leaders.length;
+        updateCarousel();
+      });
+
+      // Make selectCurrentPolitician globally available
+      window.selectCurrentPolitician = () => {
+        selectedPolitician = leaders[currentIndex];
+        gameConfig.player1Politician = selectedPolitician.name;
+        
+        // Randomly select AI opponent (different from player selection)
+        const availableOpponents = leaders.filter(leader => leader.name !== selectedPolitician.name);
+        const aiOpponent = availableOpponents[Math.floor(Math.random() * availableOpponents.length)];
+        gameConfig.player2Politician = aiOpponent.name;
+        
+        localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
+        console.log("Player selected:", selectedPolitician.name);
+        console.log("AI opponent:", aiOpponent.name);
+
+        // Update Step 3 with selections
+        updateStep3Display(selectedPolitician, aiOpponent);
+
+        // Show game options screen
+        document.getElementById("step-2").classList.add("hidden");
+        document.getElementById("step-3").classList.remove("hidden");
+      };
+
+      updateCarousel();
+    })
+    .catch((error) => console.error("Error loading politicians data:", error));
+
+  console.log("Leader cards set up successfully.");
+}
+
+// Function to update Step 3 display with selected politicians
+function updateStep3Display(playerPolitician, aiPolitician) {
+  // Update player selection display
+  const playerSummary = document.getElementById("player-summary");
+  playerSummary.innerHTML = `
+    <div class="politician-summary">
+      <div class="politician-image-container-small">
+        <img src="${playerPolitician.image}" alt="${playerPolitician.name}" class="politician-image-small" />
+        <img src="${playerPolitician.partyLogo}" alt="${playerPolitician.party}" class="party-logo-small" />
+      </div>
+      <div class="politician-info">
+        <h4 class="politician-name-small">${playerPolitician.name}</h4>
+        <p class="politician-party-small">${playerPolitician.party}</p>
+      </div>
+    </div>
+  `;
+
+  // Update AI opponent display
+  const aiSummary = document.getElementById("ai-summary");
+  aiSummary.innerHTML = `
+    <div class="politician-summary">
+      <div class="politician-image-container-small">
+        <img src="${aiPolitician.image}" alt="${aiPolitician.name}" class="politician-image-small" />
+        <img src="${aiPolitician.partyLogo}" alt="${aiPolitician.party}" class="party-logo-small" />
+      </div>
+      <div class="politician-info">
+        <h4 class="politician-name-small">${aiPolitician.name}</h4>
+        <p class="politician-party-small">${aiPolitician.party}</p>
+      </div>
+    </div>
+  `;
+}
