@@ -39,10 +39,48 @@ body {
   font-family: "Rubik", Arial, sans-serif;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
   background: var(--bg-dark);
   color: var(--text-light);
   max-height: 100vh;
+}
+
+/* Ad Banner Styles */
+.ad-banner-container {
+  width: 100%;
+  background: var(--bg-darker);
+  border-bottom: 1px solid var(--bg-lighter);
+  padding: 10px;
+  text-align: center;
+  min-height: 90px;
+  max-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Style the ad unit itself */
+.ad-banner-container .adsbygoogle {
+  width: 100%;
+  height: 90px;
+  display: block !important;
+}
+
+/* Fallback styling when ads don't load */
+.ad-banner-container:empty::after {
+  content: "Advertisement";
+  color: var(--text-light);
+  opacity: 0.5;
+  font-size: 12px;
+}
+
+/* Game container to hold the three panes */
+.game-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* Layout styles */
@@ -55,7 +93,7 @@ body {
   );
   padding: 20px;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -66,7 +104,7 @@ body {
   flex: 1;
   background: var(--bg-dark);
   padding: 0;
-  height: 100vh;
+  height: 100%;
   overflow: visible;
   position: relative;
   min-width: 0;
@@ -82,7 +120,7 @@ body {
   );
   padding: 12px;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
-  height: 100vh;
+  height: 100%;
   overflow-y: auto; /* Allow scrolling */
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
 }
