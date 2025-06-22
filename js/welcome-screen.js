@@ -152,14 +152,21 @@ async function signInWithGoogle() {
     setupDifficultySelection();
 
     // Set up start game functionality
-    setupStartGameFunction();
-
-    // Display user information on the screen
+    setupStartGameFunction();    // Display user information on the screen
     const userInfoDisplay = document.getElementById("user-info-display");
+    
+    // Debug: Log the photo URL
+    console.log("User photo URL:", user.photoURL);
+    
+    // Create fallback for photo URL
+    const photoURL = user.photoURL || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNEREREREQiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMiAxMkMxNC4yMDkxIDEyIDE2IDEwLjIwOTEgMTYgOEMxNiA1Ljc5MDg2IDE0LjIwOTEgNCAxMiA0QzkuNzkwODYgNCA4IDUuNzkwODYgOCA4QzggMTAuMjA5MSA5Ljc5MDg2IDEyIDEyIDEyWiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNMTIgMTRDOC4xMzQwMSAxNCA1IDE3LjEzNDAxIDUgMjFIMTlDMTkgMTcuMTM0MDEgMTUuODY2IDE0IDEyIDE0WiIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4KPC9zdmc+';
+    const displayName = user.displayName || "User";
+    
     userInfoDisplay.innerHTML = `
       <div class="user-info">
-        <img src="${user.photoURL}" alt="${user.displayName}" class="user-photo" />
-        <p class="user-name">Welcome, ${user.displayName}!</p>
+        <img src="${photoURL}" alt="${displayName}" class="user-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="user-photo-fallback" style="display: none; width: 40px; height: 40px; border-radius: 50%; background: #ddd; align-items: center; justify-content: center; font-weight: bold; color: #666;">${displayName.charAt(0).toUpperCase()}</div>
+        <p class="user-name">Welcome, ${displayName}!</p>
       </div>
     `;
     userInfoDisplay.style.display = "block";    // Add a variable to indicate sign-in success
@@ -257,26 +264,41 @@ document.addEventListener("DOMContentLoaded", () => {
 function checkSignInStatus() {
   const signInSuccessful = localStorage.getItem("signInSuccessful");
   const urlHash = window.location.hash;
-  
-  if (signInSuccessful === "true" && urlHash === "#step-2") {
+    if (signInSuccessful === "true" && urlHash === "#step-2") {
     // User is already signed in and wants to go to candidate selection
     const userData = localStorage.getItem("user");
     if (userData) {
       const user = JSON.parse(userData);
       
-      // Set up the game as if they just signed in
+      // Debug: Log the user data to see what we have
+      console.log("Stored user data:", user);
+      
+      // Use the correct property name (we stored 'name', not 'displayName')
+      const displayName = user.name || user.displayName || "User";
+        // Set up the game as if they just signed in
       setupGameAfterSignIn(user);      
       
       // Show candidate selection screen directly
       document.getElementById("step-2").classList.remove("hidden");
       document.getElementById("google-sign-in-btn").classList.add("hidden");
       
-      // Display user information
+      // Set up difficulty selection and start game functionality
+      setupDifficultySelection();
+      setupStartGameFunction();
+        // Display user information
       const userInfoDisplay = document.getElementById("user-info-display");
+      
+      // Debug: Log the photo URL
+      console.log("User photo URL:", user.photoURL);
+      
+      // Create fallback for photo URL
+      const photoURL = user.photoURL || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNEREREREQiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMiAxMkMxNC4yMDkxIDEyIDE2IDEwLjIwOTEgMTYgOEMxNiA1Ljc5MDg2IDE0LjIwOTEgNCAxMiA0QzkuNzkwODYgNCA4IDUuNzkwODYgOCA4QzggMTAuMjA5MSA5Ljc5MDg2IDEyIDEyIDEyWiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNMTIgMTRDOC4xMzQwMSAxNCA1IDE3LjEzNDAxIDUgMjFIMTlDMTkgMTcuMTM0MDEgMTUuODY2IDE0IDEyIDE0WiIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4KPC9zdmc+';
+      
       userInfoDisplay.innerHTML = `
         <div class="user-info">
-          <img src="${user.photoURL}" alt="${user.displayName}" class="user-photo" />
-          <p class="user-name">Welcome back, ${user.displayName}!</p>
+          <img src="${photoURL}" alt="${displayName}" class="user-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="user-photo-fallback" style="display: none; width: 40px; height: 40px; border-radius: 50%; background: #ddd; align-items: center; justify-content: center; font-weight: bold; color: #666;">${displayName.charAt(0).toUpperCase()}</div>
+          <p class="user-name">Welcome back, ${displayName}!</p>
         </div>
       `;
       userInfoDisplay.style.display = "block";
@@ -286,9 +308,12 @@ function checkSignInStatus() {
 
 // Extract common setup logic into a separate function
 function setupGameAfterSignIn(user) {
+  // Use the correct property name (we stored 'name', not 'displayName')
+  const displayName = user.name || user.displayName || "User";
+  
   // Initialize game configuration
   const gameConfig = {
-    playerName: user.displayName,
+    playerName: displayName,
     player1Politician: "Narendra Modi", // Default politician for Player 1
     player2Politician: "Rahul Gandhi", // Default politician for Player 2
     aiDifficulty: "EASY", // Default AI difficulty
