@@ -7,7 +7,6 @@ class HomeStateBonus {
     this.player1HomeState = null;
     this.player2HomeState = null;
   }
-
   async initialize() {
     if (this.initialized) return;
 
@@ -17,17 +16,31 @@ class HomeStateBonus {
       if (storedConfig) {
         const gameConfig = JSON.parse(storedConfig);
 
+        // Load politicians data to get home states
+        const response = await fetch("./politicians-data.json");
+        const politiciansData = await response.json();
+
         // Find home states from politicians data
         if (gameConfig.player1Politician) {
-          this.player1HomeState = gameConfig.player1Politician.homeState;
+          const player1Data = politiciansData.politicians.find(
+            politician => politician.name === gameConfig.player1Politician
+          );
+          if (player1Data) {
+            this.player1HomeState = player1Data.homeState;
+          }
         }
 
         if (gameConfig.player2Politician) {
-          this.player2HomeState = gameConfig.player2Politician.homeState;
+          const player2Data = politiciansData.politicians.find(
+            politician => politician.name === gameConfig.player2Politician
+          );
+          if (player2Data) {
+            this.player2HomeState = player2Data.homeState;
+          }
         }
 
         console.log(
-          `Initialized home states - Player 1: ${this.player1HomeState}, Player 2: ${this.player2HomeState}`,
+          `Initialized home states - Player 1: ${this.player1HomeState} (${gameConfig.player1Politician}), Player 2: ${this.player2HomeState} (${gameConfig.player2Politician})`,
         );
         this.initialized = true;
       }
@@ -273,3 +286,40 @@ class HomeStateBonus {
 
 // Create and export a singleton instance
 export const homeStateBonus = new HomeStateBonus();
+
+// Add global test function for debugging
+window.testBonusSystem = async function() {
+  console.log("🔧 Testing Home State and Campaign Bonus System...");
+
+  try {
+    // Test home state bonus initialization
+    await homeStateBonus.initialize();
+
+    console.log("✅ Home State Bonus initialized");
+    console.log(`Player 1 home state: ${homeStateBonus.getPlayerHomeState(1)}`);
+    console.log(`Player 2 home state: ${homeStateBonus.getPlayerHomeState(2)}`);
+
+    // Test campaign bonus initialization
+    if (window.initializeCampaignProgressFromPoliticianBonuses) {
+      window.initializeCampaignProgressFromPoliticianBonuses();
+      console.log("✅ Campaign bonuses initialized");
+    } else {
+      console.log("❌ Campaign bonus initialization function not found");
+    }
+
+    // Test policy mapping
+    const gameConfig = JSON.parse(localStorage.getItem("gameConfig") || "{}");
+    if (gameConfig.player1Politician && gameConfig.player2Politician) {
+      console.log(`Game config loaded: P1=${gameConfig.player1Politician}, P2=${gameConfig.player2Politician}`);
+    } else {
+      console.log("❌ Game config not properly set");
+    }
+
+    console.log("🎉 Bonus system test complete! Check console for details.");
+
+  } catch (error) {
+    console.error("❌ Error testing bonus system:", error);
+  }
+};
+
+console.log("💡 Use window.testBonusSystem() to test the bonus system after selecting politicians");

@@ -118,21 +118,28 @@ async function signInWithGoogle() {
         document.getElementById("next-btn").addEventListener("click", () => {
           currentIndex = (currentIndex + 1) % leaders.length;
           updateCarousel();
-        });
-
-        // Make selectCurrentPolitician globally available
+        });        // Make selectCurrentPolitician globally available
         window.selectCurrentPolitician = () => {
           selectedPolitician = leaders[currentIndex];
           gameConfig.player1Politician = selectedPolitician.name;
           
-          // Randomly select AI opponent (different from player selection)
-          const availableOpponents = leaders.filter(leader => leader.name !== selectedPolitician.name);
-          const aiOpponent = availableOpponents[Math.floor(Math.random() * availableOpponents.length)];
+          // Randomly select AI opponent (different party from player selection)
+          const availableOpponents = leaders.filter(leader => 
+            leader.name !== selectedPolitician.name && 
+            leader.party !== selectedPolitician.party
+          );
+          
+          // If no opponents from different parties, fall back to different politicians
+          const finalOpponents = availableOpponents.length > 0 ? 
+            availableOpponents : 
+            leaders.filter(leader => leader.name !== selectedPolitician.name);
+            
+          const aiOpponent = finalOpponents[Math.floor(Math.random() * finalOpponents.length)];
           gameConfig.player2Politician = aiOpponent.name;
           
           localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
-          console.log("Player selected:", selectedPolitician.name);
-          console.log("AI opponent:", aiOpponent.name);
+          console.log("Player selected:", selectedPolitician.name, `(${selectedPolitician.party})`);
+          console.log("AI opponent:", aiOpponent.name, `(${aiOpponent.party})`);
 
           // Update Step 3 with selections
           updateStep3Display(selectedPolitician, aiOpponent);
@@ -144,7 +151,7 @@ async function signInWithGoogle() {
 
         updateCarousel();
       })
-      .catch((error) => console.error("Error loading politicians data:", error));    console.log("Leader cards set up successfully.");    // Redirect to candidate selection screen
+      .catch((error) => console.error("Error loading politicians data:", error));    console.log("Leader cards set up successfully.");// Redirect to candidate selection screen
     document.getElementById("step-2").classList.remove("hidden");
     document.getElementById("google-sign-in-btn").classList.add("hidden");
 
@@ -389,21 +396,28 @@ function setupGameAfterSignIn(user) {
       document.getElementById("next-btn").addEventListener("click", () => {
         currentIndex = (currentIndex + 1) % leaders.length;
         updateCarousel();
-      });
-
-      // Make selectCurrentPolitician globally available
+      });      // Make selectCurrentPolitician globally available
       window.selectCurrentPolitician = () => {
         selectedPolitician = leaders[currentIndex];
         gameConfig.player1Politician = selectedPolitician.name;
         
-        // Randomly select AI opponent (different from player selection)
-        const availableOpponents = leaders.filter(leader => leader.name !== selectedPolitician.name);
-        const aiOpponent = availableOpponents[Math.floor(Math.random() * availableOpponents.length)];
+        // Randomly select AI opponent (different party from player selection)
+        const availableOpponents = leaders.filter(leader => 
+          leader.name !== selectedPolitician.name && 
+          leader.party !== selectedPolitician.party
+        );
+        
+        // If no opponents from different parties, fall back to different politicians
+        const finalOpponents = availableOpponents.length > 0 ? 
+          availableOpponents : 
+          leaders.filter(leader => leader.name !== selectedPolitician.name);
+          
+        const aiOpponent = finalOpponents[Math.floor(Math.random() * finalOpponents.length)];
         gameConfig.player2Politician = aiOpponent.name;
         
         localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
-        console.log("Player selected:", selectedPolitician.name);
-        console.log("AI opponent:", aiOpponent.name);
+        console.log("Player selected:", selectedPolitician.name, `(${selectedPolitician.party})`);
+        console.log("AI opponent:", aiOpponent.name, `(${aiOpponent.party})`);
 
         // Update Step 3 with selections
         updateStep3Display(selectedPolitician, aiOpponent);
