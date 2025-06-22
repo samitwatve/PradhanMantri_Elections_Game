@@ -7,10 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles/welcome-screen.css" />
   </head>
-  <body class="antialiased">
-    <div class="welcome-container">
+  <body class="antialiased">    <div class="welcome-container">
       <h1 class="game-title">India Elections Game</h1>
       <p class="game-subtitle">Sign in to start your journey!</p>
+
+      <!-- User Info Display (hidden by default) -->
+      <div id="user-info-display" class="user-info-container" style="display: none;">
+        <!-- User info will be populated here after sign-in -->
+      </div>
 
       <button id="google-sign-in-btn" class="start-game-btn">
         Sign in with Google

@@ -187,6 +187,16 @@ async function signInWithGoogle() {
 
     // Set up start game functionality
     setupStartGameFunction();
+
+    // Display user information on the screen
+    const userInfoDisplay = document.getElementById("user-info-display");
+    userInfoDisplay.innerHTML = `
+      <div class="user-info">
+        <img src="${user.photoURL}" alt="${user.displayName}" class="user-photo" />
+        <p class="user-name">Welcome, ${user.displayName}!</p>
+      </div>
+    `;
+    userInfoDisplay.style.display = "block";
   } catch (error) {
     console.error("Error during Google Sign-In:", error);
     alert(`Failed to sign in. Error: ${error.message}`);

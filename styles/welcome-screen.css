@@ -692,3 +692,63 @@ body::before {
   font-size: 1.2rem;
   font-weight: 600;
 }
+
+/* User Info Display Styles */
+.user-info-container {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.user-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-gold);
+  object-fit: cover;
+}
+
+.user-name {
+  color: var(--accent-gold);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .user-info-container {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .user-info {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  .user-photo {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .user-name {
+    font-size: 0.875rem;
+  }
+}
